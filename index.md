@@ -1,1 +1,1 @@
-[SQL](_posts/2020-9-24-first.md)
+[C++](_posts/2020-9-24-first.md)
