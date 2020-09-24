@@ -1,1 +1,1 @@
-[SQL](_posts/2020-9-24-first.html)
+[cpp知识点摘录](_posts/2020-9-24-first.html)
