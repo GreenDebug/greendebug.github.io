@@ -1,1 +1,1 @@
-[cpp知识点摘录](_posts\2020-9-24-cpp.html)
+[cpp知识点摘录](_posts\2020-9-24-cpp.md)
