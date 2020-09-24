@@ -1,2 +1,5 @@
+relative_links:
+  enabled: true
+  collections: true
 title: csjue notesbook
 theme: jekyll-theme-cayman
