@@ -12,5 +12,5 @@ include:
   - CONTRIBUTING.md
   - ISSUE_TEMPLATE.md
   - PULL_REQUEST_TEMPLATE.md
-title: csjue notesbook
+title: csjue's notebook
 theme: jekyll-theme-cayman
