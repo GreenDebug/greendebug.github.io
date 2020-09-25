@@ -2,8 +2,6 @@
 
 本文算法用Java实现 持续更新。
 
-![sas](https://raw.githubusercontent.com/csjue/csjue.github.io/master/_posts/images/20200925151749121212.jpg)
-
 ### 并查集 union-find
 多个集合，将两个元素合并到一个集合（union），看两个元素是否在同一集合（find）
 
