@@ -14,5 +14,5 @@ include:
   - PULL_REQUEST_TEMPLATE.md
 title: csjue's notebook
 email: csjue_sz@foxmail.com 
- github_username: csjue
+github_username: csjue
 theme: jekyll-theme-cayman
