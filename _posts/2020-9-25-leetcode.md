@@ -4346,3 +4346,139 @@ class Solution {
 ~~~
 
 击败99%
+
+### Q[48旋转图像](https://leetcode-cn.com/problems/rotate-image/)
+
+难度 中等
+
+给定一个 *n* × *n* 的二维矩阵表示一个图像。
+
+将图像顺时针旋转 90 度。
+
+**说明：**
+
+你必须在**[原地](https://baike.baidu.com/item/原地算法)**旋转图像，这意味着你需要直接修改输入的二维矩阵。**请不要**使用另一个矩阵来旋转图像。
+
+**示例 1:**
+
+```
+给定 matrix = 
+[
+  [1,2,3],
+  [4,5,6],
+  [7,8,9]
+],
+
+原地旋转输入矩阵，使其变为:
+[
+  [7,4,1],
+  [8,5,2],
+  [9,6,3]
+]
+```
+
+**示例 2:**
+
+```
+给定 matrix =
+[
+  [ 5, 1, 9,11],
+  [ 2, 4, 8,10],
+  [13, 3, 6, 7],
+  [15,14,12,16]
+], 
+
+原地旋转输入矩阵，使其变为:
+[
+  [15,13, 2, 5],
+  [14, 3, 4, 1],
+  [12, 6, 8, 9],
+  [16, 7,10,11]
+]
+```
+
+跟之前一个螺旋矩阵有一丝相似。
+
+每次定位四个点，四个点互相交换。每次向里进一层。
+
+~~~java
+           class Solution {
+    public void rotate(int[][] matrix) {
+        if(matrix.length == 0) return ;
+        int n = matrix.length;
+        for(int t = 0;t<matrix.length/2;t++){
+            int x1 = t,y1 = t;
+            int x2 = t,y2 = n-t-1;
+            int x3 = n-t-1,y3 = n-t-1;
+            int x4 = n-t-1,y4 = t;
+            for(int i = t;i<matrix.length-t-1;i++){
+                int temp = matrix[x1][y1];
+                matrix[x1][y1] = matrix[x4][y4];
+                int temp2 = matrix[x2][y2];
+                matrix[x2][y2] = temp;
+                temp = matrix[x3][y3];
+                matrix[x3][y3] = temp2;
+                matrix[x4][y4] = temp;
+                y1++;
+                x2++;
+                y3--;
+                x4--;
+            }
+        }
+    }
+}
+~~~
+
+击败100%
+
+### Q[96不同的二叉搜索树](https://leetcode-cn.com/problems/unique-binary-search-trees/)
+
+难度 中等
+
+给定一个整数 *n*，求以 1 ... *n* 为节点组成的二叉搜索树有多少种？
+
+**示例:**
+
+```
+输入: 3
+输出: 5
+解释:
+给定 n = 3, 一共有 5 种不同结构的二叉搜索树:
+
+   1         3     3      2      1
+    \       /     /      / \      \
+     3     2     1      1   3      2
+    /     /       \                 \
+   2     1         2                 3
+```
+
+看到就知道应该是dp问题了，但是还是不会写。
+
+G（n）表示有多少种结构，F（i，n）表示以i为根 n为长度
+
+G（n）=ΣF（i，n）
+
+F（i，n）=G（i-1）×G（n-i） （乘法原则 左右子树）
+
+G（0）= G（1）= 1
+
+~~~java
+class Solution {
+    public int numTrees(int n) {
+        int[] dp = new int[n+1];
+        dp[0] = 1;
+        dp[1] = 1;
+        for(int i=2;i<=n;i++){
+            for(int j=1;j<=i;j++){
+                dp[i] += dp[j-1]*dp[i-j];
+            }
+        }
+        return dp[n];
+    }
+}
+~~~
+
+由于递推公式的n与代码的n不同，写了个挺深的bug
+
+击败100%
+
