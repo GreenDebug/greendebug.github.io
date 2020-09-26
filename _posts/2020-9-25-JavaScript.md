@@ -107,9 +107,17 @@ var person = {
 
 键是字符串 值是任意类型
 
-获取对象用 类名.键
+获取对象用 类名.键 也可以索引 ['age']
 
+可以随意增加 删除 (delete)属性
 
+可以用in 检测有没有属性 也有可能是继承来的属性
+
+```
+'name' in xiaoming; 
+```
+
+hasOwnProperty()可以排除掉继承
 
 ## 字符串
 
@@ -141,3 +149,72 @@ alert(message);
 toUpperCase() toLowerCase() IndexOf substring()
 
 substring(n) 从n开始 不包括
+
+## 循环
+
+for
+
+```
+for (i=1; i<=10000; i++) {
+    x = x + i;
+}
+```
+
+for in
+
+```
+var o = {
+    name: 'Jack',
+    age: 20,
+    city: 'Beijing'
+};
+for (var key in o) {
+    console.log(key); // 'name', 'age', 'city'
+}
+```
+
+要过滤掉对象继承的属性，用`hasOwnProperty()`来实现：
+
+```
+var o = {
+    name: 'Jack',
+    age: 20,
+    city: 'Beijing'
+};
+for (var key in o) {
+    if (o.hasOwnProperty(key)) {
+        console.log(key); // 'name', 'age', 'city'
+    }
+```
+
+```
+var a = ['A', 'B', 'C'];
+for (var i in a) {
+    console.log(i); // '0', '1', '2'
+    console.log(a[i]); // 'A', 'B', 'C'
+}
+```
+
+Array遍历得到的是string
+
+while
+
+```
+var x = 0;
+var n = 99;
+while (n > 0) {
+    x = x + n;
+    n = n - 2;
+}
+x; // 2500
+```
+
+do while
+
+```
+var n = 0;
+do {
+    n = n + 1;
+} while (n < 100);
+n; // 100
+```
