@@ -4482,3 +4482,106 @@ class Solution {
 
 击败100%
 
+### [Q55跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
+
+难度 中等
+
+给定一个非负整数数组，你最初位于数组的第一个位置。
+
+数组中的每个元素代表你在该位置可以跳跃的最大长度。
+
+判断你是否能够到达最后一个位置。
+
+**示例 1:**
+
+```
+输入: [2,3,1,1,4]
+输出: true
+解释: 我们可以先跳 1 步，从位置 0 到达 位置 1, 然后再从位置 1 跳 3 步到达最后一个位置。
+```
+
+**示例 2:**
+
+```
+输入: [3,2,1,0,4]
+输出: false
+解释: 无论怎样，你总会到达索引为 3 的位置。但该位置的最大跳跃长度是 0 ， 所以你永远不可能到达最后一个位置。
+```
+
+这题是白送的，只要记录能跳到最远位置就可以了
+
+~~~java
+class Solution {
+    public boolean canJump(int[] nums) {
+        int max = 0;
+        for(int i = 0; max<nums.length && i <= max;i++){
+            max = max>i+nums[i]?max:i+nums[i];
+        }
+        if(max >= nums.length-1) return true;
+        return false;
+    }
+}
+~~~
+
+击败99%
+
+### [Q287寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)
+
+难度 中等
+
+给定一个包含 *n* + 1 个整数的数组 *nums*，其数字都在 1 到 *n* 之间（包括 1 和 *n*），可知至少存在一个重复的整数。假设只有一个重复的整数，找出这个重复的数。
+
+**示例 1:**
+
+```
+输入: [1,3,4,2,2]
+输出: 2
+```
+
+**示例 2:**
+
+```
+输入: [3,1,3,4,2]
+输出: 3
+```
+
+**说明：**
+
+1. **不能**更改原数组（假设数组是只读的）。
+2. 只能使用额外的 *O*(1) 的空间。
+3. 时间复杂度小于 *O*(*n*2) 。
+4. 数组中只有一个重复的数字，但它可能不止重复出现一次。
+
+这题限制条件很多，不好写。用快慢指针法，龟兔赛跑，可以判断出环。但是没法猜出哪个是入口
+
+a为起点到入口距离。b为环中已走，c为环剩下。L为环长
+
+L = b+c
+
+2(a+b) = kL+a+b
+
+
+
+a = kL-b
+
+此时把慢指针移到起点，快慢指针一次只走一步。 当慢指针走到起点时 走了a，快指针kL + a + b +kL - b，快指针也走到路口。
+
+~~~java
+class Solution {
+    public int findDuplicate(int[] nums) {
+        int fast = 0,slow = 0;
+        do{
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        }while(slow!=fast);
+        slow = 0;
+        while(slow!=fast){
+            slow = nums[slow];
+            fast = nums[fast];
+        }
+        return slow;
+    }
+}
+~~~
+
+击败100%
