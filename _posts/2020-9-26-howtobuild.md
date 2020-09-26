@@ -1,9 +1,4 @@
-
-![img](https://pic3.zhimg.com/v2-2485f3a42c19fcf3798572929d718c22_b.png)
-
-![img](https://pic4.zhimg.com/v2-203080140419cfb4d6f01b2e882be5d7_b.png)
-
-效果大概是这样，可以到 [csjue](http://csjue.github.io/)这去看，[仓库](https://github.com/csjue/csjue.github.io)
+[仓库](https://github.com/csjue/csjue.github.io)
 
 我的需求是，在pc端写markdown，需要能同步，偶尔要在手机上查看。尽量能保存markdown源码。
 
