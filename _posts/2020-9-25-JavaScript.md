@@ -507,6 +507,8 @@ arr.reduce(function (x, y) {
 
 #### filter
 
+返回值为真 保留
+
 ```
 var arr = [1, 2, 4, 5, 6, 9, 10, 15];
 var r = arr.filter(function (x) {
@@ -514,3 +516,57 @@ var r = arr.filter(function (x) {
 });
 r; // [1, 5, 9, 15]
 ```
+
+#### sort
+
+包括数组，也是按字典序    会直接修改
+
+~~~javascript
+arr.sort(function (x, y) {
+    if (x < y) {
+        return -1;
+    }
+    if (x > y) {
+        return 1;
+    }
+    return 0;
+});
+~~~
+
+#### every
+
+~~~javascript
+var arr = ['Apple', 'pear', 'orange'];
+console.log(arr.every(function (s) {
+    return s.length > 0;
+})); // true, 因为每个元素都满足s.length>0
+~~~
+
+#### find
+
+~~~javascript
+var arr = ['Apple', 'pear', 'orange'];
+console.log(arr.find(function (s) {
+    return s.toLowerCase() === s;
+})); // 'pear', 因为pear全部是小写
+~~~
+
+#### findIndex
+
+返回索引
+
+### 闭包
+
+```
+function lazy_sum(arr) {
+    var sum = function () {
+        return arr.reduce(function (x, y) {
+            return x + y;
+        });
+    }
+    return sum;
+}
+var f = lazy_sum([1,2,3,4,5])//并不会计算
+f();//会计算
+```
+

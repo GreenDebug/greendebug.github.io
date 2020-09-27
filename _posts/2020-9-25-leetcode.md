@@ -4585,3 +4585,161 @@ class Solution {
 ~~~
 
 击败100%
+
+### Q[739每日温度](https://leetcode-cn.com/problems/daily-temperatures/)
+
+难度中等520
+
+请根据每日 `气温` 列表，重新生成一个列表。对应位置的输出为：要想观测到更高的气温，至少需要等待的天数。如果气温在这之后都不会升高，请在该位置用 `0` 来代替。
+
+例如，给定一个列表 `temperatures = [73, 74, 75, 71, 69, 72, 76, 73]`，你的输出应该是 `[1, 1, 4, 2, 1, 1, 0, 0]`。
+
+**提示：**`气温` 列表长度的范围是 `[1, 30000]`。每个气温的值的均为华氏度，都是在 `[30, 100]` 范围内的整数。
+
+
+
+一开始写了个n2的算法。看了题解，只要每个元素记住最近的，比他大的元素即可（不一定是最大）
+
+T[i-1]<T[i],这种情况直接赋值
+
+T[i-1]>=T[i]就去查询big[i] 查离他最近的元素
+
+记得赋值-1
+
+~~~java
+class Solution {
+    public int[] dailyTemperatures(int[] T) {
+        if(T.length == 0) return new int[0];
+        int[] big = new int[T.length];
+        big[T.length-1] = -1;
+        int[] pos = new int[T.length];
+        int temp = 0;
+        for(int i = T.length-1;i >= 1 ;i--) {
+            big[i-1] = -1;
+            if(T[i-1]<T[i]){
+                pos[i-1] = 1;
+                big[i-1] = i; 
+            }
+            else{
+                temp = big[i];
+                while(temp!=-1&&T[i-1]>=T[temp]){
+                    temp = big[temp];
+                }
+                if(temp!=-1&&T[i-1]<T[temp]){
+                    pos[i-1] = temp-i+1;
+                    big[i-1] = temp; 
+                }
+            }
+        }
+        return pos;
+    }
+}
+~~~
+
+击败98%
+
+### Q[169多数元素](https://leetcode-cn.com/problems/majority-element/)
+
+难度 简单
+
+给定一个大小为 *n* 的数组，找到其中的多数元素。多数元素是指在数组中出现次数**大于** `⌊ n/2 ⌋` 的元素。
+
+你可以假设数组是非空的，并且给定的数组总是存在多数元素。
+
+**示例 1:**
+
+```
+输入: [3,2,3]
+输出: 3
+```
+
+**示例 2:**
+
+```
+输入: [2,2,1,1,1,2,2]
+输出: 2
+```
+
+
+
+投票算法，先假定第一个是候选人maj，然后遍历数组，当x==maj count++，x!=maj count--，当count==0换届。
+
+不用害怕真正的候选人选不上。当他不是候选人时，会把假的票下去，当他是真的，假的不会把他压倒。
+
+~~~java
+class Solution {
+    public int majorityElement(int[] nums) {
+        int maj = nums[0];
+        int count = 0;
+        for(int i :nums){
+            if(i == maj){
+                count ++;
+            }
+            else{
+                count --;
+                if(count == 0)
+                {    
+                    maj = i;
+                    count++;
+                }
+            }
+        }
+        return maj;
+    }
+}
+~~~
+
+击败99%
+
+### Q[283移动零](https://leetcode-cn.com/problems/move-zeroes/)
+
+难度 简单
+
+给定一个数组 `nums`，编写一个函数将所有 `0` 移动到数组的末尾，同时保持非零元素的相对顺序。
+
+**示例:**
+
+```
+输入: [0,1,0,3,12]
+输出: [1,3,12,0,0]
+```
+
+**说明**:
+
+1. 必须在原数组上操作，不能拷贝额外的数组。
+2. 尽量减少操作次数。
+
+两个指针，i遍历数组，j从i+1开始寻找0
+
+~~~java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        int i = 0,j = 0;
+        while(i < nums.length){
+            if(nums[i] == 0){
+                break;
+            }
+            i++;
+        }
+        while(i < nums.length&&j<nums.length){
+            if(nums[i] == 0){
+                j = i+1;
+                while(j < nums.length){
+                    if(nums[j]!=0)
+                        break;
+                    j++;
+                }
+                if(j>=nums.length)
+                    break;
+                int temp = nums[i];
+                nums[i] = nums[j];
+                nums[j] = temp;
+            }
+            i++;
+        }
+        return ;
+    }
+}
+~~~
+
+击败12%
