@@ -14,4 +14,3 @@ include:
   - PULL_REQUEST_TEMPLATE.md
 title: csjue's notebook
 theme: jekyll-theme-cayman
-favicon: /favicon.png
