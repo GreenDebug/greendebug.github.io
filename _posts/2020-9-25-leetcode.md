@@ -4850,3 +4850,136 @@ class Solution {
 
 击败70%
 
+### [Q867转置矩阵](https://leetcode-cn.com/problems/transpose-matrix/)
+
+难度 简单
+
+给定一个矩阵 `A`， 返回 `A` 的转置矩阵。
+
+矩阵的转置是指将矩阵的主对角线翻转，交换矩阵的行索引与列索引。
+
+**示例 1：**
+
+```
+输入：[[1,2,3],[4,5,6],[7,8,9]]
+输出：[[1,4,7],[2,5,8],[3,6,9]]
+```
+
+**示例 2：**
+
+```
+输入：[[1,2,3],[4,5,6]]
+输出：[[1,4],[2,5],[3,6]] 
+```
+
+**提示：**
+
+1. `1 <= A.length <= 1000`
+2. `1 <= A[0].length <= 1000`
+
+这个题白送
+
+~~~java
+class Solution {
+    public int[][] transpose(int[][] A) {
+        int n = A.length;
+        int m = A[0].length;
+        if(n == 0) return new int[0][0];
+        int[][] x = new int[m][n];
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                x[i][j] = A[j][i];
+            }
+        }
+        return x;
+    }
+}
+~~~
+
+击败100%
+
+### [Q117填充每个节点的下一个右侧节点指针 II](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node-ii/)
+
+难度中等269
+
+给定一个二叉树
+
+```
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 `NULL`。
+
+初始状态下，所有 next 指针都被设置为 `NULL`。
+
+ 
+
+**进阶：**
+
+- 你只能使用常量级额外空间。
+- 使用递归解题也符合要求，本题中递归程序占用的栈空间不算做额外的空间复杂度。
+
+ 
+
+**示例：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2019/02/15/117_sample.png)
+
+```
+输入：root = [1,2,3,4,5,null,7]
+输出：[1,#,2,3,#,4,5,7,#]
+解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。
+```
+
+ 
+
+**提示：**
+
+- 树中的节点数小于 `6000`
+- `-100 <= node.val <= 100`
+
+看到感觉很奇怪，这题咋会中等，用个队列就搞定了
+
+~~~java
+class Solution {
+    public Node connect(Node root) {
+        if(root == null) return null;
+        Queue<Node> queue = new LinkedList<>();
+        Queue<Integer> level = new LinkedList<>();
+        queue.add(root);
+        level.add(1);
+        int prel = 0;
+        Node preN = root;
+        Node n;
+        while (queue.isEmpty() != true) {
+            n = queue.poll();
+            int l = level.poll();
+            if (l == prel) {
+                preN.next = n;
+            }else{
+                preN.next = null;
+            }
+            preN = n;
+            prel = l;
+            if (n.left != null) {
+                queue.add(n.left);
+                level.add(l + 1);
+            }
+            if (n.right != null) {
+                queue.add(n.right);
+                level.add(l + 1);
+            }
+        }
+        return root;
+    }
+}
+~~~
+
+击败7%，真是打扰了
+
+原来得用递归啊。
