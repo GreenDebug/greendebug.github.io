@@ -4983,3 +4983,331 @@ class Solution {
 击败7%，真是打扰了
 
 原来得用递归啊。
+
+### Q[977有序数组的平方](https://leetcode-cn.com/problems/squares-of-a-sorted-array/)
+
+难度 简单
+
+给定一个按非递减顺序排序的整数数组 `A`，返回每个数字的平方组成的新数组，要求也按非递减顺序排序。
+
+
+
+**示例 1：**
+
+```
+输入：[-4,-1,0,3,10]
+输出：[0,1,9,16,100]
+```
+
+**示例 2：**
+
+```
+输入：[-7,-3,2,3,11]
+输出：[4,9,9,49,121]
+```
+
+ 
+
+**提示：**
+
+1. `1 <= A.length <= 10000`
+2. `-10000 <= A[i] <= 10000`
+3. `A` 已按非递减顺序排序。
+
+这题还不简单，我一开始想先找到零点，后来发现很复杂，要考虑很多特例。然后用了优先队列来求（杀鸡用牛刀
+
+~~~java
+class Solution {
+    public int[] sortedSquares(int[] A) {
+        if(A.length==0) return new int[0];
+        Queue<Integer> q = new PriorityQueue<>(new Comparator<Integer>() {
+            public int compare(Integer a, Integer b) {
+                return a-b;
+            }
+        });
+        for(int i:A){
+            q.add(i*i);
+        }
+        int[] t = new int[q.size()];
+        int i = 0;
+        while(q.size()!=0){
+            t[i++] = q.poll();
+        }
+        return t;
+    }
+}
+~~~
+
+不出意外 击败6%
+
+~~~java
+class Solution {
+    public int[] sortedSquares(int[] A) {
+        if (A.length == 0)
+            return new int[0];
+        int[] result = new int[A.length];
+        int i = A.length - 1;
+        int l = 0, r = A.length - 1;
+        while (r != l && l < A.length && r > -1) {
+            if (A[r] * A[r] >= A[l] * A[l]) {
+                result[i--] = A[r] * A[r];
+                r--;
+            } else {
+                result[i--] = A[l] * A[l];
+                l++;
+            }
+        }
+        if (l < A.length && r > -1)
+            result[0] = A[r] * A[r];
+        return result;
+    }
+}
+~~~
+
+改用双指针，从两边进，先赋值最大的。击败66%
+
+### Q[1528重新排列字符串](https://leetcode-cn.com/problems/shuffle-string/)
+
+难度 简单
+
+给你一个字符串 `s` 和一个 **长度相同** 的整数数组 `indices` 。
+
+请你重新排列字符串 `s` ，其中第 `i` 个字符需要移动到 `indices[i]` 指示的位置。
+
+返回重新排列后的字符串。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/07/26/q1.jpg)
+
+```
+输入：s = "codeleet", indices = [4,5,6,7,0,2,1,3]
+输出："leetcode"
+解释：如图所示，"codeleet" 重新排列后变为 "leetcode" 。
+```
+
+**示例 2：**
+
+```
+输入：s = "abc", indices = [0,1,2]
+输出："abc"
+解释：重新排列后，每个字符都还留在原来的位置上。
+```
+
+**示例 3：**
+
+```
+输入：s = "aiohn", indices = [3,1,4,2,0]
+输出："nihao"
+```
+
+**示例 4：**
+
+```
+输入：s = "aaiougrt", indices = [4,0,2,6,7,3,1,5]
+输出："arigatou"
+```
+
+**示例 5：**
+
+```
+输入：s = "art", indices = [1,0,2]
+输出："rat"
+```
+
+ 
+
+**提示：**
+
+- `s.length == indices.length == n`
+- `1 <= n <= 100`
+- `s` 仅包含小写英文字母。
+- `0 <= indices[i] < n`
+- `indices` 的所有的值都是唯一的（也就是说，`indices` 是整数 `0` 到 `n - 1` 形成的一组排列）。
+
+char数组一个个设
+
+~~~java
+class Solution {
+    public String restoreString(String s, int[] indices) {
+        char[] st = new char[s.length()];
+        for(int i=0;i<s.length();i++) 
+            st[indices[i]] = s.charAt(i);
+        return String.valueOf(st);
+    }
+}
+~~~
+
+击败53%
+
+### Q[1323 6和9 组成的最大数字](https://leetcode-cn.com/problems/maximum-69-number/)
+
+难度简单33
+
+给你一个仅由数字 6 和 9 组成的正整数 `num`。
+
+你最多只能翻转一位数字，将 6 变成 9，或者把 9 变成 6 。
+
+请返回你可以得到的最大数字。
+
+ 
+
+**示例 1：**
+
+```
+输入：num = 9669
+输出：9969
+解释：
+改变第一位数字可以得到 6669 。
+改变第二位数字可以得到 9969 。
+改变第三位数字可以得到 9699 。
+改变第四位数字可以得到 9666 。
+其中最大的数字是 9969 。
+```
+
+**示例 2：**
+
+```
+输入：num = 9996
+输出：9999
+解释：将最后一位从 6 变到 9，其结果 9999 是最大的数。
+```
+
+**示例 3：**
+
+```
+输入：num = 9999
+输出：9999
+解释：无需改变就已经是最大的数字了。
+```
+
+ 
+
+**提示：**
+
+- `1 <= num <= 10^4`
+- `num` 每一位上的数字都是 6 或者 9 。
+
+把string和num来回倒腾就可以了
+
+~~~java
+class Solution {
+    public int maximum69Number (int num) {
+        String s = ""+num;
+        for(int i=0;i<s.length();i++){
+            if(s.charAt(i) == '6'){
+                StringBuilder sb = new StringBuilder(s);
+                sb.setCharAt(i,'9');
+                return Integer.parseInt(sb.toString());
+            }
+        }
+        return num;
+    }
+}
+~~~
+
+击败24%
+
+
+
+### Q[260只出现一次的数字 III](https://leetcode-cn.com/problems/single-number-iii/)
+
+难度中等296
+
+给定一个整数数组 `nums`，其中恰好有两个元素只出现一次，其余所有元素均出现两次。 找出只出现一次的那两个元素。
+
+**示例 :**
+
+```
+输入: [1,2,1,3,2,5]
+输出: [3,5]
+```
+
+**注意：**
+
+1. 结果输出的顺序并不重要，对于上面的例子， `[5, 3]` 也是正确答案。
+2. 你的算法应该具有线性时间复杂度。你能否仅使用常数空间复杂度来实现？
+
+利用Hashmap求解
+
+~~~java
+class Solution {
+    public int[] singleNumber(int[] nums) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (int i : nums) {
+            map.put(i, map.getOrDefault(i, 0) + 1);
+        }
+        int[] ans = new int[2];
+        int pos = 0;
+        for (int i : nums) {
+            if (map.get(i) == 1)
+                ans[pos++] = i;
+            if (pos == 2)
+                return ans;
+        }
+        return ans;
+    }
+}
+~~~
+
+击败15%
+
+### Q[933最近的请求次数](https://leetcode-cn.com/problems/number-of-recent-calls/)
+
+难度  简单
+
+写一个 `RecentCounter` 类来计算最近的请求。
+
+它只有一个方法：`ping(int t)`，其中 `t` 代表以毫秒为单位的某个时间。
+
+返回从 3000 毫秒前到现在的 `ping` 数。
+
+任何处于 `[t - 3000, t]` 时间范围之内的 `ping` 都将会被计算在内，包括当前（指 `t` 时刻）的 `ping`。
+
+保证每次对 `ping` 的调用都使用比之前更大的 `t` 值。
+
+ 
+
+**示例：**
+
+```
+输入：inputs = ["RecentCounter","ping","ping","ping","ping"], inputs = [[],[1],[100],[3001],[3002]]
+输出：[null,1,2,3,3]
+```
+
+ 
+
+**提示：**
+
+1. 每个测试用例最多调用 `10000` 次 `ping`。
+2. 每个测试用例会使用严格递增的 `t` 值来调用 `ping`。
+3. 每次调用 `ping` 都有 `1 <= t <= 10^9`。
+
+ 这个题也是白送。只要两个指针，一个记住空位置，一个记住最近的时间
+
+~~~java
+class RecentCounter {
+    int[] x;
+    int pos;
+    int times;
+
+    public RecentCounter() {
+        x = new int[10000];
+        pos = 0;
+        times = 0;
+    }
+    
+    public int ping(int t) {
+        x[pos++] = t;
+        while(times<pos&&t-x[times]>3000){
+            times++;
+        }
+        return pos-times;
+    }
+}
+~~~
+
+击败73%
+
