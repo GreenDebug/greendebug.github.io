@@ -5311,3 +5311,76 @@ class RecentCounter {
 
 击败73%
 
+### Q[474一和零](https://leetcode-cn.com/problems/ones-and-zeroes/)
+
+难度 中等
+
+在计算机界中，我们总是追求用有限的资源获取最大的收益。
+
+现在，假设你分别支配着 **m** 个 `0` 和 **n** 个 `1`。另外，还有一个仅包含 `0` 和 `1` 字符串的数组。
+
+你的任务是使用给定的 **m** 个 `0` 和 **n** 个 `1` ，找到能拼出存在于数组中的字符串的最大数量。每个 `0` 和 `1` 至多被使用**一次**。
+
+ 
+
+**示例 1:**
+
+```
+输入: strs = ["10", "0001", "111001", "1", "0"], m = 5, n = 3
+输出: 4
+解释: 总共 4 个字符串可以通过 5 个 0 和 3 个 1 拼出，即 "10","0001","1","0" 。
+```
+
+**示例 2:**
+
+```
+输入: strs = ["10", "0", "1"], m = 1, n = 1
+输出: 2
+解释: 你可以拼出 "10"，但之后就没有剩余数字了。更好的选择是拼出 "0" 和 "1" 。
+```
+
+ 
+
+**提示：**
+
+- `1 <= strs.length <= 600`
+- `1 <= strs[i].length <= 100`
+- `strs[i]` 仅由 '0' 和 '1' 组成
+- `1 <= m, n <= 100`
+
+dp问题，日常写不出来
+
+可以看出来 需要三维数组。一维是strs的第i个，一维是1个数，一维是0个数
+
+dp[k+1] [i] [j] = dp[k] [i] j
+
+dp[k+1] [i] [j] = max(dp[k] [i - zeros] [j - ones] +1, dp[k+1] [i] [j])
+
+好像也不用怎么初始化
+
+~~~java
+class Solution {
+    public int findMaxForm(String[] strs, int m, int n) {
+        int[][][] dp = new int[strs.length + 1][m + 1][n + 1];
+        for (int j = 0; j < strs.length; j++) {
+            int zeros = 0;
+            for (int i = 0; i < strs[j].length(); i++) {
+                if (strs[j].charAt(i) == '0')
+                    zeros++;
+            }
+            int ones = strs[j].length() - zeros;
+            for (int e = 0; e <= m; e++) {
+                for (int r = 0; r <= n; r++) {
+                    dp[j + 1][e][r] = Math.max(dp[j][e][r], dp[j + 1][e][r]);
+                    if (e - zeros >= 0 && r - ones >= 0) {
+                        dp[j + 1][e][r] = Math.max(dp[j + 1][e][r], dp[j][e - zeros][r - ones] + 1);
+                    }
+                }
+            }
+        }
+        return dp[strs.length][m][n];
+    }
+}
+~~~
+
+击败21%
