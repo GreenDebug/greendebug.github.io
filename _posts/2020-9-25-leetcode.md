@@ -5556,3 +5556,129 @@ class Solution {
 ~~~
 
 击败25%
+
+### [Q771宝石与石头](https://leetcode-cn.com/problems/jewels-and-stones/)
+
+难度 简单
+
+ 给定字符串`J` 代表石头中宝石的类型，和字符串 `S`代表你拥有的石头。 `S` 中每个字符代表了一种你拥有的石头的类型，你想知道你拥有的石头中有多少是宝石。
+
+`J` 中的字母不重复，`J` 和 `S`中的所有字符都是字母。字母区分大小写，因此`"a"`和`"A"`是不同类型的石头。
+
+**示例 1:**
+
+```
+输入: J = "aA", S = "aAAbbbb"
+输出: 3
+```
+
+**示例 2:**
+
+```
+输入: J = "z", S = "ZZ"
+输出: 0
+```
+
+**注意:**
+
+- `S` 和 `J` 最多含有50个字母。
+-  `J` 中的字符不重复。
+
+每日一题，今天挺简单，试着用hashmap写了一下
+
+~~~java
+class Solution {
+    public int numJewelsInStones(String J, String S) {
+        if(S.length() == 0 || J.length() == 0) return 0;
+        HashMap<Character,Integer> m = new HashMap<>();
+        for(int i=0;i<S.length();i++)
+            m.put(S.charAt(i),m.getOrDefault(S.charAt(i),0)+1);
+        int ans = 0;
+        for(int i=0;i<J.length();i++){
+            ans+=m.getOrDefault(J.charAt(i),0);
+        }
+        return ans;
+    }
+}
+~~~
+
+击败47%
+
+然后我发现这题我之前写过，原来写的是1ms，现在是2ms，我以为是因为原来是C语言，结果也是java，就是暴力写的
+
+
+
+### Q[75颜色分类](https://leetcode-cn.com/problems/sort-colors/)
+
+难度中等600
+
+给定一个包含红色、白色和蓝色，一共 *n* 个元素的数组，**[原地](https://baike.baidu.com/item/原地算法)**对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+
+此题中，我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。
+
+**注意:**
+不能使用代码库中的排序函数来解决这道题。
+
+**示例:**
+
+```
+输入: [2,0,2,1,1,0]
+输出: [0,0,1,1,2,2]
+```
+
+**进阶：**
+
+- 一个直观的解决方案是使用计数排序的两趟扫描算法。
+  首先，迭代计算出0、1 和 2 元素的个数，然后按照0、1、2的排序，重写当前数组。
+- 你能想出一个仅使用常数空间的一趟扫描算法吗？
+
+这题并不是很难，两次遍历。第一次数出0、1个数。第二次原地修改数组
+
+~~~java
+class Solution {
+    public void sortColors(int[] nums) {
+        if(nums.length == 0) return;
+        int zeros = 0, ones = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == 0) {
+                zeros++;
+            } else if (nums[i] == 1) {
+                ones++;
+            }
+        }
+        for (int i = 0; i < nums.length; i++) {
+            if (zeros > 0) {
+                if (nums[i] == 0) {
+                    zeros--;
+                    continue;
+                }
+                int pos = nextInt(0, i,nums);
+                nums[pos] = nums[i];
+                nums[i] = 0;
+                zeros--;
+            } else if (ones > 0) {
+                if (nums[i] == 1) {
+                    ones--;
+                    continue;
+                }
+                int pos = nextInt(1,i, nums);
+                nums[pos] = nums[i];
+                nums[i] = 1;
+                ones--;
+            } else {
+                return;
+            }
+        }
+    }
+
+    public int nextInt(int i, int pos,int[] x) {
+        for (int j = pos; j < x.length; j++) {
+            if (x[j] == i)
+                return j;
+        }
+        return -1;
+    }
+}
+~~~
+
+没想到击败100%，因为毕竟还是两次遍历
