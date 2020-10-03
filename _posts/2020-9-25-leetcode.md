@@ -5682,3 +5682,84 @@ class Solution {
 ~~~
 
 没想到击败100%，因为毕竟还是两次遍历
+
+### Q[208实现 Trie (前缀树)](https://leetcode-cn.com/problems/implement-trie-prefix-tree/)
+
+难度 中等
+
+实现一个 Trie (前缀树)，包含 `insert`, `search`, 和 `startsWith` 这三个操作。
+
+**示例:**
+
+```
+Trie trie = new Trie();
+
+trie.insert("apple");
+trie.search("apple");   // 返回 true
+trie.search("app");     // 返回 false
+trie.startsWith("app"); // 返回 true
+trie.insert("app");   
+trie.search("app");     // 返回 true
+```
+
+**说明:**
+
+- 你可以假设所有的输入都是由小写字母 `a-z` 构成的。
+- 保证所有输入均为非空字符串。
+
+稍微看了下答案写的，刚开始以为是用char数组存的，写成一个链表状的。但是这样字母可以随机组合成一个新单词。
+
+应该用Trie数组来存，Trie[26] 对应的是null则无这个字母。需要用一个boolean来记录这个节点是不是最后一个来配合search操作
+
+~~~java
+class Trie {
+    public Trie[] next;
+    boolean isEnd;    
+
+    /** Initialize your data structure here. */
+    public Trie() {
+        next = new Trie[26];
+    }
+
+    /** Inserts a word into the trie. */
+    public void insert(String word) {
+        Trie temp = this;
+        for (int i = 0; i < word.length(); i++) {
+            if (temp.next[word.charAt(i)-'a'] == null){
+                temp.next[word.charAt(i)-'a'] = new Trie();
+            }
+            temp = temp.next[word.charAt(i)-'a'];
+        }
+        temp.isEnd = true;
+    }
+
+    /** Returns if the word is in the trie. */
+    public boolean search(String word) {
+        Trie temp = this;
+        for (int i = 0; i < word.length(); i++) {
+            if (temp.next[word.charAt(i)-'a'] == null) {
+                return false;
+            }
+            temp = temp.next[word.charAt(i)-'a'];
+        }
+        if (temp.isEnd != true)
+            return false;
+        return true;
+    }
+
+    /**
+     * Returns if there is any word in the trie that starts with the given prefix.
+     */
+    public boolean startsWith(String prefix) {
+        Trie temp = this;
+        for (int i = 0; i < prefix.length(); i++) {
+            if (temp.next[prefix.charAt(i)-'a'] == null)
+                return false;
+            temp = temp.next[prefix.charAt(i)-'a'];
+        }
+        return true;
+    }
+}
+~~~
+
+击败62%
