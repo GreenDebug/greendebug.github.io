@@ -5763,3 +5763,124 @@ class Trie {
 ~~~
 
 击败62%
+
+### [Q105从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+难度中等703
+
+根据一棵树的前序遍历与中序遍历构造二叉树。
+
+**注意:**
+你可以假设树中没有重复的元素。
+
+例如，给出
+
+```
+前序遍历 preorder = [3,9,20,15,7]
+中序遍历 inorder = [9,3,15,20,7]
+```
+
+返回如下的二叉树：
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+这题按着标答写的。利用递归函数，每次确定先序的范围 中序的范围，返回先序第一个结点
+
+先序遍历 根 左子树 右子树
+
+中序遍历 左子树 根 右子树
+
+preorder_left, preorder_right, inorder_left ,inorder_right
+
+当前结点就是先序第一个
+
+通过inorder确定inorder_root的位置，也就可以确定size_left = inorder_root - inorder_left
+
+root.left 的范围 preorder_left+1, preorder_left+size_left, inorder_left, inorder_root-1
+
+root.right 的范围 preorder_left+size_left+1, preorder_right, inorder_root+1, inorder_right
+
+当preorder_left>preorder_right : return null;
+
+~~~java
+import java.util.*;
+
+class Solution {
+    public HashMap<Integer, Integer> m;
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        int n = preorder.length;
+        m = new HashMap<Integer, Integer>();
+        for (int i = 0; i < inorder.length; i++) {
+            m.put(inorder[i], i);
+        }
+        return dfs(preorder, inorder, 0, n - 1, 0, n - 1);
+    }
+
+    public TreeNode dfs(int[] preorder, int[] inorder, int preorder_left, int preorder_right, int inorder_left,
+            int inorder_right) {
+        if (preorder_left > preorder_right)
+            return null;
+        int inorder_root = m.get(preorder[preorder_left]);
+        TreeNode root = new TreeNode(preorder[preorder_left]);
+        int size_left = inorder_root - inorder_left;
+        root.left = dfs(preorder, inorder, preorder_left + 1, preorder_left + size_left, inorder_left,
+                inorder_root - 1);
+        root.right = dfs(preorder, inorder, preorder_left + size_left + 1, preorder_right, inorder_root + 1,
+                inorder_right);
+        return root;
+    }
+}
+~~~
+
+ 击败73%
+
+### Q[406根据身高重建队列](https://leetcode-cn.com/problems/queue-reconstruction-by-height/)
+
+难度中等493
+
+假设有打乱顺序的一群人站成一个队列。 每个人由一个整数对`(h, k)`表示，其中`h`是这个人的身高，`k`是排在这个人前面且身高大于或等于`h`的人数。 编写一个算法来重建这个队列。
+
+**注意：**
+总人数少于1100人。
+
+**示例**
+
+```
+输入:
+[[7,0], [4,4], [7,1], [5,0], [6,1], [5,2]]
+
+输出:
+[[5,0], [7,0], [5,2], [6,1], [4,4], [7,1]]
+```
+
+这题一直没有思路，暴力也不懂怎么写。看了标答，**原来高的人是看不见矮的**..., 所以先排高的。反正矮的他们也看不到...
+
+先排个序，然后按照数组第二个值去插入
+
+~~~java
+class Solution {
+    public int[][] reconstructQueue(int[][] people) {
+        Arrays.sort(people, new Comparator<int[]>() {
+            public int compare(int[] o1, int[] o2) {
+                return o1[0] == o2[0] ? o1[1] - o2[1] : o2[0] - o1[0];
+            }
+        });
+        List<int[]> result = new ArrayList<>();
+        for (int[] i : people) {
+            result.add(i[1],i);
+        }
+        return result.toArray(new int[result.size()][2]);
+    }
+}
+~~~
+
+我的Java知识也影响我不太会实现这个算法...
+
+击败95%
