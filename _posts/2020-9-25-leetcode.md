@@ -5884,3 +5884,121 @@ class Solution {
 我的Java知识也影响我不太会实现这个算法...
 
 击败95%
+
+### [Q18四数之和](https://leetcode-cn.com/problems/4sum/)
+
+难度 中等
+
+给定一个包含 *n* 个整数的数组 `nums` 和一个目标值 `target`，判断 `nums` 中是否存在四个元素 *a，**b，c* 和 *d* ，使得 *a* + *b* + *c* + *d* 的值与 `target` 相等？找出所有满足条件且不重复的四元组。
+
+**注意：**
+
+答案中不可以包含重复的四元组。
+
+**示例：**
+
+```
+给定数组 nums = [1, 0, -1, 0, -2, 2]，和 target = 0。
+
+满足要求的四元组集合为：
+[
+  [-1,  0, 0, 1],
+  [-2, -1, 1, 2],
+  [-2,  0, 0, 2]
+]
+```
+
+两层循环+双指针法。注意要剔除重复的元组。
+
+~~~java
+class Solution {
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        Arrays.sort(nums);
+        List<List<Integer>> result = new ArrayList<>();
+        List<Integer> temp;
+        for (int i = 0; i < nums.length - 3; i++) {
+            if (i > 0 && nums[i] == nums[i - 1])
+                continue;
+            for (int j = i + 1; j < nums.length - 2; j++) {
+                if (j > i + 1 && nums[j] == nums[j - 1])
+                    continue;
+                int l = j + 1;
+                int r = nums.length - 1;
+                while (l < r) {
+                    if (nums[i] + nums[j] + nums[l] + nums[r] == target) {
+                        temp = new ArrayList<>();
+                        temp.add(nums[i]);
+                        temp.add(nums[j]);
+                        temp.add(nums[r]);
+                        temp.add(nums[l]);
+                        result.add(temp);
+                        while (l < r && nums[l] == nums[l + 1])
+                            l++;
+                        l++;
+                        while (l < r && nums[r] == nums[r - 1])
+                            r--;
+                        r--;
+                    } else if (nums[i] + nums[j] + nums[l] + nums[r] > target) {
+                        r--;
+                    } else {
+                        l++;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+}
+~~~
+
+击败28%
+
+### Q[148排序链表](https://leetcode-cn.com/problems/sort-list/)
+
+难度 中等
+
+在 *O*(*n* log *n*) 时间复杂度和常数级空间复杂度下，对链表进行排序。
+
+**示例 1:**
+
+```
+输入: 4->2->1->3
+输出: 1->2->3->4
+```
+
+**示例 2:**
+
+```
+输入: -1->5->3->4->0
+输出: -1->0->3->4->5
+```
+
+用优先队列。
+
+~~~java
+class Solution {
+    public ListNode sortList(ListNode head) {
+        if(head == null) return null;
+        Queue<ListNode> q = new PriorityQueue<>(new Comparator<ListNode>() {
+            public int compare(ListNode a, ListNode b) {
+                return a.val - b.val;
+            }
+        });
+        ListNode temp = head;
+        while(temp != null) {
+            q.add(temp);
+            temp = temp.next;
+        }
+        ListNode ans = q.poll();
+        temp = ans;
+        while(q.peek() != null){
+            temp.next = q.poll();
+            temp = temp.next;
+        }
+        temp.next = null;
+        return ans;
+    }
+}
+~~~
+
+击败17%
