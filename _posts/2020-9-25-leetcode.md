@@ -6002,3 +6002,145 @@ class Solution {
 ~~~
 
 击败17%
+
+### Q[647回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)
+
+难度 中等
+
+给定一个字符你的任务是计算这个字符串中有多少个回文子串。
+
+具有不同开始位置或结束位置的子串，即使是由相同的字符组成，也会被视作不同的子串。
+
+ 
+
+**示例 1：**
+
+```
+输入："abc"
+输出：3
+解释：三个回文子串: "a", "b", "c"
+```
+
+**示例 2：**
+
+```
+输入："aaa"
+输出：6
+解释：6个回文子串: "a", "a", "a", "aa", "aa", "aaa"
+```
+
+ 
+
+**提示：**
+
+- 输入的字符串长度不会超过 1000 。
+
+不会dp，直接暴力穷举，每次穷举中心点，逐渐增大长度。（奇数长度，偶数长度）
+
+~~~java
+class Solution {
+    public int countSubstrings(String s) {
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            for (int j = 0; i + j < s.length() && i - j >= 0; j++) {
+                if (s.charAt(i + j) == s.charAt(i - j))
+                    count++;
+                else
+                    break;
+            }
+        }
+        for (int i = 0; i < s.length() - 1; i++) {
+            if (s.charAt(i) != s.charAt(i + 1))
+                continue;
+            for (int j = 0; i - j >= 0 && i + 1 + j < s.length(); j++) {
+                if (s.charAt(i - j) == s.charAt(i + j + 1))
+                    count++;
+                else
+                    break;
+            }
+        }
+        return count;
+    }
+}
+~~~
+
+击败57%
+
+### [Q538把二叉搜索树转换为累加树](https://leetcode-cn.com/problems/convert-bst-to-greater-tree/)
+
+难度 中等
+
+给出二叉 **搜索** 树的根节点，该树的节点值各不相同，请你将其转换为累加树（Greater Sum Tree），使每个节点 `node` 的新值等于原树中大于或等于 `node.val` 的值之和。
+
+提醒一下，二叉搜索树满足下列约束条件：
+
+- 节点的左子树仅包含键 **小于** 节点键的节点。
+- 节点的右子树仅包含键 **大于** 节点键的节点。
+- 左右子树也必须是二叉搜索树。
+
+**注意：**本题和 1038: https://leetcode-cn.com/problems/binary-search-tree-to-greater-sum-tree/ 相同
+
+ 
+
+**示例 1：**
+
+**![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2019/05/03/tree.png)**
+
+```
+输入：[4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]
+输出：[30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]
+```
+
+**示例 2：**
+
+```
+输入：root = [0,null,1]
+输出：[1,null,1]
+```
+
+**示例 3：**
+
+```
+输入：root = [1,0,2]
+输出：[3,3,2]
+```
+
+**示例 4：**
+
+```
+输入：root = [3,2,4,1]
+输出：[7,9,4,10]
+```
+
+ 
+
+**提示：**
+
+- 树中的节点数介于 `0` 和 `104` 之间。
+- 每个节点的值介于 `-104` 和 `104` 之间。
+- 树中的所有值 **互不相同** 。
+- 给定的树为二叉搜索树。
+
+这题就是dfs，注意左右子树需要区别对待，先计算右子树和，再把和传给左子树
+
+~~~java
+class Solution {
+    public TreeNode convertBST(TreeNode root) {
+        dfs(root,0);
+        return root;
+    }
+    public int dfs(TreeNode root,int x){
+        if(root == null) return 0;
+        int max = dfs(root.right,x);
+        if(max==0)
+            root.val += x;
+        else
+            root.val += max;
+        if(root.left != null)
+            return dfs(root.left,root.val);
+        return root.val;
+    }
+}
+~~~
+
+击败98%
