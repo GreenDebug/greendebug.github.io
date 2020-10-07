@@ -6144,3 +6144,222 @@ class Solution {
 ~~~
 
 击败98%
+
+### [Q337打家劫舍 III](https://leetcode-cn.com/problems/house-robber-iii/)
+
+难度 中等
+
+在上次打劫完一条街道之后和一圈房屋后，小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为“根”。 除了“根”之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 如果两个直接相连的房子在同一天晚上被打劫，房屋将自动报警。
+
+计算在不触动警报的情况下，小偷一晚能够盗取的最高金额。
+
+**示例 1:**
+
+```
+输入: [3,2,3,null,3,null,1]
+
+     3
+    / \
+   2   3
+    \   \ 
+     3   1
+
+输出: 7 
+解释: 小偷一晚能够盗取的最高金额 = 3 + 3 + 1 = 7.
+```
+
+**示例 2:**
+
+```
+输入: [3,4,5,1,3,null,1]
+
+     3
+    / \
+   4   5
+  / \   \ 
+ 1   3   1
+
+输出: 9
+解释: 小偷一晚能够盗取的最高金额 = 4 + 5 = 9.
+```
+
+又是动态规划，又不会写
+
+map f(node)代表取出这个点 等于左右两点不取与自身的和
+
+map g(node)代表不取出 等于左右两点最大之和
+
+~~~java
+class Solution {
+    Map<TreeNode,Integer> f = new HashMap<>();
+    Map<TreeNode,Integer> g = new HashMap<>();
+    public int rob(TreeNode root) {
+        f.put(null,0);
+        g.put(null,0);
+        dfs(root);
+        return Math.max(f.get(root),g.get(root));
+    }
+    public void dfs(TreeNode root){
+        if(root == null) return;
+        dfs(root.left);
+        dfs(root.right);
+        f.put(root,g.get(root.left)+g.get(root.right)+root.val);
+        g.put(root,Math.max(f.get(root.left),g.get(root.left))+Math.max(f.get(root.right),g.get(root.right))); 
+    }
+}
+~~~
+
+击败43%
+
+### Q[279完全平方数](https://leetcode-cn.com/problems/perfect-squares/)
+
+难度 中等
+
+给定正整数 *n*，找到若干个完全平方数（比如 `1, 4, 9, 16, ...`）使得它们的和等于 *n*。你需要让组成和的完全平方数的个数最少。
+
+**示例 1:**
+
+```
+输入: n = 12
+输出: 3 
+解释: 12 = 4 + 4 + 4.
+```
+
+**示例 2:**
+
+```
+输入: n = 13
+输出: 2
+解释: 13 = 4 + 9.
+```
+
+还是dp问题，从1一直找到n
+
+我刚开始手推的时候，只写到10，发现只要检查sqrt(n)那个就可以了。但是样例12，总是过不了。sqrt(12) = 3
+
+12=9+1+1+1其实应该是12 = 4+4+4，所以得检索 1~sqrt(n)*sqrt(n)，复杂度n sqrt(n)
+
+~~~java
+class Solution {
+    public int numSquares(int n) {
+        int[] dp = new int[n + 1];
+        for (int i = 1; i * i <= n; i++) {
+            dp[i * i] = 1;
+        }
+        for (int i = 1; i <= n; i++) {
+            int r = (int) Math.sqrt(i);
+            if (r * r != i) {
+                dp[i] = 4;
+                for (int j = 1; j <= r; j++) {
+                    dp[i] = Math.min(1 + dp[i - j * j],dp[i]);
+                }
+            }
+        }
+        return dp[n];
+    }
+}
+~~~
+
+击败77%
+
+### Q[160相交链表](https://leetcode-cn.com/problems/intersection-of-two-linked-lists/)
+
+难度简单835
+
+编写一个程序，找到两个单链表相交的起始节点。
+
+如下面的两个链表**：**
+
+[![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/160_statement.png)](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/160_statement.png)
+
+在节点 c1 开始相交。
+
+ 
+
+**示例 1：**
+
+[![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/160_example_1.png)](https://assets.leetcode.com/uploads/2018/12/13/160_example_1.png)
+
+```
+输入：intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
+输出：Reference of the node with value = 8
+输入解释：相交节点的值为 8 （注意，如果两个链表相交则不能为 0）。从各自的表头开始算起，链表 A 为 [4,1,8,4,5]，链表 B 为 [5,0,1,8,4,5]。在 A 中，相交节点前有 2 个节点；在 B 中，相交节点前有 3 个节点。
+```
+
+ 
+
+**示例 2：**
+
+[![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/160_example_2.png)](https://assets.leetcode.com/uploads/2018/12/13/160_example_2.png)
+
+```
+输入：intersectVal = 2, listA = [0,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
+输出：Reference of the node with value = 2
+输入解释：相交节点的值为 2 （注意，如果两个链表相交则不能为 0）。从各自的表头开始算起，链表 A 为 [0,9,1,2,4]，链表 B 为 [3,2,4]。在 A 中，相交节点前有 3 个节点；在 B 中，相交节点前有 1 个节点。
+```
+
+ 
+
+**示例 3：**
+
+[![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/160_example_3.png)](https://assets.leetcode.com/uploads/2018/12/13/160_example_3.png)
+
+```
+输入：intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
+输出：null
+输入解释：从各自的表头开始算起，链表 A 为 [2,6,4]，链表 B 为 [1,5]。由于这两个链表不相交，所以 intersectVal 必须为 0，而 skipA 和 skipB 可以是任意值。
+解释：这两个链表不相交，因此返回 null。
+```
+
+ 
+
+**注意：**
+
+- 如果两个链表没有交点，返回 `null`.
+- 在返回结果后，两个链表仍须保持原有的结构。
+- 可假定整个链表结构中没有循环。
+- 程序尽量满足 O(*n*) 时间复杂度，且仅用 O(*1*) 内存。
+
+力扣不决问哈希图
+
+直接用HashMap
+
+~~~java
+import java.util.*;
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        HashMap<ListNode,Integer> m = new HashMap<>();
+        while(headA!=null){
+            m.put(headA,1);
+            headA = headA.next;
+        }
+        while(headB!=null){
+            if(m.getOrDefault(headB,0)==1)
+                return headB;
+            headB = headB.next;
+        }
+        return null;
+    }
+}
+~~~
+
+击败8%.... 最快也就O(n) 我这也不过是O(2n)
+
+双指针法
+
+~~~java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+         if(headA == null || headB == null) return null;
+        ListNode A = headA,B = headB;
+        while(A!=B){
+            A = A==null?headB:A.next;
+            B = B==null?headA:B.next;
+        }
+        return A;
+    }
+}
+~~~
+
+击败99%，感觉差别不大吧。
+
