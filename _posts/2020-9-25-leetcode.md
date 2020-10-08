@@ -6363,3 +6363,137 @@ public class Solution {
 
 击败99%，感觉差别不大吧。
 
+### Q[344反转字符串](https://leetcode-cn.com/problems/reverse-string/)
+
+难度 简单
+
+编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 `char[]` 的形式给出。
+
+不要给另外的数组分配额外的空间，你必须**[原地](https://baike.baidu.com/item/原地算法)修改输入数组**、使用 O(1) 的额外空间解决这一问题。
+
+你可以假设数组中的所有字符都是 [ASCII](https://baike.baidu.com/item/ASCII) 码表中的可打印字符。
+
+ 
+
+**示例 1：**
+
+```
+输入：["h","e","l","l","o"]
+输出：["o","l","l","e","h"]
+```
+
+**示例 2：**
+
+```
+输入：["H","a","n","n","a","h"]
+输出：["h","a","n","n","a","H"]
+```
+
+直接上代码
+
+~~~java
+class Solution {
+    public void reverseString(char[] s) {
+        char ch;
+        int n = s.length;
+        if(n == 0) return;
+        for (int i = 0; i < n / 2; i++) {
+            ch = s[i];
+            s[i] = s[n - i - 1];
+            s[n - i - 1] = ch;
+        }
+    }
+}
+~~~
+
+击败99%
+
+### Q[437路径总和 III](https://leetcode-cn.com/problems/path-sum-iii/)
+
+难度 中等
+
+给定一个二叉树，它的每个结点都存放着一个整数值。
+
+找出路径和等于给定数值的路径总数。
+
+路径不需要从根节点开始，也不需要在叶子节点结束，但是路径方向必须是向下的（只能从父节点到子节点）。
+
+二叉树不超过1000个节点，且节点数值范围是 [-1000000,1000000] 的整数。
+
+**示例：**
+
+```
+root = [10,5,-3,3,2,null,11,3,-2,null,1], sum = 8
+
+      10
+     /  \
+    5   -3
+   / \    \
+  3   2   11
+ / \   \
+3  -2   1
+
+返回 3。和等于 8 的路径有:
+
+1.  5 -> 3
+2.  5 -> 2 -> 1
+3.  -3 -> 11
+```
+
+刚开始看了题解，用一个arraylist记录路径，每次更新一遍
+
+~~~java
+import java.util.*;
+class Solution {
+    int count = 0;
+    public int pathSum(TreeNode root, int sum) {
+        ArrayList<Integer> list = new ArrayList();
+        dfs(root,list,sum);
+        return count;
+    }
+    public void dfs(TreeNode root,ArrayList<Integer> list,int sum) {
+        if(root == null) return;
+        for(int i = 0; i < list.size(); i++){
+            list.set(i,list.get(i)+root.val);
+            if(list.get(i) == sum)
+                count++;
+        }
+        list.add(root.val);
+        if(root.val == sum)
+            count++;
+        dfs(root.left,new ArrayList<Integer>(list),sum);
+        dfs(root.right,new ArrayList<Integer>(list), sum);
+    }
+}
+~~~
+
+击败9%，感觉每次生成一个arralist浪费了很多时间
+
+参照一个据说击败99%的修改了一下。它搞的比较巧妙，用一个静态数组就搞定了。每次只记录当前节点的值，每次重新遍历整个数组，计算temp值。用形参p，来记录当前遍历的末尾
+
+~~~java
+import java.util.*;
+class Solution {
+    int count = 0;
+    public int pathSum(TreeNode root, int sum) {
+        int[] list = new int[1001];
+        dfs(root,list,sum,0);
+        return count;
+    }
+    public void dfs(TreeNode root,int[] list,int sum,int p) {
+        if(root == null) return;
+        if(sum == root.val) count++;
+        int temp = root.val;
+        for(int i = p-1; i >=0 ; i--){
+            temp += list[i];
+            if(temp == sum)
+                count++;
+        }
+        list[p] = root.val;
+        dfs(root.left,list,sum,p+1);
+        dfs(root.right,list, sum,p+1);
+    }
+}
+~~~
+
+击败81%
