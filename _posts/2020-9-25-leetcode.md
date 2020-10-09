@@ -6497,3 +6497,225 @@ class Solution {
 ~~~
 
 击败81%
+
+### Q[394字符串解码](https://leetcode-cn.com/problems/decode-string/)
+
+难度 中等
+
+给定一个经过编码的字符串，返回它解码后的字符串。
+
+编码规则为: `k[encoded_string]`，表示其中方括号内部的 *encoded_string* 正好重复 *k* 次。注意 *k* 保证为正整数。
+
+你可以认为输入字符串总是有效的；输入字符串中没有额外的空格，且输入的方括号总是符合格式要求的。
+
+此外，你可以认为原始数据不包含数字，所有的数字只表示重复的次数 *k* ，例如不会出现像 `3a` 或 `2[4]` 的输入。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "3[a]2[bc]"
+输出："aaabcbc"
+```
+
+**示例 2：**
+
+```
+输入：s = "3[a2[c]]"
+输出："accaccacc"
+```
+
+**示例 3：**
+
+```
+输入：s = "2[abc]3[cd]ef"
+输出："abcabccdcdcdef"
+```
+
+**示例 4：**
+
+```
+输入：s = "abc3[cd]xyz"
+输出："abccdcdcdxyz"
+```
+
+从头到尾遍历字符串。遇到字母直接加上。遇到数字 进入递归处理。
+
+~~~java
+class Solution {
+    int i = 0;
+    public String decodeString(String s) {
+        if(s.length() == 0) return "";
+        StringBuilder ans = new StringBuilder();
+        int times = 0;
+        for (; i < s.length(); i++) {
+            if (s.charAt(i) >= '0' && s.charAt(i) <= '9') {
+                times = times * 10 + s.charAt(i) - '0';
+            } else if (s.charAt(i) == '[') {
+                StringBuilder temp = fun(s, i + 1);
+                for (int j = 0; j < times; j++) {
+                    ans.append(temp);
+                }
+                while (s.charAt(i) != ']') {
+                    i++;
+                }
+                times = 0;
+            } else {
+                ans.append(s.charAt(i));
+            }
+        }
+        return ans.toString();
+    }
+
+    public StringBuilder fun(String s, int pos) {
+        StringBuilder ans = new StringBuilder();
+        int times = 0;
+        for (i = pos; i < s.length(); i++) {
+            if(s.charAt(i) == ']')
+                break;
+            if (s.charAt(i) >= '0' && s.charAt(i) <= '9') {
+                times = times * 10 + s.charAt(i) - '0';
+            } else if (s.charAt(i) == '[') {
+                StringBuilder temp = fun(s, i + 1);
+                for (int j = 0; j < times; j++) {
+                    ans.append(temp);
+                }
+                while (s.charAt(i) != ']') {
+                    i++;
+                }
+                times = 0;
+            } else {
+                ans.append(s.charAt(i));
+            }
+        }
+        return ans;
+    }
+}
+~~~
+
+击败100%
+
+### Q[142环形链表 II](https://leetcode-cn.com/problems/linked-list-cycle-ii/)
+
+难度中等642
+
+给定一个链表，返回链表开始入环的第一个节点。 如果链表无环，则返回 `null`。
+
+为了表示给定链表中的环，我们使用整数 `pos` 来表示链表尾连接到链表中的位置（索引从 0 开始）。 如果 `pos` 是 `-1`，则在该链表中没有环。
+
+**说明：**不允许修改给定的链表。
+
+ 
+
+**示例 1：**
+
+```
+输入：head = [3,2,0,-4], pos = 1
+输出：tail connects to node index 1
+解释：链表中有一个环，其尾部连接到第二个节点。
+```
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/07/circularlinkedlist.png)
+
+**示例 2：**
+
+```
+输入：head = [1,2], pos = 0
+输出：tail connects to node index 0
+解释：链表中有一个环，其尾部连接到第一个节点。
+```
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/07/circularlinkedlist_test2.png)
+
+**示例 3：**
+
+```
+输入：head = [1], pos = -1
+输出：no cycle
+解释：链表中没有环。
+```
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/07/circularlinkedlist_test3.png)
+
+ 
+
+**进阶：**
+你是否可以不用额外空间解决此题？
+
+快慢指针。之前做过一次类似的。假设头到环距离为k，从环开始到相遇距离为t，环长l。慢指针走过的路k+l，快指针走过2（k+l） = k + t +l；l = k+t。此时把快指针挪到头结点，两个指针每次只走一。（快指针离头结点距离 k，慢指针离头结点距离l-t = k）相遇点即为环开始
+
+~~~java
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        if(head == null) return null;
+        ListNode quick = head, slow = head;
+        slow = slow.next;
+        quick = quick.next;
+        if(quick == null) return null;
+        quick = quick.next;
+        while(quick!=null&&quick != slow){
+            quick = quick.next;
+            if(quick == null) return null;
+            quick = quick.next;
+            slow = slow.next;
+        }
+        if(quick == null)
+            return null;
+        quick = head;
+        while(quick != slow){
+            quick = quick.next;
+            slow = slow.next;
+        }
+        return quick;
+    }
+}
+~~~
+
+不知道为啥只击败38%
+
+### Q[543二叉树的直径](https://leetcode-cn.com/problems/diameter-of-binary-tree/)
+
+难度简单496
+
+给定一棵二叉树，你需要计算它的直径长度。一棵二叉树的直径长度是任意两个结点路径长度中的最大值。这条路径可能穿过也可能不穿过根结点。
+
+ 
+
+**示例 :**
+给定二叉树
+
+```
+          1
+         / \
+        2   3
+       / \     
+      4   5    
+```
+
+返回 **3**, 它的长度是路径 [4,2,1,3] 或者 [5,2,1,3]。
+
+ 
+
+**注意：**两结点之间的路径长度是以它们之间边的数目表示。
+
+没啥难度，每次合并下左右，与最大值去比较。
+
+~~~java
+class Solution {
+    int maxlength = 0;
+    public int diameterOfBinaryTree(TreeNode root) {
+        rootlength(root);
+        return maxlength;
+    }
+    public int rootlength(TreeNode root) {
+        if(root == null) return 0;
+        int left = rootlength(root.left);
+        int right = rootlength(root.right);
+        maxlength = maxlength>right+left?maxlength:right+left;
+        return Math.max(left,right)+1;
+    }
+}
+~~~
+
+击败18%，不知道为啥这么低
