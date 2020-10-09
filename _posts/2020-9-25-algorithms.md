@@ -2,7 +2,7 @@
 
 本文算法用Java实现 持续更新。
 
-### 并查集 union-find
+## 并查集 union-find
 多个集合，将两个元素合并到一个集合（union），看两个元素是否在同一集合（find）
 
 只需要一个数组记录每个元素所属集合号。
@@ -116,7 +116,7 @@ public class UF {
 ~~~
 
 做了下相关的大作业
-![{4A27AB7C-3B5F-4E85-82D9-BB4DDE23A751}.png.jpg][1]
+![tupian](https://raw.githubusercontent.com/csjue/csjue.github.io/master/_posts/images/20201009224232.jpeg)
 
 看着挺高端的，其实就是 一开始全是黑格。然后每次随机加一个蓝格，看有没有一条从上到下的路，如果没有则继续加点。
 
@@ -147,4 +147,45 @@ confidenceLo()                                   0.588844887135321
 confidenceHi()                                   0.592596612864679
 time                                             25510
 ~~~
-[1]: http://cclee0204.cn/usr/uploads/2020/09/1012577669.jpg
+
+
+## java 内存分析
+
+| 内置类型 | 大小 bytes |
+| -------- | ---------- |
+| boolean  | 1          |
+| char     | 2          |
+| int      | 4          |
+| float    | 4          |
+| double   | 8          |
+| long     | 8          |
+
+object 一般有16B overhead  大小为8B的倍数
+
+Integer 24B 16(overhead)+4(int)+4(padding)
+
+Date 32B 16(over)+3×4(3 int)+4(padding)
+
+Reference (可以理解成pointer 强reference即为class 类似cpp智能指针) 8B (64bit machine)
+
+Node 40B = 16(over) + 2×8(reference item, next Node) + 8(extra overhead)
+
+Stack Integer 32+64N; 
+
+32 = 16(over) + 8(reference) +4(int) +4(padding)
+
+64 = 40(Node) + 24(Integer)
+
+Array header 24B= 16(over) + 4(int length) +4(padding)
+
+Array int 24+4N
+
+Array object Date 24+8N(reference)+32N(Date)
+
+Array two-dimensional二维 M×N double 24B+8M(row's reference)+24M(row's header)+8MN(double)
+
+Array two-dimensional二维 M×N Object 24+32M+8MN
+
+String 64+2N = 40+(24+2N) = 8(reference) + 3×4(3 int offset length hash) + 16(over) +4(padding) +(24+2N) (char array)
+
+subString 40B reuse char[] 
