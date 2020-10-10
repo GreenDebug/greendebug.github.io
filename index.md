@@ -4,6 +4,8 @@
 
 [C++](_posts/2020-9-24-cpp.md)
 
+[Java](_posts/2020-10-10-java.md)
+
 [JavaScript](_posts/2020-9-25-JavaScript.md)
 
 [algorithms](_posts/2020-9-25-algorithms.md)

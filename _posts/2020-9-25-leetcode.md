@@ -6719,3 +6719,233 @@ class Solution {
 ~~~
 
 击败18%，不知道为啥这么低
+
+### Q[621任务调度器](https://leetcode-cn.com/problems/task-scheduler/)
+
+难度 中等
+
+给定一个用字符数组表示的 CPU 需要执行的任务列表。其中包含使用大写的 A - Z 字母表示的26 种不同种类的任务。任务可以以任意顺序执行，并且每个任务都可以在 1 个单位时间内执行完。CPU 在任何一个单位时间内都可以执行一个任务，或者在待命状态。
+
+然而，两个**相同种类**的任务之间必须有长度为 **n** 的冷却时间，因此至少有连续 n 个单位时间内 CPU 在执行不同的任务，或者在待命状态。
+
+你需要计算完成所有任务所需要的**最短时间**。
+
+ 
+
+**示例 ：**
+
+```
+输入：tasks = ["A","A","A","B","B","B"], n = 2
+输出：8
+解释：A -> B -> (待命) -> A -> B -> (待命) -> A -> B.
+     在本示例中，两个相同类型任务之间必须间隔长度为 n = 2 的冷却时间，而执行一个任务只需要一个单位时间，所以中间出现了（待命）状态。 
+```
+
+ 
+
+**提示：**
+
+1. 任务的总个数为 `[1, 10000]`。
+2. `n` 的取值范围为 `[0, 100]`。
+
+这道题真的还是有点复杂。有点类似cpu的流水线。以n+1为一个单位来分配任务。但是这里会遇到一个问题，在最后一个流水线中，搞不清到底应该是这个n+1干完活，还是实际不需要n+1，还是还需要一个周期。
+
+这里就要贪心算法。我们先安排任务量大的。每次算完都排序。原来任务量排序为k，在下一周期，排名不会小于k（k前面都比它大，所有同时-1），这样就可以不管时间间隔安排。
+
+~~~java
+class Solution {
+    public int leastInterval(char[] tasks, int n) {
+        int[] t = new int[26];
+        int all = 0;
+        int time = 0;
+        int count = 0;
+        int pos = 0;
+        for (char ch : tasks) {
+            if(t[ch-'A'] == 0)
+                pos++;
+            t[ch - 'A']++;
+            all++;
+        }
+        Arrays.sort(t);
+        int high = Math.min(n + 1, 26);
+        while (all > 0) {
+            count = n+1;
+            for (int i = 25; i > 25-high; i--) {
+                if (all == 0) {
+                    return time;
+                }
+                if (t[i] > 0) {
+                    t[i]--;
+                    all--;
+                    time++;
+                    count--;
+                }
+            }
+            time += count;
+            Arrays.sort(t);
+        }
+        return time;
+    }
+}
+~~~
+
+击败54%
+
+
+
+### Q[146. LRU缓存机制](https://leetcode-cn.com/problems/lru-cache/)
+
+难度 中等
+
+运用你所掌握的数据结构，设计和实现一个 [LRU (最近最少使用) 缓存机制](https://baike.baidu.com/item/LRU)。它应该支持以下操作： 获取数据 `get` 和 写入数据 `put` 。
+
+获取数据 `get(key)` - 如果关键字 (key) 存在于缓存中，则获取关键字的值（总是正数），否则返回 -1。
+写入数据 `put(key, value)` - 如果关键字已经存在，则变更其数据值；如果关键字不存在，则插入该组「关键字/值」。当缓存容量达到上限时，它应该在写入新数据之前删除最久未使用的数据值，从而为新的数据值留出空间。
+
+ 
+
+**进阶:**
+
+你是否可以在 **O(1)** 时间复杂度内完成这两种操作？
+
+ 
+
+**示例:**
+
+```
+LRUCache cache = new LRUCache( 2 /* 缓存容量 */ );
+
+cache.put(1, 1);
+cache.put(2, 2);
+cache.get(1);       // 返回  1
+cache.put(3, 3);    // 该操作会使得关键字 2 作废
+cache.get(2);       // 返回 -1 (未找到)
+cache.put(4, 4);    // 该操作会使得关键字 1 作废
+cache.get(1);       // 返回 -1 (未找到)
+cache.get(3);       // 返回  3
+cache.get(4);       // 返回  4
+```
+
+一下子就想到了hashmap 和 prioityqueue，hashmap用于存取，prioityqueue用于删除。
+
+但是问题来了，每次times++，prioityqueue并不会重新调整。 **prioityqueue只会在添加点 删除点时调整** 。这个问题困扰了我很久
+
+~~~java
+class LRUCache {
+    int size;
+    int num;
+    Queue<Point> q;
+    Map<Integer, Point> m;
+
+    public LRUCache(int capacity) {
+        size = capacity;
+        num = 0;
+        q = new PriorityQueue<>();
+        m = new HashMap<>();
+    }
+
+    public int get(int key) {
+        Point p = m.get(key);
+        if (p == null) return -1;
+        Queue<Point> tmp = new PriorityQueue<>();
+        for (Point t : q) {
+            if (t.equals(p)) {
+                t.times = 0;
+            } else {
+                t.times++;
+            }
+            tmp.add(t);
+        }
+        q = tmp;
+        return p.value;
+    }
+
+    public void put(int key, int value) {
+        if(m.get(key) != null){
+            m.get(key).value = value;
+            get(key);
+            return;
+        }
+        if (num == size) {
+            Point p = q.remove();
+            m.remove(p.key);
+            num--;
+        }
+        num++;
+        Point p = new Point();
+        p.key = key;
+        p.value = value;
+        p.times = 0;
+        m.put(key, p);
+        q.add(p);
+    }
+}
+
+class Point implements Comparable<Point> {
+    public int key;
+    public int value;
+    public int times;
+
+    public Point() {
+    }
+
+    public Point(Point p) {
+        key = p.key;
+        value = p.value;
+        times = p.times;
+    }
+
+    @Override
+    public int compareTo(Point o) {
+        return o.times - times;
+    }
+}
+~~~
+
+击败5%
+
+学习了java的linkedhashmap
+
+大概就是有序图，可以自己定制一些操作。比如：按插入顺序（默认）、按访问顺序
+
+
+
+构造函数
+
+public LinkedHashMap(int initialCapacity,float loadFactor,boolean accessOrder)
+构造一个空的 LinkedHashMap实例，具有指定的初始容量，负载因子和排序模式。 
+
+参数 
+initialCapacity - 初始容量 
+loadFactor - 负载因子
+accessOrder - 订购模式 - true的访问顺序， false的插入顺序 
+
+方法（利用继承 重写）
+
+protected boolean     removeEldestEntry(Map.Entry<K,V> eldest)  如果此地图应删除其最老的条目，则返回 true 。
+
+~~~java
+class LRUCache extends LinkedHashMap{
+    int capacity;
+
+    public LRUCache(int capacity) {
+        super(capacity,0.75f,true);//0.75f是个加载因子与泊松有关，true是按照访问顺序
+        this.capacity = capacity;
+    }
+
+    public int get(int key) {
+        return (int)super.getOrDefault(key,-1);
+    }
+
+    public void put(int key, int value) {
+        super.put(key,value);
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry eldest) {
+        return size()>capacity;
+    }
+}
+~~~
+
+击败95%
