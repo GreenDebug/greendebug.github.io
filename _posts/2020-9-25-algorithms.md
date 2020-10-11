@@ -189,3 +189,8 @@ Array two-dimensional二维 M×N Object 24+32M+8MN
 String 64+2N = 40+(24+2N) = 8(reference) + 3×4(3 int offset length hash) + 16(over) +4(padding) +(24+2N) (char array)
 
 subString 40B reuse char[] 
+
+## 时间复杂度
+
+tilde 保留系数
+
