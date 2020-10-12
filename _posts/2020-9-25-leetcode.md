@@ -7431,3 +7431,57 @@ class Solution {
 ~~~
 
 击败99%
+
+### Q[494目标和](https://leetcode-cn.com/problems/target-sum/)
+
+难度 中等
+
+给定一个非负整数数组，a1, a2, ..., an, 和一个目标数，S。现在你有两个符号 `+` 和 `-`。对于数组中的任意一个整数，你都可以从 `+` 或 `-`中选择一个符号添加在前面。
+
+返回可以使最终数组和为目标数 S 的所有添加符号的方法数。
+
+ 
+
+**示例：**
+
+```
+输入：nums: [1, 1, 1, 1, 1], S: 3
+输出：5
+解释：
+
+-1+1+1+1+1 = 3
++1-1+1+1+1 = 3
++1+1-1+1+1 = 3
++1+1+1-1+1 = 3
++1+1+1+1-1 = 3
+
+一共有5种方法让最终目标和为3。
+```
+
+dp问题，先求数组和sum，建立dp数组 dp[nums.length] [2*sum + 1] 存取方法数
+
+~~~java
+class Solution {
+    public int findTargetSumWays(int[] nums, int S) {
+        int sum = 0;
+        for (int i : nums)
+            sum += i;
+        if(Math.abs(S)>sum)
+            return 0;
+        int[][] dp = new int[nums.length][2 * sum + 1];
+        dp[0][nums[0] + sum] ++;
+        dp[0][-nums[0] + sum] ++;
+        for (int i = 1; i < nums.length; i++) {
+            for (int j = 0; j < 2 * sum + 1; j++) {
+                if (dp[i - 1][j] != 0) {
+                    dp[i][j - nums[i]]+=dp[i-1][j];
+                    dp[i][j + nums[i]]+=dp[i-1][j];
+                }
+            }
+        }
+        return dp[nums.length - 1][S + sum];
+    }
+}
+~~~
+
+击败74%
