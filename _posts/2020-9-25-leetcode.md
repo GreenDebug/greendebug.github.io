@@ -7222,3 +7222,132 @@ class Solution {
 
 其实不太懂区别在哪，第二个还击败100%
 
+### Q[530二叉搜索树的最小绝对差](https://leetcode-cn.com/problems/minimum-absolute-difference-in-bst/)
+
+难度 简单
+
+给你一棵所有节点为非负值的二叉搜索树，请你计算树中任意两节点的差的绝对值的最小值。
+
+ 
+
+**示例：**
+
+```
+输入：
+
+   1
+    \
+     3
+    /
+   2
+
+输出：
+1
+
+解释：
+最小绝对差为 1，其中 2 和 1 的差的绝对值为 1（或者 2 和 3）。
+```
+
+ 
+
+**提示：**
+
+- 树中至少有 2 个节点。
+- 本题与 783 https://leetcode-cn.com/problems/minimum-distance-between-bst-nodes/ 相同
+
+中序遍历可以获得排序好的队列。所以在这一题，我们可以直接中序遍历，保存前一个结点的值就可以了
+
+~~~java
+class Solution {
+    int pre = Integer.MAX_VALUE;
+    int ans = Integer.MAX_VALUE;
+    public int getMinimumDifference(TreeNode root) {
+        inorder(root);
+        return ans;
+    }
+    public void inorder(TreeNode t){
+        if(t == null) return;
+        inorder(t.left);
+        ans = Math.min(ans, Math.abs(pre - t.val));
+        pre = t.val;
+        inorder(t.right);
+    }
+}
+~~~
+
+击败82%
+
+### Q[200岛屿数量](https://leetcode-cn.com/problems/number-of-islands/)
+
+难度 中等
+
+给你一个由 `'1'`（陆地）和 `'0'`（水）组成的的二维网格，请你计算网格中岛屿的数量。
+
+岛屿总是被水包围，并且每座岛屿只能由水平方向或竖直方向上相邻的陆地连接形成。
+
+此外，你可以假设该网格的四条边均被水包围。
+
+ 
+
+**示例 1:**
+
+```
+输入:
+[
+['1','1','1','1','0'],
+['1','1','0','1','0'],
+['1','1','0','0','0'],
+['0','0','0','0','0']
+]
+输出: 1
+```
+
+**示例 2:**
+
+```
+输入:
+[
+['1','1','0','0','0'],
+['1','1','0','0','0'],
+['0','0','1','0','0'],
+['0','0','0','1','1']
+]
+输出: 3
+解释: 每座岛屿只能由水平和/或竖直方向上相邻的陆地连接而成。
+```
+
+dfs 遇到1，就把1抹成0
+
+~~~java
+class Solution {
+    public int numIslands(char[][] grid) {
+        int count = 0;
+        for(int i = 0;i<grid.length;i++){
+            for(int j = 0; j< grid[0].length;j++){
+                if(grid[i][j]=='1') {
+                    dfs(grid, i, j);
+                    count ++;
+                }
+            }
+        }
+        return count;
+    }
+    public void dfs(char[][] grid, int x, int y){
+        grid[x][y] = '0';
+        if(x+1<grid.length&&grid[x+1][y] == '1'){
+            dfs(grid, x+1, y);
+        }
+        if(x-1>=0&&grid[x-1][y] == '1'){
+            dfs(grid, x-1, y);
+        }
+        if(y+1<grid[0].length&&grid[x][y+1] == '1'){
+            dfs(grid, x, y+1);
+        }
+        if(y-1>=0&&grid[x][y-1] == '1'){
+            dfs(grid, x, y-1);
+        }
+    }
+}
+~~~
+
+击败97%
