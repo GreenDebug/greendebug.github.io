@@ -7485,3 +7485,122 @@ class Solution {
 ~~~
 
 击败74%
+
+
+
+### Q[24两两交换链表中的节点](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
+
+难度 中等
+
+给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。
+
+**你不能只是单纯的改变节点内部的值**，而是需要实际的进行节点交换。
+
+ 
+
+**示例:**
+
+```
+给定 1->2->3->4, 你应该返回 2->1->4->3.
+```
+
+没啥难度
+
+~~~java
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode l1 = null, l2 = null, l3 = null, l4 = head;
+        while (l4 != null) {
+            for (int i = 0; i < 2; i++) {
+                if(l4 == null)
+                    return head;
+                l1 = l2;
+                l2 = l3;
+                l3 = l4;
+                l4 = l4.next;
+                
+            }
+            if(l2!=null&&l3!=null) {
+                l2.next = l4;
+                l3.next = l2;
+                if (l1 != null)
+                    l1.next = l3;
+                else
+                    head = l3;
+                ListNode temp = l2;
+                l2 = l3;
+                l3 = temp;
+            }
+        }
+        return head;
+    }
+}
+~~~
+
+9个月前仅用了一发。今天三发。击败100%
+
+
+
+### Q[234回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/)
+
+难度 简单
+
+请判断一个链表是否为回文链表。
+
+**示例 1:**
+
+```
+输入: 1->2
+输出: false
+```
+
+**示例 2:**
+
+```
+输入: 1->2->2->1
+输出: true
+```
+
+**进阶：**
+你能否用 O(n) 时间复杂度和 O(1) 空间复杂度解决此题？
+
+肯定要用O（n）时间 O（1）来解决。要不然也太没意思
+
+先找到中间结点。把后半端翻转过来。然后开始比较。思路很简单，就是得保证三个模块没有bug
+
+~~~java
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        if(head == null) return true;
+        if(head.next == null) return true;
+        ListNode last = head;
+        ListNode mid = head;
+
+        while (last.next != null) {
+            last = last.next;
+            if (last.next != null) {
+
+                mid = mid.next;
+                last = last.next;
+            }
+        }
+        ListNode l1 = null, l2 = mid.next, l3 = l2.next;
+        while (l2 != null) {
+            l2.next = l1;
+            l1 = l2;
+            l2 = l3;
+            if (l3 != null)
+                l3 = l3.next;
+        }
+        while(head!=null&&last!=null&&head!=last){
+            if(head.val!=last.val)
+                return false;
+            head = head.next;
+            last = last.next;
+        }
+        return true;
+    }
+}
+~~~
+
+击败99%
