@@ -14,6 +14,8 @@
 
 [Leetcode](_posts/2020-9-25-leetcode.md)
 
+[assembly](_posts/2020-10-14-assembly.md)
+
 联系方式 csjue_sz@foxmail.com
 
 知乎 GitHub：csjue
