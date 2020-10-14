@@ -7604,3 +7604,222 @@ class Solution {
 ~~~
 
 击败99%
+
+### Q[1002查找常用字符](https://leetcode-cn.com/problems/find-common-characters/)
+
+难度 简单
+
+给定仅有小写字母组成的字符串数组 `A`，返回列表中的每个字符串中都显示的全部字符（**包括重复字符**）组成的列表。例如，如果一个字符在每个字符串中出现 3 次，但不是 4 次，则需要在最终答案中包含该字符 3 次。
+
+你可以按任意顺序返回答案。
+
+ 
+
+**示例 1：**
+
+```
+输入：["bella","label","roller"]
+输出：["e","l","l"]
+```
+
+**示例 2：**
+
+```
+输入：["cool","lock","cook"]
+输出：["c","o"]
+```
+
+ 
+
+**提示：**
+
+1. `1 <= A.length <= 100`
+2. `1 <= A[i].length <= 100`
+3. `A[i][j]` 是小写字母
+
+建立一个数组min、temp，temp每次统计字符，与min去比较
+
+~~~java
+class Solution {
+    public List<String> commonChars(String[] A) {
+        int[] min = new int[26];
+        int[] temp;
+        for (int i = 0; i < A.length; i++) {
+            String s = A[i];
+            temp = new int[26];
+            for (int j = 0; j < s.length(); j++) {
+                int pos = s.charAt(j) - 'a';
+                temp[pos]++;
+            }
+            if (i == 0)
+                for (int j = 0; j < 26; j++) {
+                    min[j] = temp[j];
+                }
+            else
+                for (int j = 0; j < 26; j++) {
+                    min[j] = Math.min(temp[j], min[j]);
+                }
+        }
+        List<String> l = new ArrayList<>();
+        for (int i = 0; i < 26; i++) {
+            while (min[i] != 0) {
+                l.add("" + (char) (i + 'a'));
+                min[i]--;
+            }
+        }
+        return l;
+    }
+}
+~~~
+
+击败43%
+
+
+
+### Q[79单词搜索](https://leetcode-cn.com/problems/word-search/)
+
+难度 中等
+
+给定一个二维网格和一个单词，找出该单词是否存在于网格中。
+
+单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+ 
+
+**示例:**
+
+```
+board =
+[
+  ['A','B','C','E'],
+  ['S','F','C','S'],
+  ['A','D','E','E']
+]
+
+给定 word = "ABCCED", 返回 true
+给定 word = "SEE", 返回 true
+给定 word = "ABCB", 返回 false
+```
+
+ 
+
+**提示：**
+
+- `board` 和 `word` 中只包含大写和小写英文字母。
+- `1 <= board.length <= 200`
+- `1 <= board[i].length <= 200`
+- `1 <= word.length <= 10^3`
+
+简单的dfs，要记住标记走过的路
+
+~~~java
+class Solution {
+    boolean[][] flag;
+
+    public boolean exist(char[][] board, String word) {
+        flag = new boolean[board.length][board[0].length];
+        for (int i = 0; i < board.length; i++)
+            for (int j = 0; j < board[0].length; j++)
+                if (board[i][j] == word.charAt(0)) {
+                    flag[i][j] = true;
+                    if (dfs(board, word, 1, i, j))
+                        return true;
+                    flag[i][j] = false;
+                }
+        return false;
+
+    }
+
+    public boolean dfs(char[][] board, String word, int pos, int x, int y) {
+        if (pos == word.length()) return true;
+        if (x - 1 >= 0 && !flag[x - 1][y] &&board[x - 1][y] == word.charAt(pos)) {
+            flag[x-1][y] = true;
+            if(dfs(board, word, pos + 1, x - 1, y))
+                return true;
+            flag[x-1][y] = false;
+        }
+        if (x +1 < board.length && !flag[x + 1][y] &&board[x +1][y] == word.charAt(pos)) {
+            flag[x+1][y] = true;
+            if(dfs(board, word, pos + 1, x + 1, y))
+                return true;
+            flag[x+1][y] =false;
+        }
+        if (y - 1 >= 0 && !flag[x][y - 1] &&board[x][y-1] == word.charAt(pos)) {
+            flag[x][y-1] = true;
+            if(dfs(board, word, pos + 1, x, y-1))
+                return true;
+            flag[x][y-1] = false;
+        }
+        if (y +1 <board[0].length && !flag[x][y + 1] &&board[x][y+1] == word.charAt(pos)) {
+            flag[x][y+1] = true;
+            if(dfs(board, word, pos + 1, x, y+1))
+                return true;
+            flag[x][y+1] = false;
+        }
+        return false;
+    }
+}
+~~~
+
+击败97%
+
+
+
+### Q[139单词拆分](https://leetcode-cn.com/problems/word-break/)
+
+难度 中等
+
+给定一个**非空**字符串 *s* 和一个包含**非空**单词的列表 *wordDict*，判定 *s* 是否可以被空格拆分为一个或多个在字典中出现的单词。
+
+**说明：**
+
+- 拆分时可以重复使用字典中的单词。
+- 你可以假设字典中没有重复的单词。
+
+**示例 1：**
+
+```
+输入: s = "leetcode", wordDict = ["leet", "code"]
+输出: true
+解释: 返回 true 因为 "leetcode" 可以被拆分成 "leet code"。
+```
+
+**示例 2：**
+
+```
+输入: s = "applepenapple", wordDict = ["apple", "pen"]
+输出: true
+解释: 返回 true 因为 "applepenapple" 可以被拆分成 "apple pen apple"。
+     注意你可以重复使用字典中的单词。
+```
+
+**示例 3：**
+
+```
+输入: s = "catsandog", wordDict = ["cats", "dog", "sand", "and", "cat"]
+输出: false
+```
+
+dp问题，dp[i] 表示到index:i-1都可以分隔开。dp[i] = dp[j] && set.contains(s.substring(j,i))。dp[0] = true
+
+~~~java
+class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        Set<String> set = new HashSet<>();
+        boolean[] dp = new boolean[s.length()+1];
+        dp[0] = true;
+        for(String s1: wordDict)
+            set.add(s1);
+        for(int i = 1; i <= s.length(); i++){
+            for(int j = 0; j < i; j++){
+                if(dp[j]&&set.contains(s.substring(j,i))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+        return dp[s.length()];
+    }
+}
+~~~
+
