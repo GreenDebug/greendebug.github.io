@@ -7823,3 +7823,186 @@ class Solution {
 }
 ~~~
 
+### Q[116填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
+
+难度中等299
+
+给定一个**完美二叉树**，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下：
+
+```
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 `NULL`。
+
+初始状态下，所有 next 指针都被设置为 `NULL`。
+
+ 
+
+**示例：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2019/02/15/116_sample.png)
+
+```
+输入：{"$id":"1","left":{"$id":"2","left":{"$id":"3","left":null,"next":null,"right":null,"val":4},"next":null,"right":{"$id":"4","left":null,"next":null,"right":null,"val":5},"val":2},"next":null,"right":{"$id":"5","left":{"$id":"6","left":null,"next":null,"right":null,"val":6},"next":null,"right":{"$id":"7","left":null,"next":null,"right":null,"val":7},"val":3},"val":1}
+
+输出：{"$id":"1","left":{"$id":"2","left":{"$id":"3","left":null,"next":{"$id":"4","left":null,"next":{"$id":"5","left":null,"next":{"$id":"6","left":null,"next":null,"right":null,"val":7},"right":null,"val":6},"right":null,"val":5},"right":null,"val":4},"next":{"$id":"7","left":{"$ref":"5"},"next":null,"right":{"$ref":"6"},"val":3},"right":{"$ref":"4"},"val":2},"next":null,"right":{"$ref":"7"},"val":1}
+
+解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。
+```
+
+ 
+
+**提示：**
+
+- 你只能使用常量级额外空间。
+- 使用递归解题也符合要求，本题中递归程序占用的栈空间不算做额外的空间复杂度。
+
+层次遍历，用队列
+
+~~~java
+class Solution {
+    public Node connect(Node root) {
+        if(root == null) return null;
+        Queue<Node> q = new ArrayDeque<>();
+        Queue<Integer> level = new ArrayDeque<>();
+        Node n1 = root;
+        q.add(root);
+        level.add(1);
+        int l = 0;
+        Node preNode = root;
+        Node temp;
+        while (q.size() != 0) {
+            int l1 = level.poll();
+            temp = q.poll();
+            if (l == l1)
+                preNode.next = temp;
+            l = l1;
+            preNode = temp;
+            if (temp.left != null) {
+                q.add(temp.left);
+                level.add(l + 1);
+            }
+            if (temp.right != null) {
+                q.add(temp.right);
+                level.add(l + 1);
+            }
+        }
+        return root;
+    }
+}
+~~~
+
+击败5%
+
+### Q[152乘积最大子数组](https://leetcode-cn.com/problems/maximum-product-subarray/)
+
+难度 中等
+
+给你一个整数数组 `nums` ，请你找出数组中乘积最大的连续子数组（该子数组中至少包含一个数字），并返回该子数组所对应的乘积。
+
+ 
+
+**示例 1:**
+
+```
+输入: [2,3,-2,4]
+输出: 6
+解释: 子数组 [2,3] 有最大乘积 6。
+```
+
+**示例 2:**
+
+```
+输入: [-2,0,-1]
+输出: 0
+解释: 结果不能为 2, 因为 [-2,-1] 不是子数组。
+```
+
+初看这题 感觉挺简单的。维护一个前值就够了。遍历数组，每次取最大
+
+问题就在负数。如果有偶数个负数，这种方法就会失效。
+
+还得维护一个最小值，就是这个最大值，最小值的初值也得想一想
+
+~~~java
+class Solution {
+    public int maxProduct(int[] nums) {
+        if(nums.length == 0) return 0;
+        int[] min = new int[nums.length];
+        int[] max = new int[nums.length];
+        min[0] = nums[0];
+        max[0] = nums[0];
+        int ans = max[0];
+        for(int i = 1; i < nums.length; i++){
+            min[i] = nums[i];
+            max[i] = nums[i];
+            min[i] = Math.min(min[i-1]*nums[i],Math.min(nums[i],max[i-1]*nums[i]));
+            max[i] = Math.max(min[i-1]*nums[i],Math.max(nums[i],max[i-1]*nums[i]));
+            ans = Math.max(max[i],ans);
+        }
+        return ans;
+    }
+}
+~~~
+
+六发。击败41%
+
+### Q[240. 搜索二维矩阵 II](https://leetcode-cn.com/problems/search-a-2d-matrix-ii/)
+
+难度 中等
+
+编写一个高效的算法来搜索 *m* x *n* 矩阵 matrix 中的一个目标值 target。该矩阵具有以下特性：
+
+- 每行的元素从左到右升序排列。
+- 每列的元素从上到下升序排列。
+
+**示例:**
+
+现有矩阵 matrix 如下：
+
+```
+[
+  [1,   4,  7, 11, 15],
+  [2,   5,  8, 12, 19],
+  [3,   6,  9, 16, 22],
+  [10, 13, 14, 17, 24],
+  [18, 21, 23, 26, 30]
+]
+```
+
+给定 target = `5`，返回 `true`。
+
+给定 target = `20`，返回 `false`。
+
+![](https://pic.leetcode-cn.com/1602309177-SsaQGG-image.png)
+
+看了这个图就会了
+
+我原来用dfs，超时
+
+~~~java
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if(matrix.length == 0) return false;
+        int x = 0;
+        int y =matrix[0].length-1;
+        while(x<matrix.length&&y>=0&&matrix[x][y]!=target){
+            if(matrix[x][y]>target)
+                y--;
+            else
+                x++;
+        }
+        if(x<matrix.length&&y>=0&&matrix[x][y] == target)
+            return true;
+        return false;
+    }
+}
+~~~
+
+击败99%
