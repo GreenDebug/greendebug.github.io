@@ -8006,3 +8006,157 @@ class Solution {
 ~~~
 
 击败99%
+
+### Q[221最大正方形](https://leetcode-cn.com/problems/maximal-square/)
+
+难度 中等
+
+在一个由 0 和 1 组成的二维矩阵内，找到只包含 1 的最大正方形，并返回其面积。
+
+**示例:**
+
+```
+输入: 
+
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+
+输出: 4
+```
+
+dp问题自己想很复杂，抄答案很简单
+
+dp[ i ] [j] = Math.min(dp[i - 1] [ j - 1], Math.min(dp[i - 1] [j], dp[i] [j - 1])) + 1;
+
+~~~java
+class Solution {
+    public int maximalSquare(char[][] matrix) {
+        if (matrix.length == 0) return 0;
+        int max = 0;
+        int[][] dp = new int[matrix.length][matrix[0].length];
+        for (int i = 0; i < matrix.length; i++) {
+            if (matrix[i][0] == '1') {
+                dp[i][0] = 1;
+                max = 1;
+            }
+        }
+        for (int j = 0; j < matrix[0].length; j++) {
+            if (matrix[0][j] == '1') {
+                dp[0][j] = 1;
+                max = 1;
+            }
+        }
+        for (int i = 1; i < matrix.length; i++) {
+            for (int j = 1; j < matrix[0].length; j++) {
+                if (matrix[i][j] == '1') {
+                    dp[i][j] = Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1])) + 1;
+                    max = Math.max(max, dp[i][j]);
+                }
+            }
+        }
+        return max*max;
+    }
+}
+~~~
+
+击败16%
+
+### Q[1277统计全为 1 的正方形子矩阵](https://leetcode-cn.com/problems/count-square-submatrices-with-all-ones/)
+
+难度中等109
+
+给你一个 `m * n` 的矩阵，矩阵中的元素不是 `0` 就是 `1`，请你统计并返回其中完全由 `1` 组成的 **正方形** 子矩阵的个数。
+
+ 
+
+**示例 1：**
+
+```
+输入：matrix =
+[
+  [0,1,1,1],
+  [1,1,1,1],
+  [0,1,1,1]
+]
+输出：15
+解释： 
+边长为 1 的正方形有 10 个。
+边长为 2 的正方形有 4 个。
+边长为 3 的正方形有 1 个。
+正方形的总数 = 10 + 4 + 1 = 15.
+```
+
+**示例 2：**
+
+```
+输入：matrix = 
+[
+  [1,0,1],
+  [1,1,0],
+  [1,1,0]
+]
+输出：7
+解释：
+边长为 1 的正方形有 6 个。 
+边长为 2 的正方形有 1 个。
+正方形的总数 = 6 + 1 = 7.
+```
+
+ 
+
+**提示：**
+
+- `1 <= arr.length <= 300`
+- `1 <= arr[0].length <= 300`
+- `0 <= arr[i][j] <= 1`
+
+上题稍微改下又是这道题
+
+~~~java
+class Solution {
+    public int countSquares(int[][] matrix) {
+        if (matrix.length == 0) return 0;
+        int ans = 0;
+        int[][] dp = new int[matrix.length][matrix[0].length];
+        for (int i = 0; i < matrix.length; i++) {
+            dp[i][0] = matrix[i][0];
+            ans += dp[i][0];
+        }
+        for (int j = 1; j < matrix[0].length; j++) {
+            dp[0][j] = matrix[0][j];
+            ans += dp[0][j];
+        }
+        for (int i = 1; i < matrix.length; i++) {
+            for (int j = 1; j < matrix[0].length; j++) {
+                if (matrix[i][j] == 1) {
+                    dp[i][j] = Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1])) + 1;
+                    ans += dp[i][j];
+                }
+            }
+        }
+        return ans;
+    }
+}
+~~~
+
+### Q[560和为K的子数组](https://leetcode-cn.com/problems/subarray-sum-equals-k/)
+
+难度 中等
+
+给定一个整数数组和一个整数 **k，**你需要找到该数组中和为 **k** 的连续的子数组的个数。
+
+**示例 1 :**
+
+```
+输入:nums = [1,1,1], k = 2
+输出: 2 , [1,1] 与 [1,1] 为两种不同的情况。
+```
+
+**说明 :**
+
+1. 数组的长度为 [1, 20,000]。
+2. 数组中元素的范围是 [-1000, 1000] ，且整数 **k** 的范围是 [-1e7, 1e7]。
+
+维护一个前缀和map，前缀和-前缀和 = k。
