@@ -8181,3 +8181,217 @@ class Solution {
 ~~~
 
 击败63%
+
+### Q[52N皇后 II](https://leetcode-cn.com/problems/n-queens-ii/)
+
+难度困难154
+
+*n* 皇后问题研究的是如何将 *n* 个皇后放置在 *n*×*n* 的棋盘上，并且使皇后彼此之间不能相互攻击。
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/10/12/8-queens.png)
+
+上图为 8 皇后问题的一种解法。
+
+给定一个整数 *n*，返回 *n* 皇后不同的解决方案的数量。
+
+**示例:**
+
+```
+输入: 4
+输出: 2
+解释: 4 皇后问题存在如下两个不同的解法。
+[
+ [".Q..",  // 解法 1
+  "...Q",
+  "Q...",
+  "..Q."],
+
+ ["..Q.",  // 解法 2
+  "Q...",
+  "...Q",
+  ".Q.."]
+]
+```
+
+ 
+
+**提示：**
+
+- **皇后**，是[国际象棋](https://baike.baidu.com/item/国际象棋)中的棋子，意味着[国王](https://baike.baidu.com/item/国王)的妻子。皇后只做一件事，那就是“[吃子](https://baike.baidu.com/item/吃子)”。当她遇见可以吃的棋子时，就迅速冲上去吃掉棋子。当然，她横、竖、斜都可走一或 N-1 步，可进可退。（引用自 [百度百科 - 皇后](https://baike.baidu.com/item/皇后/15860305?fr=aladdin) ）
+
+其实并不难，回溯法。重点在于如何判断是否在一条斜线上。有点类似解析几何。在一条斜线上，他们x+y，或者x-y的和应该是相等的
+
+~~~java
+class Solution {
+    public int totalNQueens(int n) {
+        Set<Integer> col = new HashSet<>();
+        Set<Integer> dia1 = new HashSet<>();
+        Set<Integer> dia2 = new HashSet<>();
+        return backtract(n,0,col,dia1,dia2);
+    }
+    public int backtract(int n, int row, Set<Integer> col, Set<Integer> dia1, Set<Integer> dia2){
+        if(n == row)
+            return 1;
+        int count = 0;
+        for(int i = 0; i < n; i++){
+            if(!col.contains(i) && !dia1.contains(row+i) && !dia2.contains(i-row)){
+                col.add(i);
+                dia1.add(row+i);
+                dia2.add(i-row);
+                count += backtract(n,row+1,col,dia1,dia2);
+                col.remove(i);
+                dia1.remove(row+i);
+                dia2.remove(i-row);
+            }
+        }
+        return count;
+    }
+}
+~~~
+
+击败23%
+
+### Q[51N 皇后](https://leetcode-cn.com/problems/n-queens/)
+
+难度困难635
+
+*n* 皇后问题研究的是如何将 *n* 个皇后放置在 *n*×*n* 的棋盘上，并且使皇后彼此之间不能相互攻击。
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/10/12/8-queens.png)
+
+上图为 8 皇后问题的一种解法。
+
+给定一个整数 *n*，返回所有不同的 *n* 皇后问题的解决方案。
+
+每一种解法包含一个明确的 *n* 皇后问题的棋子放置方案，该方案中 `'Q'` 和 `'.'` 分别代表了皇后和空位。
+
+ 
+
+**示例：**
+
+```
+输入：4
+输出：[
+ [".Q..",  // 解法 1
+  "...Q",
+  "Q...",
+  "..Q."],
+
+ ["..Q.",  // 解法 2
+  "Q...",
+  "...Q",
+  ".Q.."]
+]
+解释: 4 皇后问题存在两个不同的解法。
+```
+
+ 
+
+**提示：**
+
+- 皇后彼此不能相互攻击，也就是说：任何两个皇后都不能处于同一条横行、纵行或斜线上。
+
+顺手解决这题
+
+~~~java
+class Solution {
+    public List<List<String>> solveNQueens(int n) {
+        Set<Integer> col = new HashSet<>();
+        Set<Integer> dia1 = new HashSet<>();
+        Set<Integer> dia2 = new HashSet<>();
+        List<List<String>> ans = new ArrayList<>();
+        List<String> l = new ArrayList<>();
+        backtract(n, 0, col, dia1, dia2, ans,l);
+        return ans;
+    }
+
+    public void backtract(int n, int row, Set<Integer> col, Set<Integer> dia1, Set<Integer> dia2, List<List<String>> ans,List<String> temp) {
+        if (n == row) {
+            ans.add(new ArrayList<>(temp));
+        }
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (!col.contains(i) && !dia1.contains(row + i) && !dia2.contains(i - row)) {
+                col.add(i);
+                dia1.add(row + i);
+                dia2.add(i - row);
+                temp.add(builder(n,i));
+                backtract(n, row + 1, col, dia1, dia2,ans,temp);
+                temp.remove(temp.size()-1);
+                col.remove(i);
+                dia1.remove(row + i);
+                dia2.remove(i - row);
+            }
+        }
+        
+    }
+
+    public String builder(int n, int pos) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            if (i == pos)
+                sb.append('Q');
+            else
+                sb.append('.');
+        }
+        return sb.toString();
+    }
+}
+~~~
+
+击败45%
+
+### Q[31下一个排列](https://leetcode-cn.com/problems/next-permutation/)
+
+难度 中等
+
+实现获取下一个排列的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。
+
+如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。
+
+必须**[原地](https://baike.baidu.com/item/原地算法)**修改，只允许使用额外常数空间。
+
+以下是一些例子，输入位于左侧列，其相应输出位于右侧列。
+`1,2,3` → `1,3,2`
+`3,2,1` → `1,2,3`
+`1,1,5` → `1,5,1`
+
+仿照标答写的。先从右往左，找到num[i-1] < num[i], 然后从右往左，找一个刚好比i-1 大的与他交换。再把i之后的反转。
+
+相当于每次认为 i-1之后已经是最后一个排列了。
+
+~~~java
+class Solution {
+    public void nextPermutation(int[] nums) {
+        int n = nums.length;
+        int i = n-1;
+        while(i>0&&nums[i-1]>=nums[i]){
+            i--;
+        }
+        i--;
+        if(i>=0){
+            int j = n - 1;
+            while (i <= j && nums[j] <= nums[i]) {
+                j--;
+            }
+            swap(nums, i, j);
+        }
+        reverse(nums,i+1);
+    }
+    public void swap(int[] nums, int i, int j){
+        int t = nums[i];
+        nums[i] = nums[j];
+        nums[j] = t;
+    }
+    public void reverse(int[] nums, int i){
+        int j = nums.length-1;
+        while(i<j){
+            swap(nums,i,j);
+            i++;
+            j--;
+        }
+    }
+}
+~~~
+
+击败99%
