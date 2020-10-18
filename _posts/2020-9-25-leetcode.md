@@ -2,7 +2,7 @@ csjue的力扣
 
 暂时跳过的题目q384 q32 q10 q40
 
-这学期开始水水力扣。按照这个[顺序](https://www.zhihu.com/question/280279208/answer/1118675237)刷完了,语言主要是Java
+这学期开始水水力扣。按照这个[顺序](https://www.zhihu.com/question/280279208/answer/1118675237)刷完了,语言主要是Java。力扣热题100，已刷85/100，剩下的基本是困难。
 
 欢迎关注俺的力扣 [csjue](https://leetcode-cn.com/u/csjue/)
 
@@ -8395,3 +8395,391 @@ class Solution {
 ~~~
 
 击败99%
+
+### Q[122买卖股票的最佳时机 II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)
+
+难度 简单
+
+给定一个数组，它的第 *i* 个元素是一支给定股票第 *i* 天的价格。
+
+设计一个算法来计算你所能获取的最大利润。你可以尽可能地完成更多的交易（多次买卖一支股票）。
+
+**注意：**你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+ 
+
+**示例 1:**
+
+```
+输入: [7,1,5,3,6,4]
+输出: 7
+解释: 在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5-1 = 4 。
+     随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6-3 = 3 。
+```
+
+**示例 2:**
+
+```
+输入: [1,2,3,4,5]
+输出: 4
+解释: 在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5-1 = 4 。
+     注意你不能在第 1 天和第 2 天接连购买股票，之后再将它们卖出。
+     因为这样属于同时参与了多笔交易，你必须在再次购买前出售掉之前的股票。
+```
+
+**示例 3:**
+
+```
+输入: [7,6,4,3,1]
+输出: 0
+解释: 在这种情况下, 没有交易完成, 所以最大利润为 0。
+```
+
+ 
+
+**提示：**
+
+- `1 <= prices.length <= 3 * 10 ^ 4`
+- `0 <= prices[i] <= 10 ^ 4`
+
+简单dp，在持有股票与未持有直接转移
+
+~~~java
+class Solution {
+    public int maxProfit(int[] prices){
+        int[][] dp = new int[prices.length][2];
+        dp[0][0] = -prices[0];
+        dp[0][1] = 0;
+        for(int i = 1; i < prices.length; ++i){
+            dp[i][0] = Math.max(dp[i-1][0],dp[i-1][1]-prices[i]);
+            dp[i][1] = Math.max(dp[i-1][1],dp[i-1][0]+prices[i]);
+        }
+        return dp[prices.length-1][1];
+    }
+}
+~~~
+
+击败14%
+
+### Q[189旋转数组](https://leetcode-cn.com/problems/rotate-array/)
+
+难度 中等
+
+给定一个数组，将数组中的元素向右移动 *k* 个位置，其中 *k* 是非负数。
+
+**示例 1:**
+
+```
+输入: [1,2,3,4,5,6,7] 和 k = 3
+输出: [5,6,7,1,2,3,4]
+解释:
+向右旋转 1 步: [7,1,2,3,4,5,6]
+向右旋转 2 步: [6,7,1,2,3,4,5]
+向右旋转 3 步: [5,6,7,1,2,3,4]
+```
+
+**示例 2:**
+
+```
+输入: [-1,-100,3,99] 和 k = 2
+输出: [3,99,-1,-100]
+解释: 
+向右旋转 1 步: [99,-1,-100,3]
+向右旋转 2 步: [3,99,-1,-100]
+```
+
+**说明:**
+
+- 尽可能想出更多的解决方案，至少有三种不同的方法可以解决这个问题。
+- 要求使用空间复杂度为 O(1) 的 **原地** 算法。
+
+看题解，先反转整个数组，将k之后反转，将0-k-1反转
+
+~~~java
+class Solution {
+    public void rotate(int[] nums, int k) {
+        if (k > nums.length) k %= nums.length;
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int tempt = nums[left];
+            nums[left] = nums[right];
+            nums[right] = tempt;
+            left++;
+            right--;
+        }
+        left = k;
+        right = nums.length - 1;
+        while (left < nums.length && left < right) {
+            int tempt = nums[left];
+            nums[left] = nums[right];
+            nums[right] = tempt;
+            left++;
+            right--;
+        }
+        left = 0;
+        right = k - 1;
+        while (left < right) {
+            int tempt = nums[left];
+            nums[left] = nums[right];
+            nums[right] = tempt;
+            left++;
+            right--;
+        }
+    }
+}
+~~~
+
+击败100%
+
+### Q[217. 存在重复元素](https://leetcode-cn.com/problems/contains-duplicate/)
+
+难度 简单
+
+给定一个整数数组，判断是否存在重复元素。
+
+如果任意一值在数组中出现至少两次，函数返回 `true` 。如果数组中每个元素都不相同，则返回 `false` 。
+
+ 
+
+**示例 1:**
+
+```
+输入: [1,2,3,1]
+输出: true
+```
+
+**示例 2:**
+
+```
+输入: [1,2,3,4]
+输出: false
+```
+
+**示例 3:**
+
+```
+输入: [1,1,1,3,3,4,3,2,4,2]
+输出: true
+```
+
+set
+
+~~~java
+class Solution {
+    public boolean containsDuplicate(int[] nums) {
+        Set<Integer> s = new HashSet<>();
+        for(int i: nums){
+            if(s.contains(i))
+                return true;
+            s.add(i);
+        }
+        return false;
+    }
+}
+~~~
+
+击败56%
+
+hashmap击败49%，性能差不多
+
+### Q[350两个数组的交集 II](https://leetcode-cn.com/problems/intersection-of-two-arrays-ii/)
+
+难度 简单
+
+给定两个数组，编写一个函数来计算它们的交集。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums1 = [1,2,2,1], nums2 = [2,2]
+输出：[2,2]
+```
+
+**示例 2:**
+
+```
+输入：nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+输出：[4,9]
+```
+
+ 
+
+**说明：**
+
+- 输出结果中每个元素出现的次数，应与元素在两个数组中出现次数的最小值一致。
+- 我们可以不考虑输出结果的顺序。
+
+***\*进阶\**：**
+
+- 如果给定的数组已经排好序呢？你将如何优化你的算法？
+- 如果 *nums1* 的大小比 *nums2* 小很多，哪种方法更优？
+- 如果 *nums2* 的元素存储在磁盘上，内存是有限的，并且你不能一次加载所有的元素到内存中，你该怎么办？
+
+看进阶 我还以为已经排好序了，浪费了一发
+
+~~~java
+class Solution {
+    public int[] intersect(int[] nums1, int[] nums2) {
+        Arrays.sort(nums1);
+        Arrays.sort(nums2);
+        ArrayList<Integer> l = new ArrayList<>();
+        int n1 = 0, n2 = 0;
+        while(n1<nums1.length&&n2<nums2.length){
+            if(nums1[n1] == nums2[n2]){
+                l.add(nums1[n1]);
+                ++n1;
+                ++n2;
+            }else if(nums1[n1]>nums2[n2]){
+                n2++;
+            }else{
+                n1++;
+            }
+        }
+        int[] ans = new int[l.size()];
+        for(int i = 0; i < l.size(); ++i)
+            ans[i] = l.get(i);
+        return ans;
+    }
+}
+~~~
+
+击败87%
+
+### Q[66加一](https://leetcode-cn.com/problems/plus-one/)
+
+难度 简单
+
+给定一个由**整数**组成的**非空**数组所表示的非负整数，在该数的基础上加一。
+
+最高位数字存放在数组的首位， 数组中每个元素只存储**单个**数字。
+
+你可以假设除了整数 0 之外，这个整数不会以零开头。
+
+**示例 1:**
+
+```
+输入: [1,2,3]
+输出: [1,2,4]
+解释: 输入数组表示数字 123。
+```
+
+**示例 2:**
+
+```
+输入: [4,3,2,1]
+输出: [4,3,2,2]
+解释: 输入数组表示数字 4321。
+```
+
+这题也是随便写
+
+~~~java
+class Solution {
+    public int[] plusOne(int[] digits) {
+        int pos = digits.length-1;
+        while(pos>=0&&digits[pos]==9){
+            digits[pos] = 0;
+            pos--;
+        }
+        if(pos == -1){
+            int[] ans = new int[digits.length+1];
+            ans[0] = 1;
+            return ans;
+        }
+        digits[pos]++;
+        return digits;
+    }
+}
+~~~
+
+击败100%
+
+### Q[36有效的数独](https://leetcode-cn.com/problems/valid-sudoku/)
+
+难度 中等
+
+判断一个 9x9 的数独是否有效。只需要**根据以下规则**，验证已经填入的数字是否有效即可。
+
+1. 数字 `1-9` 在每一行只能出现一次。
+2. 数字 `1-9` 在每一列只能出现一次。
+3. 数字 `1-9` 在每一个以粗实线分隔的 `3x3` 宫内只能出现一次。
+
+![img](https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png)
+
+上图是一个部分填充的有效的数独。
+
+数独部分空格内已填入了数字，空白格用 `'.'` 表示。
+
+**示例 1:**
+
+```
+输入:
+[
+  ["5","3",".",".","7",".",".",".","."],
+  ["6",".",".","1","9","5",".",".","."],
+  [".","9","8",".",".",".",".","6","."],
+  ["8",".",".",".","6",".",".",".","3"],
+  ["4",".",".","8",".","3",".",".","1"],
+  ["7",".",".",".","2",".",".",".","6"],
+  [".","6",".",".",".",".","2","8","."],
+  [".",".",".","4","1","9",".",".","5"],
+  [".",".",".",".","8",".",".","7","9"]
+]
+输出: true
+```
+
+**示例 2:**
+
+```
+输入:
+[
+  ["8","3",".",".","7",".",".",".","."],
+  ["6",".",".","1","9","5",".",".","."],
+  [".","9","8",".",".",".",".","6","."],
+  ["8",".",".",".","6",".",".",".","3"],
+  ["4",".",".","8",".","3",".",".","1"],
+  ["7",".",".",".","2",".",".",".","6"],
+  [".","6",".",".",".",".","2","8","."],
+  [".",".",".","4","1","9",".",".","5"],
+  [".",".",".",".","8",".",".","7","9"]
+]
+输出: false
+解释: 除了第一行的第一个数字从 5 改为 8 以外，空格内其他数字均与 示例1 相同。
+     但由于位于左上角的 3x3 宫内有两个 8 存在, 因此这个数独是无效的。
+```
+
+**说明:**
+
+- 一个有效的数独（部分已被填充）不一定是可解的。
+- 只需要根据以上规则，验证已经填入的数字是否有效即可。
+- 给定数独序列只包含数字 `1-9` 和字符 `'.'` 。
+- 给定数独永远是 `9x9` 形式的。
+
+搞几个数组记录就好了
+
+~~~java
+class Solution {
+    public boolean isValidSudoku(char[][] board) {
+        int[][] row = new int[9][10];
+        int[][] col = new int[9][10];
+        int[][] mat = new int[9][10];
+        for (int i = 0; i < board.length; ++i) {
+            for (int j = 0; j < board[0].length; ++j) {
+                if (board[i][j] == '.')
+                    continue;
+                int ch = board[i][j] - '0';
+                if (row[i][ch] == 1 || col[j][ch] == 1 || mat[(j / 3 + i / 3 * 3)][ch] == 1)
+                    return false;
+                row[i][ch]++;
+                col[j][ch]++;
+                mat[(j / 3 + i / 3 * 3)][ch]++;
+            }
+        }
+        return true;
+    }
+}
+~~~
+
+击败96%
