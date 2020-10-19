@@ -8783,3 +8783,234 @@ class Solution {
 ~~~
 
 击败96%
+
+### Q[844比较含退格的字符串](https://leetcode-cn.com/problems/backspace-string-compare/)
+
+难度 简单
+
+给定 `S` 和 `T` 两个字符串，当它们分别被输入到空白的文本编辑器后，判断二者是否相等，并返回结果。 `#` 代表退格字符。
+
+**注意：**如果对空文本输入退格字符，文本继续为空。
+
+ 
+
+**示例 1：**
+
+```
+输入：S = "ab#c", T = "ad#c"
+输出：true
+解释：S 和 T 都会变成 “ac”。
+```
+
+**示例 2：**
+
+```
+输入：S = "ab##", T = "c#d#"
+输出：true
+解释：S 和 T 都会变成 “”。
+```
+
+**示例 3：**
+
+```
+输入：S = "a##c", T = "#a#c"
+输出：true
+解释：S 和 T 都会变成 “c”。
+```
+
+**示例 4：**
+
+```
+输入：S = "a#c", T = "b"
+输出：false
+解释：S 会变成 “c”，但 T 仍然是 “b”。
+```
+
+ 
+
+**提示：**
+
+1. `1 <= S.length <= 200`
+2. `1 <= T.length <= 200`
+3. `S` 和 `T` 只含有小写字母以及字符 `'#'`。
+
+ 
+
+**进阶：**
+
+- 你可以用 `O(N)` 的时间复杂度和 `O(1)` 的空间复杂度解决该问题吗？
+
+当然是直接写O（N），从后往前读，遇到#，就往前跳
+
+~~~java
+class Solution {
+    public boolean backspaceCompare(String S, String T) {
+        if (S.length() == 0 && T.length() == 0) return true;
+        if (S.length() == 0 || T.length() == 0) return false;
+        int pos1 = S.length() - 1;
+        int return1 = 0;
+        int pos2 = T.length() - 1;
+        int return2 = 0;
+        while (pos1 >= 0 && pos2 >= 0) {
+            if (S.charAt(pos1) == '#') {
+                pos1--;
+                return1++;
+            }
+            while (pos1 >= 0 && (S.charAt(pos1) == '#' || return1 > 0)) {
+                if (S.charAt(pos1) == '#') {
+                    return1++;
+                    pos1--;
+                } else {
+                    pos1--;
+                    return1--;
+                }
+            }
+            if (T.charAt(pos2) == '#') {
+                pos2--;
+                return2++;
+            }
+            while (pos2 >= 0 && (T.charAt(pos2) == '#' || return2 > 0)) {
+                if (T.charAt(pos2) == '#') {
+                    return2++;
+                    pos2--;
+                } else {
+                    pos2--;
+                    return2--;
+                }
+            }
+            if (pos1 < 0 || pos2 < 0)
+                break;
+            if (T.charAt(pos2) != S.charAt(pos1))
+                return false;
+            else {
+                pos1--;
+                pos2--;
+            }
+        }
+        while (pos1 >= 0 && (S.charAt(pos1) == '#' || return1 > 0)) {
+            if (S.charAt(pos1) == '#') {
+                return1++;
+                pos1--;
+            } else {
+                pos1--;
+                return1--;
+            }
+        }
+        while (pos2 >= 0 && (T.charAt(pos2) == '#' || return2 > 0)) {
+            if (T.charAt(pos2) == '#') {
+                return2++;
+                pos2--;
+            } else {
+                pos2--;
+                return2--;
+            }
+        }
+        if (pos1 >= 0 || pos2 >= 0) return false;
+        return true;
+    }
+}
+~~~
+
+写得很复杂。漏考虑很多下细节。几乎每个地方都浪费了一发
+
+六发解决。击败96%
+
+### Q[242有效的字母异位词](https://leetcode-cn.com/problems/valid-anagram/)
+
+难度 简单
+
+给定两个字符串 *s* 和 *t* ，编写一个函数来判断 *t* 是否是 *s* 的字母异位词。
+
+**示例 1:**
+
+```
+输入: s = "anagram", t = "nagaram"
+输出: true
+```
+
+**示例 2:**
+
+```
+输入: s = "rat", t = "car"
+输出: false
+```
+
+**说明:**
+你可以假设字符串只包含小写字母。
+
+**进阶:**
+如果输入字符串包含 unicode 字符怎么办？你能否调整你的解法来应对这种情况？
+
+简单题，秒杀
+
+~~~java
+class Solution {
+    public boolean isAnagram(String s, String t) {
+        if (s.length() == 0 && t.length() == 0) return true;
+        if (s.length() == 0 || t.length() == 0) return false;
+        int[] chars = new int[26];
+        for (int i = 0; i < s.length(); i++) {
+            chars[s.charAt(i) - 'a']++;
+        }
+        for (int i = 0; i < t.length(); i++) {
+            chars[t.charAt(i) - 'a']--;
+        }
+        for (int i = 0; i < 26; i++) {
+            if (chars[i] != 0)
+                return false;
+        }
+        return true;
+    }
+}
+~~~
+
+击败48%
+
+### Q[125验证回文串](https://leetcode-cn.com/problems/valid-palindrome/)
+
+难度 简单
+
+给定一个字符串，验证它是否是回文串，只考虑字母和数字字符，可以忽略字母的大小写。
+
+**说明：**本题中，我们将空字符串定义为有效的回文串。
+
+**示例 1:**
+
+```
+输入: "A man, a plan, a canal: Panama"
+输出: true
+```
+
+**示例 2:**
+
+```
+输入: "race a car"
+输出: false
+```
+
+刚开始还以为 不考虑数字
+
+~~~java
+class Solution {
+    public boolean isPalindrome(String s) {
+        if (s.length() == 0) return true;
+        s = s.toLowerCase();
+        int left = 0, right = s.length() - 1;
+        while (left < right) {
+            while (left < right && !Character.isLetter(s.charAt(left)) && !Character.isDigit(s.charAt(left))) {
+                left++;
+            }
+            while (left < right && !Character.isLetter(s.charAt(right)) && !Character.isDigit(s.charAt(right))) {
+                right--;
+            }
+            if (s.charAt(left) != s.charAt(right))
+                return false;
+            left++;
+            right--;
+        }
+        return true;
+    }
+}
+~~~
+
+击败49%
