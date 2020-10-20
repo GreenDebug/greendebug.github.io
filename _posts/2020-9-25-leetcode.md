@@ -9014,3 +9014,155 @@ class Solution {
 ~~~
 
 击败49%
+
+### Q[143重排链表](https://leetcode-cn.com/problems/reorder-list/)
+
+难度 中等
+
+给定一个单链表 *L*：*L*0→*L*1→…→*L**n*-1→*L*n ，
+将其重新排列后变为： *L*0→*L**n*→*L*1→*L**n*-1→*L*2→*L**n*-2→…
+
+你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。
+
+**示例 1:**
+
+```
+给定链表 1->2->3->4, 重新排列为 1->4->2->3.
+```
+
+**示例 2:**
+
+```
+给定链表 1->2->3->4->5, 重新排列为 1->5->2->4->3.
+```
+
+先找中点，反转中点之后，然后再把后半部分一个个插入到前面
+
+~~~java
+class Solution {
+    public void reorderList(ListNode head) {
+        if(head == null) return;
+        ListNode middle = head, last = head, preMiddle = head, next = head;
+        while (last != null) {
+            last = last.next;
+            if (last != null)
+                last = last.next;
+            else
+                break;
+            preMiddle = middle;
+            middle = middle.next;
+        }
+        preMiddle.next = null;
+        preMiddle = null;
+        while (middle != null) {
+            next = middle.next;
+            middle.next = preMiddle;
+            preMiddle = middle;
+            middle = next;
+        }
+        ListNode l1p1 = head, l1p2 = head.next;
+        ListNode l2p1 = preMiddle, l2p2 = l2p1.next;
+        while (l1p1 != null && l2p1 !=null) {
+            l1p1.next = l2p1;
+            if(l1p2== null&&l2p2!=null)
+                ;
+            else
+                l2p1.next = l1p2;
+            l1p1 = l1p2;
+            l2p1 = l2p2;
+            if (l1p2 != null)
+                l1p2 = l1p2.next;
+            if (l2p2 != null)
+                l2p2 = l2p2.next;
+        }
+    }
+}
+~~~
+
+击败79%
+
+### Q[28实现 strStr()](https://leetcode-cn.com/problems/implement-strstr/)
+
+难度简单600
+
+实现 [strStr()](https://baike.baidu.com/item/strstr/811469) 函数。
+
+给定一个 haystack 字符串和一个 needle 字符串，在 haystack 字符串中找出 needle 字符串出现的第一个位置 (从0开始)。如果不存在，则返回 **-1**。
+
+**示例 1:**
+
+```
+输入: haystack = "hello", needle = "ll"
+输出: 2
+```
+
+**示例 2:**
+
+```
+输入: haystack = "aaaaa", needle = "bba"
+输出: -1
+```
+
+**说明:**
+
+当 `needle` 是空字符串时，我们应当返回什么值呢？这是一个在面试中很好的问题。
+
+对于本题而言，当 `needle` 是空字符串时我们应当返回 0 。这与C语言的 [strstr()](https://baike.baidu.com/item/strstr/811469) 以及 Java的 [indexOf()](https://docs.oracle.com/javase/7/docs/api/java/lang/String.html#indexOf(java.lang.String)) 定义相符。
+
+写自闭了，直接用库
+
+~~~java
+class Solution {
+    public int strStr(String haystack, String needle) {
+        return haystack.indexOf(needle);
+    }
+}
+~~~
+
+
+
+### Q[620有趣的电影](https://leetcode-cn.com/problems/not-boring-movies/)
+
+难度 简单
+
+SQL架构
+
+某城市开了一家新的电影院，吸引了很多人过来看电影。该电影院特别注意用户体验，专门有个 LED显示板做电影推荐，上面公布着影评和相关电影描述。
+
+作为该电影院的信息部主管，您需要编写一个 SQL查询，找出所有影片描述为**非** `boring` (不无聊) 的并且 **id 为奇数** 的影片，结果请按等级 `rating` 排列。
+
+ 
+
+例如，下表 `cinema`:
+
+```
++---------+-----------+--------------+-----------+
+|   id    | movie     |  description |  rating   |
++---------+-----------+--------------+-----------+
+|   1     | War       |   great 3D   |   8.9     |
+|   2     | Science   |   fiction    |   8.5     |
+|   3     | irish     |   boring     |   6.2     |
+|   4     | Ice song  |   Fantacy    |   8.6     |
+|   5     | House card|   Interesting|   9.1     |
++---------+-----------+--------------+-----------+
+```
+
+对于上面的例子，则正确的输出是为：
+
+```
++---------+-----------+--------------+-----------+
+|   id    | movie     |  description |  rating   |
++---------+-----------+--------------+-----------+
+|   5     | House card|   Interesting|   9.1     |
+|   1     | War       |   great 3D   |   8.9     |
++---------+-----------+--------------+-----------+
+```
+
+试试sql
+
+~~~mysql
+# Write your MySQL query statement below
+SELECT * FROM cinema WHERE description != "boring" AND id%2!=0 ORDER BY rating DESC
+~~~
+
+击败41%
