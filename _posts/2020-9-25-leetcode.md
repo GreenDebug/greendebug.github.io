@@ -9166,3 +9166,274 @@ SELECT * FROM cinema WHERE description != "boring" AND id%2!=0 ORDER BY rating D
 ~~~
 
 击败41%
+
+### Q[182查找重复的电子邮箱](https://leetcode-cn.com/problems/duplicate-emails/)
+
+难度 简单
+
+SQL架构
+
+编写一个 SQL 查询，查找 `Person` 表中所有重复的电子邮箱。
+
+**示例：**
+
+```
++----+---------+
+| Id | Email   |
++----+---------+
+| 1  | a@b.com |
+| 2  | c@d.com |
+| 3  | a@b.com |
++----+---------+
+```
+
+根据以上输入，你的查询应返回以下结果：
+
+```
++---------+
+| Email   |
++---------+
+| a@b.com |
++---------+
+```
+
+**说明：**所有电子邮箱都是小写字母。
+
+学习学习
+
+~~~mysql
+SELECT distinct a.Email 
+    FROM Person a
+    INNER JOIN Person b
+    ON a.Email = b.Email AND a.Id <> b.Id
+~~~
+
+击败63%
+
+### Q[595大的国家](https://leetcode-cn.com/problems/big-countries/)
+
+难度 简单
+
+SQL架构
+
+这里有张 `World` 表
+
+```
++-----------------+------------+------------+--------------+---------------+
+| name            | continent  | area       | population   | gdp           |
++-----------------+------------+------------+--------------+---------------+
+| Afghanistan     | Asia       | 652230     | 25500100     | 20343000      |
+| Albania         | Europe     | 28748      | 2831741      | 12960000      |
+| Algeria         | Africa     | 2381741    | 37100000     | 188681000     |
+| Andorra         | Europe     | 468        | 78115        | 3712000       |
+| Angola          | Africa     | 1246700    | 20609294     | 100990000     |
++-----------------+------------+------------+--------------+---------------+
+```
+
+如果一个国家的面积超过 300 万平方公里，或者人口超过 2500 万，那么这个国家就是大国家。
+
+编写一个 SQL 查询，输出表中所有大国家的名称、人口和面积。
+
+例如，根据上表，我们应该输出:
+
+```
++--------------+-------------+--------------+
+| name         | population  | area         |
++--------------+-------------+--------------+
+| Afghanistan  | 25500100    | 652230       |
+| Algeria      | 37100000    | 2381741      |
++--------------+-------------+--------------+
+```
+
+~~~mysql
+# Write your MySQL query statement below
+SELECT name,population,area From World WHERE area > 3000000 OR population > 25000000;
+~~~
+
+击败54%
+
+### Q[627变更性别](https://leetcode-cn.com/problems/swap-salary/)
+
+难度 简单
+
+SQL架构
+
+给定一个 `salary` 表，如下所示，有 m = 男性 和 f = 女性 的值。交换所有的 f 和 m 值（例如，将所有 f 值更改为 m，反之亦然）。要求只使用一个更新（Update）语句，并且没有中间的临时表。
+
+注意，您必只能写一个 Update 语句，请不要编写任何 Select 语句。
+
+**例如：**
+
+```
+| id | name | sex | salary |
+|----|------|-----|--------|
+| 1  | A    | m   | 2500   |
+| 2  | B    | f   | 1500   |
+| 3  | C    | m   | 5500   |
+| 4  | D    | f   | 500    |
+```
+
+运行你所编写的更新语句之后，将会得到以下表:
+
+```
+| id | name | sex | salary |
+|----|------|-----|--------|
+| 1  | A    | f   | 2500   |
+| 2  | B    | m   | 1500   |
+| 3  | C    | f   | 5500   |
+| 4  | D    | m   | 500    |
+```
+
+学会了新语句 if(sex = 'm','f','m')
+
+~~~mysql
+# Write your MySQL query statement below
+Update salary SET sex = if(sex = 'm','f','m');
+~~~
+
+击败31%
+
+### Q[175组合两个表](https://leetcode-cn.com/problems/combine-two-tables/)
+
+难度 简单
+
+SQL架构
+
+表1: `Person`
+
+```
++-------------+---------+
+| 列名         | 类型     |
++-------------+---------+
+| PersonId    | int     |
+| FirstName   | varchar |
+| LastName    | varchar |
++-------------+---------+
+PersonId 是上表主键
+```
+
+表2: `Address`
+
+```
++-------------+---------+
+| 列名         | 类型    |
++-------------+---------+
+| AddressId   | int     |
+| PersonId    | int     |
+| City        | varchar |
+| State       | varchar |
++-------------+---------+
+AddressId 是上表主键
+```
+
+ 
+
+编写一个 SQL 查询，满足条件：无论 person 是否有地址信息，都需要基于上述两表提供 person 的以下信息：
+
+ 
+
+```
+FirstName, LastName, City, State
+```
+
+~~~mysql
+# Write your MySQL query statement below
+SELECT a.FirstName FirstName,a.LastName LastName,b.City City,b.State State 
+From Person a
+LEFT OUTER JOIN Address b
+ON a.PersonId = b.PersonId;
+~~~
+
+### Q[181超过经理收入的员工](https://leetcode-cn.com/problems/employees-earning-more-than-their-managers/)
+
+难度 简单
+
+SQL架构
+
+`Employee` 表包含所有员工，他们的经理也属于员工。每个员工都有一个 Id，此外还有一列对应员工的经理的 Id。
+
+```
++----+-------+--------+-----------+
+| Id | Name  | Salary | ManagerId |
++----+-------+--------+-----------+
+| 1  | Joe   | 70000  | 3         |
+| 2  | Henry | 80000  | 4         |
+| 3  | Sam   | 60000  | NULL      |
+| 4  | Max   | 90000  | NULL      |
++----+-------+--------+-----------+
+```
+
+给定 `Employee` 表，编写一个 SQL 查询，该查询可以获取收入超过他们经理的员工的姓名。在上面的表格中，Joe 是唯一一个收入超过他的经理的员工。
+
+```
++----------+
+| Employee |
++----------+
+| Joe      |
++----------+
+```
+
+~~~mysql
+# Write your MySQL query statement below
+SELECT a.Name Employee
+FROM Employee a, Employee b
+WHERE b.Id = a.ManagerId
+    AND
+        a.Salary > b.Salary;
+~~~
+
+击败78% 
+
+### Q[183. 从不订购的客户](https://leetcode-cn.com/problems/customers-who-never-order/)
+
+难度简单174
+
+SQL架构
+
+某网站包含两个表，`Customers` 表和 `Orders` 表。编写一个 SQL 查询，找出所有从不订购任何东西的客户。
+
+`Customers` 表：
+
+```
++----+-------+
+| Id | Name  |
++----+-------+
+| 1  | Joe   |
+| 2  | Henry |
+| 3  | Sam   |
+| 4  | Max   |
++----+-------+
+```
+
+`Orders` 表：
+
+```
++----+------------+
+| Id | CustomerId |
++----+------------+
+| 1  | 3          |
+| 2  | 1          |
++----+------------+
+```
+
+例如给定上述表格，你的查询应返回：
+
+```
++-----------+
+| Customers |
++-----------+
+| Henry     |
+| Max       |
++-----------+
+```
+
+~~~mysql
+# Write your MySQL query statement below
+select a.Name Customers
+from Customers a
+Left Join Orders b 
+ON a.Id = b.CustomerId
+WHERE b.Id is Null;
+~~~
+
+击败92%
