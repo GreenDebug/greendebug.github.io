@@ -9437,3 +9437,437 @@ WHERE b.Id is Null;
 ~~~
 
 击败92%
+
+### Q[925长按键入](https://leetcode-cn.com/problems/long-pressed-name/)
+
+难度 简单
+
+你的朋友正在使用键盘输入他的名字 `name`。偶尔，在键入字符 `c` 时，按键可能会被*长按*，而字符可能被输入 1 次或多次。
+
+你将会检查键盘输入的字符 `typed`。如果它对应的可能是你的朋友的名字（其中一些字符可能被长按），那么就返回 `True`。
+
+ 
+
+**示例 1：**
+
+```
+输入：name = "alex", typed = "aaleex"
+输出：true
+解释：'alex' 中的 'a' 和 'e' 被长按。
+```
+
+**示例 2：**
+
+```
+输入：name = "saeed", typed = "ssaaedd"
+输出：false
+解释：'e' 一定需要被键入两次，但在 typed 的输出中不是这样。
+```
+
+**示例 3：**
+
+```
+输入：name = "leelee", typed = "lleeelee"
+输出：true
+```
+
+**示例 4：**
+
+```
+输入：name = "laiden", typed = "laiden"
+输出：true
+解释：长按名字中的字符并不是必要的。
+```
+
+ 
+
+**提示：**
+
+1. `name.length <= 1000`
+2. `typed.length <= 1000`
+3. `name` 和 `typed` 的字符都是小写字母。
+
+ 记住之前那个字符就好了。
+
+~~~java
+class Solution {
+    public boolean isLongPressedName(String name, String typed) {
+        if(typed.length() == 0 && name.length() == 0) return true;
+        if(typed.length() == 0 || name.length() == 0) return false;
+        char pre = name.charAt(0);
+        int i = 0, j = 0;
+        while (i<name.length()&&j<typed.length()){
+            if(name.charAt(i)==typed.charAt(j)){
+                pre = name.charAt(i);
+                ++i;
+                ++j;
+            }else if(pre == typed.charAt(j)){
+                ++j;
+            }else {
+                return false;
+            }
+        }
+        while (i == name.length()&&j<typed.length()){
+            if(pre == typed.charAt(j)){
+                ++j;
+            }else {
+                return false;
+            }
+        }if(i<name.length()||j<typed.length())
+            return false;
+        return true;
+    }
+}
+~~~
+
+击败86%
+
+### Q[38外观数列](https://leetcode-cn.com/problems/count-and-say/)
+
+难度 简单
+
+给定一个正整数 *n*（1 ≤ *n* ≤ 30），输出外观数列的第 *n* 项。
+
+注意：整数序列中的每一项将表示为一个字符串。
+
+「外观数列」是一个整数序列，从数字 1 开始，序列中的每一项都是对前一项的描述。前五项如下：
+
+```
+1.     1
+2.     11
+3.     21
+4.     1211
+5.     111221
+```
+
+第一项是数字 1
+
+描述前一项，这个数是 `1` 即 “一个 1 ”，记作 `11`
+
+描述前一项，这个数是 `11` 即 “两个 1 ” ，记作 `21`
+
+描述前一项，这个数是 `21` 即 “一个 2 一个 1 ” ，记作 `1211`
+
+描述前一项，这个数是 `1211` 即 “一个 1 一个 2 两个 1 ” ，记作 `111221`
+
+ 
+
+**示例 1:**
+
+```
+输入: 1
+输出: "1"
+解释：这是一个基本样例。
+```
+
+**示例 2:**
+
+```
+输入: 4
+输出: "1211"
+解释：当 n = 3 时，序列是 "21"，其中我们有 "2" 和 "1" 两组，"2" 可以读作 "12"，也就是出现频次 = 1 而 值 = 2；类似 "1" 可以读作 "11"。所以答案是 "12" 和 "11" 组合在一起，也就是 "1211"。
+```
+
+之间模拟过程
+
+~~~java
+class Solution {
+    public String countAndSay(int n) {
+        String s = new String("1");
+        StringBuilder temp = new StringBuilder();
+        int i = 1;
+        while(i<n){
+            char ch = s.charAt(0);
+            int count = 0;
+            for(int j = 0; j < s.length(); j++){
+                if(ch == s.charAt(j)){
+                    count++;
+                }else{
+                    temp.append(count);
+                    temp.append(ch);
+                    ch = s.charAt(j);
+                    count = 1;
+                }
+            }
+            temp.append(count);
+            temp.append(ch);
+            s = temp.toString();
+            temp = new StringBuilder();
+            i++;
+        }
+        return s;
+    }
+}
+~~~
+
+击败25%
+
+### Q[108. 将有序数组转换为二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/)
+
+难度 简单
+
+将一个按照升序排列的有序数组，转换为一棵高度平衡二叉搜索树。
+
+本题中，一个高度平衡二叉树是指一个二叉树*每个节点* 的左右两个子树的高度差的绝对值不超过 1。
+
+**示例:**
+
+```
+给定有序数组: [-10,-3,0,5,9],
+
+一个可能的答案是：[0,-3,9,-10,null,5]，它可以表示下面这个高度平衡二叉搜索树：
+
+      0
+     / \
+   -3   9
+   /   /
+ -10  5
+```
+
+分治法
+
+~~~java
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        return helper(nums,0,nums.length-1);
+    }
+    public TreeNode helper(int[] nums, int left, int right){
+        if(right<left)
+            return null;
+        int mid = (left+right)/2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = helper(nums,left,mid-1);
+        root.right = helper(nums,mid+1,right);
+        return root;
+    }
+}
+~~~
+
+击败100%
+
+### Q[278第一个错误的版本](https://leetcode-cn.com/problems/first-bad-version/)
+
+难度 简单
+
+你是产品经理，目前正在带领一个团队开发新的产品。不幸的是，你的产品的最新版本没有通过质量检测。由于每个版本都是基于之前的版本开发的，所以错误的版本之后的所有版本都是错的。
+
+假设你有 `n` 个版本 `[1, 2, ..., n]`，你想找出导致之后所有版本出错的第一个错误的版本。
+
+你可以通过调用 `bool isBadVersion(version)` 接口来判断版本号 `version` 是否在单元测试中出错。实现一个函数来查找第一个错误的版本。你应该尽量减少对调用 API 的次数。
+
+**示例:**
+
+```
+给定 n = 5，并且 version = 4 是第一个错误的版本。
+
+调用 isBadVersion(3) -> false
+调用 isBadVersion(5) -> true
+调用 isBadVersion(4) -> true
+
+所以，4 是第一个错误的版本。 
+```
+
+mid = i + (j - i)/2;与mid = (i+j)/2有啥区别呢
+
+i + j 可能会溢出 
+
+~~~java
+public class Solution extends VersionControl {
+    public int firstBadVersion(int n) {
+        int i = 1,j = n;
+        int mid = i + (j - i) / 2;
+        while(i<j){
+            if(isBadVersion(mid)){
+                j = mid;
+            }else{
+                i = mid+1;
+            }
+            mid = i + (j - i) / 2;
+        }
+        return i;
+    }
+}
+~~~
+
+击败25%
+
+### Q[384打乱数组](https://leetcode-cn.com/problems/shuffle-an-array/)
+
+难度 中等
+
+打乱一个没有重复元素的数组。
+
+ 
+
+**示例:**
+
+```
+// 以数字集合 1, 2 和 3 初始化数组。
+int[] nums = {1,2,3};
+Solution solution = new Solution(nums);
+
+// 打乱数组 [1,2,3] 并返回结果。任何 [1,2,3]的排列返回的概率应该相同。
+solution.shuffle();
+
+// 重设数组到它的初始状态[1,2,3]。
+solution.reset();
+
+// 随机返回数组[1,2,3]打乱后的结果。
+solution.shuffle();
+```
+
+~~~java
+class Solution {
+    int[] data;
+    int[] copy;
+    public Solution(int[] nums) {
+        data = new int[nums.length];
+        copy = new int[nums.length];
+        for(int i = 0; i < nums.length; i++) {
+            data[i] = nums[i];
+            copy[i] = nums[i];
+        }
+    }
+
+    /** Resets the array to its original configuration and return it. */
+    public int[] reset() {
+        return data;
+    }
+
+    /** Returns a random shuffling of the array. */
+    public int[] shuffle() {
+        Random r = new Random();
+        for(int i = 0; i < copy.length; i++){
+            int ran1 = r.nextInt(copy.length);
+            int ran2 = r.nextInt(copy.length);
+            int temp = copy[ran1];
+            copy[ran1] = copy[ran2];
+            copy[ran2] = temp;
+        }
+        return copy;
+    }
+}
+~~~
+
+击败61%
+
+### Q[412Fizz Buzz](https://leetcode-cn.com/problems/fizz-buzz/)
+
+难度 简单
+
+写一个程序，输出从 1 到 *n* 数字的字符串表示。
+
+\1. 如果 *n* 是3的倍数，输出“Fizz”；
+
+\2. 如果 *n* 是5的倍数，输出“Buzz”；
+
+3.如果 *n* 同时是3和5的倍数，输出 “FizzBuzz”。
+
+**示例：**
+
+```
+n = 15,
+
+返回:
+[
+    "1",
+    "2",
+    "Fizz",
+    "4",
+    "Buzz",
+    "Fizz",
+    "7",
+    "8",
+    "Fizz",
+    "Buzz",
+    "11",
+    "Fizz",
+    "13",
+    "14",
+    "FizzBuzz"
+]
+```
+
+~~~java
+class Solution {
+    public List<String> fizzBuzz(int n) {
+        List<String> ans = new ArrayList<>();
+        StringBuilder s = new StringBuilder();
+        String s1 = new String("FizzBuzz");
+        for(int i = 1; i <= n; i++){
+            if(i%3==0 && i%5==0)
+                ans.add(new String("FizzBuzz"));
+            else if(i%3==0)
+                ans.add("Fizz");
+            else if(i%5==0)
+                ans.add("Buzz");
+            else
+                ans.add(""+i);
+        }
+        return ans;
+    }
+}
+~~~
+
+击败36%
+
+### Q[204计数质数](https://leetcode-cn.com/problems/count-primes/)
+
+难度 简单
+
+统计所有小于非负整数 *`n`* 的质数的数量。
+
+ 
+
+**示例 1：**
+
+```
+输入：n = 10
+输出：4
+解释：小于 10 的质数一共有 4 个, 它们是 2, 3, 5, 7 。
+```
+
+**示例 2：**
+
+```
+输入：n = 0
+输出：0
+```
+
+**示例 3：**
+
+```
+输入：n = 1
+输出：0
+```
+
+稍微剪下枝
+
+(i&1)==0判断是不是偶数
+
+~~~java
+class Solution {
+    public int countPrimes(int n) {
+        if (n == 1) return 0;
+        int count = 0;
+        for (int i = 2; i < n; i++)
+            if (isPrime(i))
+                count++;
+        return count;
+    }
+
+    public boolean isPrime(int x) {
+        if (x == 2)
+            return true;
+        if ((x & 1) == 0)
+            return false;
+        for (int i = 3; i * i <= x; i += 2) {
+            if (x % i == 0)
+                return false;
+        }
+        return true;
+    }
+}
+~~~
+
+击败12%
