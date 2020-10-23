@@ -10168,3 +10168,254 @@ class Solution {
 ~~~
 
 击败100%
+
+### Q[334递增的三元子序列](https://leetcode-cn.com/problems/increasing-triplet-subsequence/)
+
+难度 中等
+
+给定一个未排序的数组，判断这个数组中是否存在长度为 3 的递增子序列。
+
+数学表达式如下:
+
+> 如果存在这样的 *i, j, k,* 且满足 0 ≤ *i* < *j* < *k* ≤ *n*-1，
+> 使得 *arr[i]* < *arr[j]* < *arr[k]* ，返回 true ; 否则返回 false 。
+
+**说明:** 要求算法的时间复杂度为 O(*n*)，空间复杂度为 O(*1*) 。
+
+**示例 1:**
+
+```
+输入: [1,2,3,4,5]
+输出: true
+```
+
+**示例 2:**
+
+```
+输入: [5,4,3,2,1]
+输出: false
+```
+
+存两个数min1 min2，记录两个最小值，当当前数大于min2，则说明存在
+
+~~~java
+class Solution {
+    public boolean increasingTriplet(int[] nums) {
+        int min1 = Integer.MAX_VALUE,min2 = Integer.MAX_VALUE;
+        for(int i = 0; i < nums.length; i++){
+            if(min1>=nums[i])//这个min1此时存的并不是对应的序列，而是最小值
+                min1 = nums[i];
+            else if(min2>=nums[i])//只要nums[i]>min2 就说明存在这样的子序列
+                min2 = nums[i];
+            else
+                return true;
+        }
+        return false;
+    }
+}
+~~~
+
+击败100%
+
+### Q[328奇偶链表](https://leetcode-cn.com/problems/odd-even-linked-list/)
+
+难度 中等
+
+给定一个单链表，把所有的奇数节点和偶数节点分别排在一起。请注意，这里的奇数节点和偶数节点指的是节点编号的奇偶性，而不是节点的值的奇偶性。
+
+请尝试使用原地算法完成。你的算法的空间复杂度应为 O(1)，时间复杂度应为 O(nodes)，nodes 为节点总数。
+
+**示例 1:**
+
+```
+输入: 1->2->3->4->5->NULL
+输出: 1->3->5->2->4->NULL
+```
+
+**示例 2:**
+
+```
+输入: 2->1->3->5->6->4->7->NULL 
+输出: 2->3->6->7->1->5->4->NULL
+```
+
+**说明:**
+
+- 应当保持奇数节点和偶数节点的相对顺序。
+- 链表的第一个节点视为奇数节点，第二个节点视为偶数节点，以此类推。
+
+链表题没什么好说的，就是最后怎么处理，需要想想
+
+~~~java
+class Solution {
+    public ListNode oddEvenList(ListNode head) {
+        if (head == null) return null;
+        if (head.next == null) return head;
+        ListNode odd = head, even = head.next, temp = head.next;
+        while (temp != null) {
+            odd.next = temp.next;
+            if(odd.next == null) {
+                odd.next = even;
+                odd = null;
+            }
+            else
+                odd = odd.next;
+            temp.next = odd == null ? null : odd.next;
+            temp = odd == null ? null : odd.next;
+        }
+        if (odd != null)
+            odd.next = even;
+        return head;
+    }
+}
+~~~
+
+击败100%
+
+
+
+### Q[103二叉树的锯齿形层次遍历](https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/)
+
+难度 中等
+
+给定一个二叉树，返回其节点值的锯齿形层次遍历。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。
+
+例如：
+给定二叉树 `[3,9,20,null,null,15,7]`,
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+返回锯齿形层次遍历如下：
+
+```
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+```
+
+用两个栈
+
+~~~java
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        if (root == null) return new ArrayList<>();
+        List<List<Integer>> ans = new ArrayList<>();
+        List<Integer> l;
+        Stack<TreeNode> sleft = new Stack<>();
+        Stack<TreeNode> sright = new Stack<>();
+        sleft.push(root);
+        while (!sleft.empty() || !sright.empty()) {
+            l = new ArrayList<>();
+            while (!sleft.empty()) {
+                TreeNode t1 = sleft.pop();
+                l.add(t1.val);
+                if (t1.left != null)
+                    sright.push(t1.left);
+                if (t1.right != null)
+                    sright.push(t1.right);
+            }
+            if (l.size() != 0) {
+                ans.add(l);
+                l = new ArrayList<>();
+            }
+            while (!sright.empty()) {
+                TreeNode t1 = sright.pop();
+                l.add(t1.val);
+                if (t1.right != null)
+                    sleft.push(t1.right);
+                if (t1.left != null)
+                    sleft.push(t1.left);
+            }
+            if (l.size() != 0) {
+                ans.add(l);
+                l = new ArrayList<>();
+            }
+        }
+        return ans;
+    }
+}
+~~~
+
+击败98%
+
+### Q[230二叉搜索树中第K小的元素](https://leetcode-cn.com/problems/kth-smallest-element-in-a-bst/)
+
+难度 中等
+
+给定一个二叉搜索树，编写一个函数 `kthSmallest` 来查找其中第 **k** 个最小的元素。
+
+**说明：**
+你可以假设 k 总是有效的，1 ≤ k ≤ 二叉搜索树元素个数。
+
+**示例 1:**
+
+```
+输入: root = [3,1,4,null,2], k = 1
+   3
+  / \
+ 1   4
+  \
+   2
+输出: 1
+```
+
+**示例 2:**
+
+```
+输入: root = [5,3,6,2,4,null,null,1], k = 3
+       5
+      / \
+     3   6
+    / \
+   2   4
+  /
+ 1
+输出: 3
+```
+
+**进阶：**
+如果二叉搜索树经常被修改（插入/删除操作）并且你需要频繁地查找第 k 小的值，你将如何优化 `kthSmallest` 函数？
+
+简单的中序遍历，记录结点个数
+
+~~~java
+class Solution {
+    int ans;
+
+    public int kthSmallest(TreeNode root, int k) {
+        inorder(root,k,0);
+        return ans;
+    }
+
+    public int inorder(TreeNode root, int k, int num) {
+        if(root == null)
+            return 0;
+        if (root.left == null && root.right == null) {
+            if (k == num + 1)
+                ans = root.val;
+            return 1;
+        }
+        int left = 0;
+        if(root.left!=null)
+            left = inorder(root.left,k,num);
+        if(left+1+num == k){
+            ans = root.val;
+        }
+        int right = 0;
+        if(root.right!=null){
+            right = inorder(root.right,k,num+left+1);
+        }
+        return left+1+right;
+    }
+}
+~~~
+
+击败100%
