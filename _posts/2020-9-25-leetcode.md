@@ -10559,3 +10559,350 @@ class Solution {
 ~~~
 
 击败100%
+
+### Q[845数组中的最长山脉](https://leetcode-cn.com/problems/longest-mountain-in-array/)
+
+难度 中等
+
+我们把数组 A 中符合下列属性的任意连续子数组 B 称为 “*山脉”*：
+
+- `B.length >= 3`
+- 存在 `0 < i < B.length - 1` 使得 `B[0] < B[1] < ... B[i-1] < B[i] > B[i+1] > ... > B[B.length - 1]`
+
+（注意：B 可以是 A 的任意子数组，包括整个数组 A。）
+
+给出一个整数数组 `A`，返回最长 *“山脉”* 的长度。
+
+如果不含有 “*山脉”* 则返回 `0`。
+
+ 
+
+**示例 1：**
+
+```
+输入：[2,1,4,7,3,2,5]
+输出：5
+解释：最长的 “山脉” 是 [1,4,7,3,2]，长度为 5。
+```
+
+**示例 2：**
+
+```
+输入：[2,2,2]
+输出：0
+解释：不含 “山脉”。
+```
+
+ 
+
+**提示：**
+
+1. `0 <= A.length <= 10000`
+2. `0 <= A[i] <= 10000`
+
+
+
+利用滑窗，双指针，分为两种情况，上坡，下坡。我们需要三种状态。
+
+- 若一开始为下坡/平，则为-1状态，此时需经过上坡，再经过下坡
+- 若为上坡，则为0状态，需找到下坡。遇到平，则跳转至-1状态
+- 若为下坡，则为1状态，此时开始计算。如果遇到平，转为-1状态。遇到上坡转为0状态。
+
+~~~java
+class Solution {
+    public int longestMountain(int[] A) {
+        if (A.length < 3) return 0;
+        int left = 0;
+        int right = 1;
+        int max = 0;
+        int flag = A[left] >= A[right] ? -1 : 0;
+        while (right < A.length) {
+            if (flag == -1 && A[right - 1] >= A[right]) {
+                left = right;
+                right++;
+            } else if (flag == -1) {
+                flag = 0;
+                right++;
+            } else if (flag == 0 && A[right - 1] < A[right]) {
+                right++;
+            } else if (flag == 0 && A[right - 1] != A[right]) {
+                max = Math.max(max, right - left + 1);
+                flag = 1;
+                right++;
+            } else if (flag == 0 && A[right - 1] == A[right]) {
+                left = right;
+                right++;
+                flag = -1;
+            } else if (flag == 1 && A[right - 1] > A[right]) {
+                max = Math.max(max, right - left + 1);
+                right++;
+            } else if (flag == 1 && A[right - 1] == A[right]) {
+                left = right;
+                right++;
+                flag = -1;
+            } else {
+                left = right - 1;
+                right++;
+                flag = 0;
+            }
+        }
+        return max;
+    }
+}
+~~~
+
+击败69%，六发
+
+### Q[5546按键持续时间最长的键](https://leetcode-cn.com/problems/slowest-key/)
+
+难度 简单
+
+LeetCode 设计了一款新式键盘，正在测试其可用性。测试人员将会点击一系列键（总计 `n` 个），每次一个。
+
+给你一个长度为 `n` 的字符串 `keysPressed` ，其中 `keysPressed[i]` 表示测试序列中第 `i` 个被按下的键。`releaseTimes` 是一个升序排列的列表，其中 `releaseTimes[i]` 表示松开第 `i` 个键的时间。字符串和数组的 **下标都从 0 开始** 。第 `0` 个键在时间为 `0` 时被按下，接下来每个键都 **恰好** 在前一个键松开时被按下。
+
+测试人员想要找出按键 **持续时间最长** 的键。第 `i` 次按键的持续时间为 `releaseTimes[i] - releaseTimes[i - 1]` ，第 `0` 次按键的持续时间为 `releaseTimes[0]` 。
+
+注意，测试期间，同一个键可以在不同时刻被多次按下，而每次的持续时间都可能不同。
+
+请返回按键 **持续时间最长** 的键，如果有多个这样的键，则返回 **按字母顺序排列最大** 的那个键。
+
+ 
+
+**示例 1：**
+
+```
+输入：releaseTimes = [9,29,49,50], keysPressed = "cbcd"
+输出："c"
+解释：按键顺序和持续时间如下：
+按下 'c' ，持续时间 9（时间 0 按下，时间 9 松开）
+按下 'b' ，持续时间 29 - 9 = 20（松开上一个键的时间 9 按下，时间 29 松开）
+按下 'c' ，持续时间 49 - 29 = 20（松开上一个键的时间 29 按下，时间 49 松开）
+按下 'd' ，持续时间 50 - 49 = 1（松开上一个键的时间 49 按下，时间 50 松开）
+按键持续时间最长的键是 'b' 和 'c'（第二次按下时），持续时间都是 20
+'c' 按字母顺序排列比 'b' 大，所以答案是 'c'
+```
+
+**示例 2：**
+
+```
+输入：releaseTimes = [12,23,36,46,62], keysPressed = "spuda"
+输出："a"
+解释：按键顺序和持续时间如下：
+按下 's' ，持续时间 12
+按下 'p' ，持续时间 23 - 12 = 11
+按下 'u' ，持续时间 36 - 23 = 13
+按下 'd' ，持续时间 46 - 36 = 10
+按下 'a' ，持续时间 62 - 46 = 16
+按键持续时间最长的键是 'a' ，持续时间 16
+```
+
+ 
+
+**提示：**
+
+- `releaseTimes.length == n`
+- `keysPressed.length == n`
+- `2 <= n <= 1000`
+- `0 <= releaseTimes[i] <= 109`
+- `releaseTimes[i] < releaseTimes[i+1]`
+- `keysPressed` 仅由小写英文字母组成
+
+此题为第212场周赛第一题。第一次做周赛题。四题写出了两题。第三题Q5548，本以为为动态规划，周赛时，以为自己哪里细节搞错了，其实思路是错了。最终为782名
+
+这道题题干很长，其实很简单。保存最大值，与其对应字母，一次遍历，每次计算持续时间，若大于，则更新。若等于，则比较字母
+
+~~~java
+class Solution {
+    public char slowestKey(int[] releaseTimes, String keysPressed) {
+        int max = releaseTimes[0];
+        char ch = keysPressed.charAt(0);
+        if(keysPressed.length()==1)
+            return ch;
+        for(int i = 1; i < keysPressed.length(); i++){
+            if(releaseTimes[i]-releaseTimes[i-1]==max){
+                if(keysPressed.charAt(i)>ch){
+                    ch = keysPressed.charAt(i);
+                }
+            }else if(releaseTimes[i]-releaseTimes[i-1]>max){
+                max = releaseTimes[i]-releaseTimes[i-1];
+                ch = keysPressed.charAt(i);
+            }
+        }
+        return ch;
+    }
+}
+~~~
+
+### Q[5547等差子数组](https://leetcode-cn.com/problems/arithmetic-subarrays/)
+
+难度 中等
+
+如果一个数列由至少两个元素组成，且每两个连续元素之间的差值都相同，那么这个序列就是 **等差数列** 。更正式地，数列 `s` 是等差数列，只需要满足：对于每个有效的 `i` ， `s[i+1] - s[i] == s[1] - s[0]` 都成立。
+
+例如，下面这些都是 **等差数列** ：
+
+```
+1, 3, 5, 7, 9
+7, 7, 7, 7
+3, -1, -5, -9
+```
+
+下面的数列 **不是等差数列** ：
+
+```
+1, 1, 2, 5, 7
+```
+
+给你一个由 `n` 个整数组成的数组 `nums`，和两个由 `m` 个整数组成的数组 `l` 和 `r`，后两个数组表示 `m` 组范围查询，其中第 `i` 个查询对应范围 `[l[i], r[i]]` 。所有数组的下标都是 **从 0 开始** 的。
+
+返回 `boolean` 元素构成的答案列表 `answer` 。如果子数组 `nums[l[i]], nums[l[i]+1], ... , nums[r[i]]` 可以 **重新排列** 形成 **等差数列** ，`answer[i]` 的值就是 `true`；否则`answer[i]` 的值就是 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [4,6,5,9,3,7], l = [0,0,2], r = [2,3,5]
+输出：[true,false,true]
+解释：
+第 0 个查询，对应子数组 [4,6,5] 。可以重新排列为等差数列 [6,5,4] 。
+第 1 个查询，对应子数组 [4,6,5,9] 。无法重新排列形成等差数列。
+第 2 个查询，对应子数组 [5,9,3,7] 。可以重新排列为等差数列 [3,5,7,9] 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [-12,-9,-3,-12,-6,15,20,-25,-20,-15,-10], l = [0,1,6,4,8,7], r = [4,4,9,7,9,10]
+输出：[false,true,false,false,true,true]
+```
+
+ 
+
+**提示：**
+
+- `n == nums.length`
+- `m == l.length`
+- `m == r.length`
+- `2 <= n <= 500`
+- `1 <= m <= 500`
+- `0 <= l[i] < r[i] < n`
+- `-105 <= nums[i] <= 105`
+
+想不出其他办法，遂暴力法。每次排个序。竟然也过了
+
+~~~java
+class Solution {
+    public List<Boolean> checkArithmeticSubarrays(int[] nums, int[] l, int[] r) {
+        List<Boolean> ans = new ArrayList<>();
+        for(int i = 0; i < l.length; i++){
+            int[] x = Arrays.copyOfRange(nums,l[i],r[i]+1);
+            Arrays.sort(x);
+            int cha = x[1]-x[0];
+            boolean flag = true;
+            for(int j = 2; j < x.length; j++){
+                if(x[j]-x[j-1]!=cha){
+                    ans.add(false);
+                    flag =false;
+                    break;
+                }
+            }
+            if(flag)
+                ans.add(true);
+        }
+        return ans;
+    }
+}
+~~~
+
+### Q[5548最小体力消耗路径](https://leetcode-cn.com/problems/path-with-minimum-effort/)
+
+难度 中等
+
+你准备参加一场远足活动。给你一个二维 `rows x columns` 的地图 `heights` ，其中 `heights[row][col]` 表示格子 `(row, col)` 的高度。一开始你在最左上角的格子 `(0, 0)` ，且你希望去最右下角的格子 `(rows-1, columns-1)` （注意下标从 **0** 开始编号）。你每次可以往 **上**，**下**，**左**，**右** 四个方向之一移动，你想要找到耗费 **体力** 最小的一条路径。
+
+一条路径耗费的 **体力值** 是路径上相邻格子之间 **高度差绝对值** 的 **最大值** 决定的。
+
+请你返回从左上角走到右下角的最小 **体力消耗值** 。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/10/25/ex1.png)
+
+```
+输入：heights = [[1,2,2],[3,8,2],[5,3,5]]
+输出：2
+解释：路径 [1,3,5,3,5] 连续格子的差值绝对值最大为 2 。
+这条路径比路径 [1,2,2,2,5] 更优，因为另一条路劲差值最大值为 3 。
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/10/25/ex2.png)
+
+```
+输入：heights = [[1,2,3],[3,8,4],[5,3,5]]
+输出：1
+解释：路径 [1,2,3,4,5] 的相邻格子差值绝对值最大为 1 ，比路径 [1,3,5,3,5] 更优。
+```
+
+**示例 3：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/10/25/ex3.png)
+
+```
+输入：heights = [[1,2,1,1,1],[1,2,1,2,1],[1,2,1,2,1],[1,2,1,2,1],[1,1,1,2,1]]
+输出：0
+解释：上图所示路径不需要消耗任何体力。
+```
+
+ 
+
+**提示：**
+
+- `rows == heights.length`
+- `columns == heights[i].length`
+- `1 <= rows, columns <= 100`
+- `1 <= heights[i][j] <= 106`
+
+周赛的时候，只想着斜线dp一次就好了。第三个样例一直过不了。
+
+下午看到题解，只要一直dp，就好了
+
+~~~java
+class Solution {
+    public int minimumEffortPath(int[][] heights) {
+        int rowlength = heights.length;
+        int collength = heights[0].length;
+        int[][] dp = new int[heights.length][heights[0].length];
+        for (int i = 0; i < heights.length; i++)
+            for (int j = 0; j < heights[0].length; j++)
+                dp[i][j] = Integer.MAX_VALUE;
+        dp[0][0] = 0;
+        boolean flag = true;
+        while (flag) {
+            flag = false;
+            for (int x = 0; x < rowlength; x++) {
+                for (int y = 0; y < collength; y++) {
+                    int pre = dp[x][y];
+                    if (x - 1 >= 0)
+                        dp[x][y] = Math.min(dp[x][y], Math.max(Math.abs(heights[x][y] - heights[x-1][y]), dp[x-1][y]));
+                    if(x+1<rowlength)
+                        dp[x][y] = Math.min(dp[x][y], Math.max(Math.abs(heights[x][y] - heights[x+1][y]), dp[x+1][y]));
+                    if (y - 1 >= 0)
+                        dp[x][y] = Math.min(dp[x][y], Math.max(Math.abs(heights[x][y] - heights[x][y - 1]), dp[x][y - 1]));
+                    if(y+1<collength)
+                        dp[x][y] = Math.min(dp[x][y], Math.max(Math.abs(heights[x][y] - heights[x][y + 1]), dp[x][y + 1]));
+                    flag = dp[x][y] != pre || flag;
+                }
+            }
+        }
+        return dp[rowlength - 1][collength - 1];
+    }
+}
+~~~
+
+估计没啥人提交，击败双百
