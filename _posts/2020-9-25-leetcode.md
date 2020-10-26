@@ -10906,3 +10906,299 @@ class Solution {
 ~~~
 
 估计没啥人提交，击败双百
+
+### Q[297二叉树的序列化与反序列化](https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/)
+
+难度 困难
+
+序列化是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。
+
+请设计一个算法来实现二叉树的序列化与反序列化。这里不限定你的序列 / 反序列化算法执行逻辑，你只需要保证一个二叉树可以被序列化为一个字符串并且将这个字符串反序列化为原始的树结构。
+
+**示例:** 
+
+```
+你可以将以下二叉树：
+
+    1
+   / \
+  2   3
+     / \
+    4   5
+
+序列化为 "[1,2,3,null,null,4,5]"
+```
+
+**提示:** 这与 LeetCode 目前使用的方式一致，详情请参阅 [LeetCode 序列化二叉树的格式](https://leetcode-cn.com/faq/#binary-tree)。你并非必须采取这种方式，你也可以采用其他的方法解决这个问题。
+
+**说明:** 不要使用类的成员 / 全局 / 静态变量来存储状态，你的序列化和反序列化算法应该是无状态的。
+
+我自己写了一个，超时过不了，仿照标答写
+
+~~~java
+public class Codec {
+
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        String s = "";
+        return ser(root,s);
+    }
+    public String ser(TreeNode root, String s){
+        if(root == null){
+            return s+"null,";
+        }
+        s+=(""+root.val+",");
+        s=ser(root.left,s);
+        s=ser(root.right,s);
+        return s;
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        ArrayList<String> l = new ArrayList<String>(Arrays.asList(data.split(",")));
+        return de(l);
+    }
+    public TreeNode de(ArrayList<String> l){
+        if(l.size() == 0){
+            return null;
+        }
+        if(l.get(0).compareTo("null")==0){
+            l.remove(0);
+            return null;
+        }
+        TreeNode root = new TreeNode(Integer.valueOf(l.get(0)));
+        l.remove(0);
+        root.left = de(l);
+        root.right = de(l);
+        return root;
+    }
+}
+~~~
+
+击败5%
+
+### Q[380常数时间插入、删除和获取随机元素](https://leetcode-cn.com/problems/insert-delete-getrandom-o1/)
+
+难度中等214
+
+设计一个支持在*平均* 时间复杂度 **O(1)** 下，执行以下操作的数据结构。
+
+1. `insert(val)`：当元素 val 不存在时，向集合中插入该项。
+2. `remove(val)`：元素 val 存在时，从集合中移除该项。
+3. `getRandom`：随机返回现有集合中的一项。每个元素应该有**相同的概率**被返回。
+
+**示例 :**
+
+```
+// 初始化一个空的集合。
+RandomizedSet randomSet = new RandomizedSet();
+
+// 向集合中插入 1 。返回 true 表示 1 被成功地插入。
+randomSet.insert(1);
+
+// 返回 false ，表示集合中不存在 2 。
+randomSet.remove(2);
+
+// 向集合中插入 2 。返回 true 。集合现在包含 [1,2] 。
+randomSet.insert(2);
+
+// getRandom 应随机返回 1 或 2 。
+randomSet.getRandom();
+
+// 从集合中移除 1 ，返回 true 。集合现在包含 [2] 。
+randomSet.remove(1);
+
+// 2 已在集合中，所以返回 false 。
+randomSet.insert(2);
+
+// 由于 2 是集合中唯一的数字，getRandom 总是返回 2 。
+randomSet.getRandom();
+```
+
+利用set完成
+
+~~~java
+class RandomizedSet {
+    Set<Integer> set;
+
+    /** Initialize your data structure here. */
+    public RandomizedSet() {
+        set = new HashSet<>();
+    }
+
+    /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+    public boolean insert(int val) {
+        return set.add(val);
+    }
+
+    /** Removes a value from the set. Returns true if the set contained the specified element. */
+    public boolean remove(int val) {
+        return set.remove(val);
+    }
+
+    /** Get a random element from the set. */
+    public int getRandom() {
+        Random r = new Random();
+        int pos = r.nextInt(set.size());
+        Integer[] b = new Integer[set.size()];
+        set.toArray(b);
+        return b[pos];
+    }
+}
+~~~
+
+击败8%
+
+### Q[171Excel表列序号](https://leetcode-cn.com/problems/excel-sheet-column-number/)
+
+难度 简单
+
+给定一个Excel表格中的列名称，返回其相应的列序号。
+
+例如，
+
+```
+    A -> 1
+    B -> 2
+    C -> 3
+    ...
+    Z -> 26
+    AA -> 27
+    AB -> 28 
+    ...
+```
+
+**示例 1:**
+
+```
+输入: "A"
+输出: 1
+```
+
+**示例 2:**
+
+```
+输入: "AB"
+输出: 28
+```
+
+**示例 3:**
+
+```
+输入: "ZY"
+输出: 701
+```
+
+**致谢：**
+特别感谢 [@ts](http://leetcode.com/discuss/user/ts) 添加此问题并创建所有测试用例。
+
+这题只要读懂就会了，可以看成26进制
+
+~~~java
+class Solution {
+    public int titleToNumber(String s) {
+        int sum = 0;
+        for(int i = 0; i < s.length(); i++){
+            sum = sum*26;
+            sum+= (s.charAt(i)-'A'+1);
+        }
+        return sum;
+    }
+}
+~~~
+
+击败100%
+
+### Q[166分数到小数](https://leetcode-cn.com/problems/fraction-to-recurring-decimal/)
+
+难度 中等
+
+给定两个整数，分别表示分数的分子 `numerator` 和分母 `denominator`，以 **字符串形式返回小数** 。
+
+如果小数部分为循环小数，则将循环的部分括在括号内。
+
+如果存在多个答案，只需返回 **任意一个** 。
+
+对于所有给定的输入，**保证** 答案字符串的长度小于 `104` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：numerator = 1, denominator = 2
+输出："0.5"
+```
+
+**示例 2：**
+
+```
+输入：numerator = 2, denominator = 1
+输出："2"
+```
+
+**示例 3：**
+
+```
+输入：numerator = 2, denominator = 3
+输出："0.(6)"
+```
+
+**示例 4：**
+
+```
+输入：numerator = 4, denominator = 333
+输出："0.(012)"
+```
+
+**示例 5：**
+
+```
+输入：numerator = 1, denominator = 5
+输出："0.2"
+```
+
+ 
+
+**提示：**
+
+- `-231 <= numerator, denominator <= 231 - 1`
+- `denominator != 0`
+
+又当了抄题家。一位位计算，每次计算出一个余数，检查余数是否出现过。若有相同余数，则出现循环（循环在两个重复值之间）。
+
+因为Math.abs(int)被卡了int极限值
+
+~~~java
+class Solution {
+    public String fractionToDecimal(int numerator, int denominator) {
+        HashMap<Long, Integer> map = new HashMap<>();
+        StringBuilder s = new StringBuilder();
+        long num = Math.abs((long)numerator);
+        long den = Math.abs((long) denominator);
+        if ((numerator < 0 && denominator > 0) || (numerator > 0 && denominator < 0))
+            s.append("-");
+        s.append(num / den);
+        if (num % den == 0) {
+            return s.toString();
+        }
+        s.append('.');
+        num %= den;
+        while (num != 0) {
+            if (map.containsKey(num)) {
+                int p = map.get(num);
+                s.insert(p, '(');
+                s.append(')');
+                break;
+            }
+            map.put(num, s.length());
+            num *= 10;
+            s.append(num/den);
+            num %= den;
+        }
+        return s.toString();
+    }
+}
+~~~
+
+击败100%
