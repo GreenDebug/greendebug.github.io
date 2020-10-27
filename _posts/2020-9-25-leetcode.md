@@ -11202,3 +11202,244 @@ class Solution {
 ~~~
 
 击败100%
+
+### Q[150逆波兰表达式求值](https://leetcode-cn.com/problems/evaluate-reverse-polish-notation/)
+
+难度 中等
+
+根据[ 逆波兰表示法](https://baike.baidu.com/item/逆波兰式/128437)，求表达式的值。
+
+有效的运算符包括 `+`, `-`, `*`, `/` 。每个运算对象可以是整数，也可以是另一个逆波兰表达式。
+
+ 
+
+**说明：**
+
+- 整数除法只保留整数部分。
+- 给定逆波兰表达式总是有效的。换句话说，表达式总会得出有效数值且不存在除数为 0 的情况。
+
+ 
+
+**示例 1：**
+
+```
+输入: ["2", "1", "+", "3", "*"]
+输出: 9
+解释: 该算式转化为常见的中缀算术表达式为：((2 + 1) * 3) = 9
+```
+
+**示例 2：**
+
+```
+输入: ["4", "13", "5", "/", "+"]
+输出: 6
+解释: 该算式转化为常见的中缀算术表达式为：(4 + (13 / 5)) = 6
+```
+
+**示例 3：**
+
+```
+输入: ["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]
+输出: 22
+解释: 
+该算式转化为常见的中缀算术表达式为：
+  ((10 * (6 / ((9 + 3) * -11))) + 17) + 5
+= ((10 * (6 / (12 * -11))) + 17) + 5
+= ((10 * (6 / -132)) + 17) + 5
+= ((10 * 0) + 17) + 5
+= (0 + 17) + 5
+= 17 + 5
+= 22
+```
+
+ 
+
+**逆波兰表达式：**
+
+逆波兰表达式是一种后缀表达式，所谓后缀就是指算符写在后面。
+
+- 平常使用的算式则是一种中缀表达式，如 `( 1 + 2 ) * ( 3 + 4 )` 。
+- 该算式的逆波兰表达式写法为 `( ( 1 2 + ) ( 3 4 + ) * )` 。
+
+逆波兰表达式主要有以下两个优点：
+
+- 去掉括号后表达式无歧义，上式即便写成 `1 2 + 3 4 + * `也可以依据次序计算出正确结果。
+- 适合用栈操作运算：遇到数字则入栈；遇到算符则取出栈顶两个数字进行计算，并将结果压入栈中。
+
+没什么难度
+
+~~~java
+class Solution {
+    public int evalRPN(String[] tokens) {
+        Stack<Integer> stack = new Stack<>();
+        for(String s: tokens){
+            if(s.length()==1&&s.charAt(0) == '+'){
+                int x = stack.pop();
+                int y = stack.pop();
+                stack.push(x+y);
+            }
+            else if(s.length()==1&&s.charAt(0) == '-'){
+                int x = stack.pop();
+                int y = stack.pop();
+                stack.push(y-x);
+            }else if(s.charAt(0) == '*'){
+                int x = stack.pop();
+                int y = stack.pop();
+                stack.push(y*x);
+            }else if(s.charAt(0) == '/'){
+                int x = stack.pop();
+                int y = stack.pop();
+                stack.push(y/x);
+            }else {
+                stack.push(Integer.valueOf(s));
+            }
+        }
+        return stack.pop();
+    }
+}
+~~~
+
+击败62%
+
+### Q[454四数相加 II](https://leetcode-cn.com/problems/4sum-ii/)
+
+难度 中等
+
+给定四个包含整数的数组列表 A , B , C , D ,计算有多少个元组 `(i, j, k, l)` ，使得 `A[i] + B[j] + C[k] + D[l] = 0`。
+
+为了使问题简单化，所有的 A, B, C, D 具有相同的长度 N，且 0 ≤ N ≤ 500 。所有整数的范围在 -228 到 228 - 1 之间，最终结果不会超过 231 - 1 。
+
+**例如:**
+
+```
+输入:
+A = [ 1, 2]
+B = [-2,-1]
+C = [-1, 2]
+D = [ 0, 2]
+
+输出:
+2
+
+解释:
+两个元组如下:
+1. (0, 0, 0, 1) -> A[0] + B[0] + C[0] + D[1] = 1 + (-2) + (-1) + 2 = 0
+2. (1, 1, 0, 0) -> A[1] + B[1] + C[0] + D[0] = 2 + (-1) + (-1) + 0 = 0
+```
+
+先用两个数建个map，然后再用另两个数取值
+
+~~~java
+class Solution {
+    public int fourSumCount(int[] A, int[] B, int[] C, int[] D) {
+        HashMap<Integer,Integer> map1 = new HashMap<>();
+        HashMap<Integer,Integer> map2 = new HashMap<>();
+        int count = 0;
+        for(int i = 0; i < A.length; i++){
+            for(int j = 0; j < B.length; j++){
+                map1.put(A[i]+B[j],map1.getOrDefault(A[i]+B[j],0)+1);
+            }
+        }
+        for(int i = 0; i < C.length; i++){
+            for(int j = 0; j < D.length; j++){
+                count+=map1.getOrDefault(-C[i]-D[j],0);    
+            }
+        }return count;
+    }
+}
+~~~
+
+击败95%
+
+### Q[289生命游戏](https://leetcode-cn.com/problems/game-of-life/)
+
+难度 中等
+
+根据 [百度百科](https://baike.baidu.com/item/生命游戏/2926434?fr=aladdin) ，生命游戏，简称为生命，是英国数学家约翰·何顿·康威在 1970 年发明的细胞自动机。
+
+给定一个包含 m × n 个格子的面板，每一个格子都可以看成是一个细胞。每个细胞都具有一个初始状态：1 即为活细胞（live），或 0 即为死细胞（dead）。每个细胞与其八个相邻位置（水平，垂直，对角线）的细胞都遵循以下四条生存定律：
+
+1. 如果活细胞周围八个位置的活细胞数少于两个，则该位置活细胞死亡；
+2. 如果活细胞周围八个位置有两个或三个活细胞，则该位置活细胞仍然存活；
+3. 如果活细胞周围八个位置有超过三个活细胞，则该位置活细胞死亡；
+4. 如果死细胞周围正好有三个活细胞，则该位置死细胞复活；
+
+根据当前状态，写一个函数来计算面板上所有细胞的下一个（一次更新后的）状态。下一个状态是通过将上述规则同时应用于当前状态下的每个细胞所形成的，其中细胞的出生和死亡是同时发生的。
+
+ 
+
+**示例：**
+
+```
+输入： 
+[
+  [0,1,0],
+  [0,0,1],
+  [1,1,1],
+  [0,0,0]
+]
+输出：
+[
+  [0,0,0],
+  [1,0,1],
+  [0,1,1],
+  [0,1,0]
+]
+```
+
+ 
+
+**进阶：**
+
+- 你可以使用原地算法解决本题吗？请注意，面板上所有格子需要同时被更新：你不能先更新某些格子，然后使用它们的更新后的值再更新其他格子。
+- 本题中，我们使用二维数组来表示面板。原则上，面板是无限的，但当活细胞侵占了面板边界时会造成问题。你将如何解决这些问题？
+
+如果想节省内存，就得搞两个中间态，我没搞
+
+~~~java
+class Solution {
+    public void gameOfLife(int[][] board) {
+        int[][] b = new int[board.length][board[0].length];
+        for (int i = 0; i < board.length; i++)
+            for (int j = 0; j < board[0].length; j++)
+                b[i][j] = board[i][j];
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                int c = count(b, i, j);
+                if (b[i][j] == 1) {
+                    if (c < 2 || c > 3)
+                        board[i][j] = 0;
+                } else {
+                    if (c == 3)
+                        board[i][j] = 1;
+                }
+            }
+        }
+    }
+
+    public int count(int[][] board, int x, int y) {
+        int c = 0;
+        int n1 = board.length;
+        int n2 = board[0].length;
+        if (x - 1 >= 0 && y - 1 >= 0 && board[x - 1][y - 1] == 1)
+            c++;
+        if (x - 1 >= 0 && board[x - 1][y] == 1)
+            c++;
+        if (y - 1 >= 0 && board[x][y - 1] == 1)
+            c++;
+        if (x + 1 < n1 && y + 1 < n2 && board[x + 1][y + 1] == 1)
+            c++;
+        if (x + 1 < n1 && board[x + 1][y] == 1)
+            c++;
+        if (y + 1 < n2 && board[x][y + 1] == 1)
+            c++;
+        if (x + 1 < n1 && y - 1 >= 0 && board[x + 1][y - 1] == 1)
+            c++;
+        if (x - 1 >= 0 && y + 1 < n2 && board[x - 1][y + 1] == 1)
+            c++;
+        return c;
+    }
+}
+~~~
+
+100% 91%，也没多花多少内存
