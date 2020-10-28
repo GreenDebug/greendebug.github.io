@@ -11555,3 +11555,237 @@ class Solution {
 ~~~
 
 击败68%，空间96%
+
+### Q[1207独一无二的出现次数](https://leetcode-cn.com/problems/unique-number-of-occurrences/)
+
+难度 简单
+
+给你一个整数数组 `arr`，请你帮忙统计数组中每个数的出现次数。
+
+如果每个数的出现次数都是独一无二的，就返回 `true`；否则返回 `false`。
+
+ 
+
+**示例 1：**
+
+```
+输入：arr = [1,2,2,1,1,3]
+输出：true
+解释：在该数组中，1 出现了 3 次，2 出现了 2 次，3 只出现了 1 次。没有两个数的出现次数相同。
+```
+
+**示例 2：**
+
+```
+输入：arr = [1,2]
+输出：false
+```
+
+**示例 3：**
+
+```
+输入：arr = [-3,0,1,-3,1,1,1,-3,10,0]
+输出：true
+```
+
+ 
+
+**提示：**
+
+- `1 <= arr.length <= 1000`
+- `-1000 <= arr[i] <= 1000`
+
+一次map，一次set
+
+~~~cpp
+class Solution {
+public:
+    bool uniqueOccurrences(vector<int>& arr) {
+        map<int, int> m;
+        for (auto i:arr) {
+            if(m.find(i) == m.end())
+                m.insert(pair<int,int>(i,1));
+            else
+                m[i] = m[i]+1;
+        }
+        set<int> s;
+        for(auto i:m) {
+            if(s.find(i.second)!=s.end())
+                return false;
+            s.insert(i.second);
+        }
+        return true;
+    }
+};
+~~~
+
+击败47%
+
+### Q[128最长连续序列](https://leetcode-cn.com/problems/longest-consecutive-sequence/)
+
+难度 困难
+
+给定一个未排序的整数数组 `nums` ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
+
+ 
+
+**进阶：**
+
+- 你可以设计并实现时间复杂度为 `O(n)` 的解决方案吗？
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [100,4,200,1,3,2]
+输出：4
+解释：最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。
+```
+
+**示例 2：**
+
+```
+输入：nums = [0,3,7,2,5,8,4,6,0,1]
+输出：9
+```
+
+ 
+
+**提示：**
+
+- `0 <= nums.length <= 104`
+- `-231 <= nums[i] <= 231 - 1`
+
+一个set，然后一直去查下一个元素在不在
+
+然后超时了。
+
+应该检查前一个在不在。
+
+~~~cpp
+class Solution
+{
+public:
+    int longestConsecutive(vector<int> &nums)
+    {
+        int max = 0;
+        unordered_map<int, int> m;
+        for (int i : nums)
+        {
+            m.insert(pair<int, int>(i, 1));
+        }
+        for (auto i : m)
+        {
+            long t = i.first;
+            if (m.find(t - 1) == m.end())
+                while (m.find(t) != m.end())
+                {
+                    t++;
+                    if (t == 2147483648)
+                        break;
+                }
+            max = max > (t - i.first) ? max : (t - i.first);
+        }
+        return max;
+    }
+};
+~~~
+
+击败51%
+
+### Q[227基本计算器 II](https://leetcode-cn.com/problems/basic-calculator-ii/)
+
+难度 中等
+
+实现一个基本的计算器来计算一个简单的字符串表达式的值。
+
+字符串表达式仅包含非负整数，`+`， `-` ，`*`，`/` 四种运算符和空格 ` `。 整数除法仅保留整数部分。
+
+**示例 1:**
+
+```
+输入: "3+2*2"
+输出: 7
+```
+
+**示例 2:**
+
+```
+输入: " 3/2 "
+输出: 1
+```
+
+**示例 3:**
+
+```
+输入: " 3+5 / 2 "
+输出: 5
+```
+
+**说明：**
+
+- 你可以假设所给定的表达式都是有效的。
+- 请**不要**使用内置的库函数 `eval`。
+
+用栈
+
+~~~cpp
+class Solution
+{
+public:
+    int calculate(string s)
+    {
+        stack<int> s1;
+        stack<char> s2;
+        int temp = 0;
+        for (int i = 0; i < s.length(); i++)
+        {
+            if (s[i] == ' ')
+                continue;
+            else if (s[i] >= '0' && s[i] <= '9')
+            {
+                temp = 10 * temp + (s[i] - '0');
+            }
+            else
+            {
+                s1.push(temp);
+                temp = 0;
+                if (s[i] == '+' || s[i] == '-' || s[i] == '*' || s[i] == '/')
+                {
+                    while (s2.size()!=0&&!((s2.top()=='+'||s2.top()=='-')&&(s[i]=='*'||s[i]=='/')))
+                    {
+                        r(s1, s2);
+                    }
+                    s2.push(s[i]);
+                }
+            }
+        }
+        s1.push(temp);
+        while (s2.size() != 0)
+        {
+            r(s1, s2);
+        }
+        return s1.top();
+    }
+    void r(stack<int> &s1, stack<char> &s2)
+    {
+        char ch = s2.top();
+        s2.pop();
+        int x1 = s1.top();
+        s1.pop();
+        int x2 = s1.top();
+        s1.pop();
+        if (ch == '+')
+            s1.push(x2 + x1);
+        else if (ch == '-')
+            s1.push(x2 - x1);
+        else if (ch == '*')
+            s1.push(x2 * x1);
+        else if (ch == '/')
+            s1.push(x2 / x1);
+    }
+};
+~~~
+
+击败28%
