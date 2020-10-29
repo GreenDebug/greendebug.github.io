@@ -8531,7 +8531,7 @@ class Solution {
 
 击败100%
 
-### Q[217. 存在重复元素](https://leetcode-cn.com/problems/contains-duplicate/)
+### Q[217存在重复元素](https://leetcode-cn.com/problems/contains-duplicate/)
 
 难度 简单
 
@@ -11789,3 +11789,229 @@ public:
 ~~~
 
 击败28%
+
+### Q[129求根到叶子节点数字之和](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/)
+
+难度 中等
+
+给定一个二叉树，它的每个结点都存放一个 `0-9` 的数字，每条从根到叶子节点的路径都代表一个数字。
+
+例如，从根到叶子节点路径 `1->2->3` 代表数字 `123`。
+
+计算从根到叶子节点生成的所有数字之和。
+
+**说明:** 叶子节点是指没有子节点的节点。
+
+**示例 1:**
+
+```
+输入: [1,2,3]
+    1
+   / \
+  2   3
+输出: 25
+解释:
+从根到叶子节点路径 1->2 代表数字 12.
+从根到叶子节点路径 1->3 代表数字 13.
+因此，数字总和 = 12 + 13 = 25.
+```
+
+**示例 2:**
+
+```
+输入: [4,9,0,5,1]
+    4
+   / \
+  9   0
+ / \
+5   1
+输出: 1026
+解释:
+从根到叶子节点路径 4->9->5 代表数字 495.
+从根到叶子节点路径 4->9->1 代表数字 491.
+从根到叶子节点路径 4->0 代表数字 40.
+因此，数字总和 = 495 + 491 + 40 = 1026.
+```
+
+没啥好说的
+
+~~~cpp
+class Solution
+{
+public:
+    int sumNumbers(TreeNode *root)
+    {
+        if(root == nullptr)
+            return 0;
+        return val(root, 0);
+    }
+    int val(TreeNode *root, int x)
+    {
+        if (root->left == NULL && root->right == NULL)
+            return x * 10 + root->val;
+        x *= 10;
+        x += root->val;
+        int left = 0;
+        int right = 0;
+        if (root->right != NULL)
+            right = val(root->right, x);
+        if (root->left != NULL)
+            left = val(root->left, x);
+        return left + right;
+    }
+};
+~~~
+
+击败35%
+
+### Q[239滑动窗口最大值](https://leetcode-cn.com/problems/sliding-window-maximum/)
+
+难度 困难
+
+给定一个数组 *nums*，有一个大小为 *k* 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 *k* 个数字。滑动窗口每次只向右移动一位。
+
+返回滑动窗口中的最大值。
+
+ 
+
+**进阶：**
+
+你能在线性时间复杂度内解决此题吗？
+
+ 
+
+**示例:**
+
+```
+输入: nums = [1,3,-1,-3,5,3,6,7], 和 k = 3
+输出: [3,3,5,5,6,7] 
+解释: 
+
+  滑动窗口的位置                最大值
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 10^5`
+- `-10^4 <= nums[i] <= 10^4`
+- `1 <= k <= nums.length`
+
+窗口，左窗 右窗，窗口大小固定。每次从右加一个点
+
+用双端队列。建立一个递减数组，如果当前元素大于队尾，弹出队尾。只要比当前小的数都用不上了。因为队尾的下标比当前元素还小
+
+每次遍历，看队首是什么元素
+
+~~~java
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        deque<int> q;
+        q.push_back(0);
+        vector<int> v;
+        for(int i = 1; i < nums.size()&&i < k;++i){
+            while(q.size()>0&&nums[q[q.size()-1]]<nums[i]){
+                q.pop_back();
+            }
+            if(q.size()==0||nums[q[q.size()-1]]>=nums[i]){
+                q.push_back(i);
+            }
+        }
+        v.push_back(nums[q[0]]);
+        for(int i = 1; i+k-1<nums.size();++i){
+            while(q.size()>0&&nums[q[q.size()-1]]<nums[i+k-1]){
+                q.pop_back();
+            }
+            if(q.size()==0||nums[q[q.size()-1]]>=nums[i+k-1]){
+                q.push_back(i+k-1);
+            }
+            if(q[0]<i){
+                q.pop_front();
+            }
+            v.push_back(nums[q[0]]);
+        }
+        return v;
+    }
+};
+~~~
+
+击败5%
+
+### Q[76最小覆盖子串](https://leetcode-cn.com/problems/minimum-window-substring/)
+
+难度 困难
+
+给你一个字符串 S、一个字符串 T 。请你设计一种算法，可以在 O(n) 的时间复杂度内，从字符串 S 里面找出：包含 T 所有字符的最小子串。
+
+ 
+
+**示例：**
+
+```
+输入：S = "ADOBECODEBANC", T = "ABC"
+输出："BANC"
+```
+
+ 
+
+**提示：**
+
+- 如果 S 中不存这样的子串，则返回空字符串 `""`。
+- 如果 S 中存在这样的子串，我们保证它是唯一的答案。
+
+建立滑窗，没啥好方法。left right，left每次向右移一个，然后找right最小值
+
+用两个map来存
+
+~~~cpp
+class Solution
+{
+public:
+    unordered_map<char,int> m1,m2;
+    string minWindow(string s, string t)
+    {
+        for (auto &c : t)
+        {
+            m1[c]++;
+        }
+        int left = 0;
+        int right = 0;
+        int minLength = INT_MAX;
+        int mleft = 0;
+        int mright = 0;
+        m2[s[0]]++;
+        while(left+t.size()-1<s.size()){
+            while(!check()&&right<s.size()){
+                right++;
+                m2[s[right]]++;
+            }
+            if(right<s.size()&&(right-left+1)<minLength){
+                minLength = right-left+1;
+                mleft = left;
+                mright = right;
+            }
+            m2[s[left]]--;
+            left++;
+        }
+        return minLength == INT_MAX?"":s.substr(mleft,minLength);
+    }
+    bool check(){
+        for(auto &c:m1){
+            if(m2[c.first]<c.second)
+                return false; 
+        }
+        return true;
+    }
+};
+~~~
+
+击败8%
