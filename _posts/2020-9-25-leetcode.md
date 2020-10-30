@@ -12015,3 +12015,266 @@ public:
 ~~~
 
 击败8%
+
+### Q[463岛屿的周长](https://leetcode-cn.com/problems/island-perimeter/)
+
+难度 简单
+
+给定一个包含 0 和 1 的二维网格地图，其中 1 表示陆地 0 表示水域。
+
+网格中的格子水平和垂直方向相连（对角线方向不相连）。整个网格被水完全包围，但其中恰好有一个岛屿（或者说，一个或多个表示陆地的格子相连组成的岛屿）。
+
+岛屿中没有“湖”（“湖” 指水域在岛屿内部且不和岛屿周围的水相连）。格子是边长为 1 的正方形。网格为长方形，且宽度和高度均不超过 100 。计算这个岛屿的周长。
+
+ 
+
+**示例 :**
+
+```
+输入:
+[[0,1,0,0],
+ [1,1,1,0],
+ [0,1,0,0],
+ [1,1,0,0]]
+
+输出: 16
+
+解释: 它的周长是下面图片中的 16 个黄色的边：
+```
+
+题目已经降维了，明确说只有一个岛。只要遍历一遍就好了
+
+~~~cpp
+class Solution {
+public:
+    int islandPerimeter(vector<vector<int>>& grid) {
+        int ans = 0;
+        for(int i = 0; i < grid.size(); ++i) {
+            for(int j = 0; j < grid[i].size(); ++j){
+                if(grid[i][j] == 1){
+                    int temp = 4;
+                    if(i-1>=0&&grid[i-1][j] == 1)
+                        temp--;
+                    if(j-1>=0&&grid[i][j-1] == 1)
+                        --temp;
+                    if(i+1<grid.size()&&grid[i+1][j] == 1)
+                        --temp;
+                    if(j+1<grid[i].size()&&grid[i][j+1]==1)
+                        --temp;
+                    ans += temp;
+                }
+            }
+        }
+        return ans;
+    }
+};
+~~~
+
+击败41%
+
+### Q[127单词接龙](https://leetcode-cn.com/problems/word-ladder/)
+
+难度 中等
+
+给定两个单词（*beginWord* 和 *endWord*）和一个字典，找到从 *beginWord* 到 *endWord* 的最短转换序列的长度。转换需遵循如下规则：
+
+1. 每次转换只能改变一个字母。
+2. 转换过程中的中间单词必须是字典中的单词。
+
+**说明:**
+
+- 如果不存在这样的转换序列，返回 0。
+- 所有单词具有相同的长度。
+- 所有单词只由小写字母组成。
+- 字典中不存在重复的单词。
+- 你可以假设 *beginWord* 和 *endWord* 是非空的，且二者不相同。
+
+**示例 1:**
+
+```
+输入:
+beginWord = "hit",
+endWord = "cog",
+wordList = ["hot","dot","dog","lot","log","cog"]
+
+输出: 5
+
+解释: 一个最短转换序列是 "hit" -> "hot" -> "dot" -> "dog" -> "cog",
+     返回它的长度 5。
+```
+
+**示例 2:**
+
+```
+输入:
+beginWord = "hit"
+endWord = "cog"
+wordList = ["hot","dot","dog","lot","log"]
+
+输出: 0
+
+解释: endWord "cog" 不在字典中，所以无法进行转换。
+```
+
+刚开始写了个暴力法，应该用bfs
+
+~~~cpp
+class Solution
+{
+public:
+    int ladderLength(string beginWord, string endWord, vector<string> &wordList)
+    {
+        queue<string> word;
+        queue<int> l;
+        word.push(beginWord);
+        l.push(1);
+        vector<bool> flag(wordList.size(), false);
+        while (word.size() > 0)
+        {
+            string p = word.front();
+            word.pop();
+            int length = l.front();
+            l.pop();
+            for (int i = 0; i < wordList.size(); ++i)
+            {
+                if (!flag[i])
+                {
+                    int count = 0;
+                    bool f = true;
+                    for (int j = 0; j < p.size(); ++j)
+                    {
+                        if (p[j] != wordList[i][j])
+                        {
+                            if (count == 1)
+                            {
+                                f = false;
+                                break;
+                            }
+                            count = 1;
+                        }
+                    }
+                    if (count == 1 && f == true)
+                    {
+                        if (wordList[i].compare(endWord) == 0)
+                            return length + 1;
+                        word.push(wordList[i]);
+                        l.push(length + 1);
+                        flag[i] = true;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+};
+~~~
+
+击败9%
+
+### Q[130被围绕的区域](https://leetcode-cn.com/problems/surrounded-regions/)
+
+难度 中等
+
+给定一个二维的矩阵，包含 `'X'` 和 `'O'`（**字母 O**）。
+
+找到所有被 `'X'` 围绕的区域，并将这些区域里所有的 `'O'` 用 `'X'` 填充。
+
+**示例:**
+
+```
+X X X X
+X O O X
+X X O X
+X O X X
+```
+
+运行你的函数后，矩阵变为：
+
+```
+X X X X
+X X X X
+X X X X
+X O X X
+```
+
+**解释:**
+
+被围绕的区间不会存在于边界上，换句话说，任何边界上的 `'O'` 都不会被填充为 `'X'`。 任何不在边界上，或不与边界上的 `'O'` 相连的 `'O'` 最终都会被填充为 `'X'`。如果两个元素在水平或垂直方向相邻，则称它们是“相连”的。
+
+刚开始想着之间dfs，遇到边界返回真。但是这样很难传true给其他叶子
+
+于是从四周开始dfs。只要是四周dfs到的，均保持原样
+
+~~~cpp
+class Solution
+{
+public:
+    void solve(vector<vector<char>> &board)
+    {
+        if (board.size() == 0)
+            return;
+        vector<vector<bool>> flag(board.size(), vector<bool>(board[0].size(), false));
+        for (int i = 0; i < board.size(); i++)
+        {
+            if (!flag[i][0] && board[i][0] == 'O')
+            {
+                flag[i][0] = true;
+                dfs(flag, board, i, 0);
+            }
+            if (!flag[i][board[0].size() - 1] && board[i][board[0].size() - 1] == 'O')
+            {
+                flag[i][board[0].size() - 1] = true;
+                dfs(flag, board, i, board[0].size() - 1);
+            }
+        }
+        for (int j = 0; j < board[0].size(); ++j)
+        {
+            if (!flag[0][j] && board[0][j] == 'O')
+            {
+                flag[0][j] = true;
+                dfs(flag, board, 0, j);
+            }
+            if (!flag[flag.size() - 1][j] && board[flag.size() - 1][j] == 'O')
+            {
+                flag[flag.size() - 1][j] = true;
+                dfs(flag, board, flag.size() - 1, j);
+            }
+        }
+        for (int i = 0; i < board.size(); i++)
+        {
+            for (int j = 0; j < board[i].size(); ++j)
+            {
+                if (flag[i][j])
+                    board[i][j] = 'O';
+                else
+                    board[i][j] = 'X';
+            }
+        }
+    }
+    void dfs(vector<vector<bool>> &v, vector<vector<char>> &board, int x, int y)
+    {
+        if (x - 1 >= 0 && !v[x - 1][y] && board[x - 1][y] == 'O')
+        {
+            v[x - 1][y] = true;
+            dfs(v, board, x - 1, y);
+        }
+        if (y - 1 >= 0 && !v[x][y - 1] && board[x][y - 1] == 'O')
+        {
+            v[x][y - 1] = true;
+            dfs(v, board, x, y - 1);
+        }
+        if (x + 1 < board.size() && !v[x + 1][y] && board[x + 1][y] == 'O')
+        {
+            v[x + 1][y] = true;
+            dfs(v, board, x + 1, y);
+        }
+        if (y + 1 < board[0].size() && !v[x][y + 1] && board[x][y + 1] == 'O')
+        {
+            v[x][y + 1] = true;
+            dfs(v, board, x, y + 1);
+        }
+    }
+};
+~~~
+
+击败47%
