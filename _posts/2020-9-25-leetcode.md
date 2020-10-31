@@ -1,6 +1,6 @@
 csjue的力扣
 
-暂时跳过的题目q384 q32 q10 q40
+暂时跳过的题目 q32 q10 q40
 
 这学期开始水水力扣。按照这个[顺序](https://www.zhihu.com/question/280279208/answer/1118675237)刷完了,语言主要是Java。力扣热题100，已刷85/100，剩下的基本是困难。
 
@@ -12278,3 +12278,197 @@ public:
 ~~~
 
 击败47%
+
+### Q[381O(1) 时间插入、删除和获取随机元素 - 允许重复](https://leetcode-cn.com/problems/insert-delete-getrandom-o1-duplicates-allowed/)
+
+难度 困难
+
+设计一个支持在*平均* 时间复杂度 **O(1)** 下**，** 执行以下操作的数据结构。
+
+**注意: 允许出现重复元素。**
+
+1. `insert(val)`：向集合中插入元素 val。
+2. `remove(val)`：当 val 存在时，从集合中移除一个 val。
+3. `getRandom`：从现有集合中随机获取一个元素。每个元素被返回的概率应该与其在集合中的数量呈线性相关。
+
+**示例:**
+
+```
+// 初始化一个空的集合。
+RandomizedCollection collection = new RandomizedCollection();
+
+// 向集合中插入 1 。返回 true 表示集合不包含 1 。
+collection.insert(1);
+
+// 向集合中插入另一个 1 。返回 false 表示集合包含 1 。集合现在包含 [1,1] 。
+collection.insert(1);
+
+// 向集合中插入 2 ，返回 true 。集合现在包含 [1,1,2] 。
+collection.insert(2);
+
+// getRandom 应当有 2/3 的概率返回 1 ，1/3 的概率返回 2 。
+collection.getRandom();
+
+// 从集合中删除 1 ，返回 true 。集合现在包含 [1,2] 。
+collection.remove(1);
+
+// getRandom 应有相同概率返回 1 和 2 。
+collection.getRandom();
+```
+
+这题真的挺困难。
+
+建立一个vector< int> map< int, set< int>>用来存vector坐标，删除元素就把元素与最后一个交换。
+
+要注意删除元素可能就是最后一个，此时不能在往集合里添加（删除里面的那个if困扰我很久）
+
+~~~cpp
+class RandomizedCollection
+{
+public:
+    unordered_map<int, unordered_set<int>> m;
+    vector<int> v;
+    /** Initialize your data structure here. */
+    RandomizedCollection()
+    {
+    }
+
+    /** Inserts a value to the collection. Returns true if the collection did not already contain the specified element. */
+    bool insert(int val)
+    {
+        v.push_back(val);
+        m[val].insert(v.size() - 1);
+        return m[val].size() == 1;
+    }
+
+    /** Removes a value from the collection. Returns true if the collection contained the specified element. */
+    bool remove(int val)
+    {
+        if (m.find(val) == m.end())
+            return false;
+        int pos = *(m[val].begin());
+        m[val].erase(pos);
+        m[v[v.size() - 1]].erase(v.size() - 1);
+        if (pos != v.size() - 1)
+            m[v[v.size() - 1]].insert(pos);
+        v[pos] = v[v.size() - 1];
+        if (m[val].size() == 0)
+        {
+            m.erase(val);
+        }
+        v.pop_back();
+        return true;
+    }
+
+    /** Get a random element from the collection. */
+    int getRandom()
+    {
+        if (v.size() == 0)
+            return -1;
+        return v[rand() % v.size()];
+    }
+};
+~~~
+
+击败96%
+
+### Q[834树中距离之和](https://leetcode-cn.com/problems/sum-of-distances-in-tree/)
+
+难度 困难
+
+给定一个无向、连通的树。树中有 `N` 个标记为 `0...N-1` 的节点以及 `N-1` 条边 。
+
+第 `i` 条边连接节点 `edges[i][0]` 和 `edges[i][1]` 。
+
+返回一个表示节点 `i` 与其他所有节点距离之和的列表 `ans`。
+
+**示例 1:**
+
+```
+输入: N = 6, edges = [[0,1],[0,2],[2,3],[2,4],[2,5]]
+输出: [8,12,6,10,10,10]
+解释: 
+如下为给定的树的示意图：
+  0
+ / \
+1   2
+   /|\
+  3 4 5
+
+我们可以计算出 dist(0,1) + dist(0,2) + dist(0,3) + dist(0,4) + dist(0,5) 
+也就是 1 + 1 + 2 + 2 + 2 = 8。 因此，answer[0] = 8，以此类推。
+```
+
+**说明:** `1 <= N <= 10000`
+
+首先用dfs，算出root的值。之后每个结点，利用变化结点来计算。
+
+以上面的树为例，树是固定的。计算出0为 1+1+2+2+2。当我们换到1时，1+2+3+3+3,非1的子孙叶距离全部+1。再看2时，1+1+1+1+2,如果叶子为2的子孙叶，则距离都-1，非子孙则都+1。
+
+dp[ root] = dp [ parent] - 子孙个数 + 非子孙个数。
+
+我们在第一次dfs即可算出每个结点子孙树。两次dfs即可解决这个问题
+
+~~~cpp
+class Solution
+{
+public:
+    unordered_map<int, unordered_set<int>> tree;
+    shared_ptr<vector<int>> s;
+
+    vector<int> sumOfDistancesInTree(int N, vector<vector<int>> &edges)
+    {
+        s = make_shared<vector<int>>(N);
+        for (auto edge : edges)
+        {
+            tree[edge[0]].insert(edge[1]);
+            tree[edge[1]].insert(edge[0]);
+        }
+        map<int, int> m;
+        m.insert(pair<int, int>(0, 1));
+        int x = dfs(0, 0, m);
+        vector<int> ans(N);
+        ans[0] = x;
+        for (auto it = tree[0].begin(); it != tree[0].end(); ++it)
+        {
+            if (ans[*it] == 0)
+                d(*it, N, ans[0], ans);
+        }
+        return ans;
+    }
+    int dfs(int root, int length, map<int, int> &m)
+    {
+        int sum = 0;
+        int leave = 0;
+        for (auto it = tree[root].begin(); it != tree[root].end(); ++it)
+        {
+            if (m[*it]++ == 0)
+            {
+                sum += dfs(*it, length + 1, m);
+                leave += ((*s)[*it] + 1);
+            }
+        }
+        sum += length;
+        (*s)[root] = leave;
+        return sum;
+    }
+    void d(int root, int N, int sum, vector<int> &v)
+    {
+        int x = (*s)[root];
+        int y = N - x - 2;
+        v[root] = sum - x + y;
+        int leave = 0;
+        for (auto it = tree[root].begin(); it != tree[root].end(); ++it)
+        {
+            if (v[*it] == 0)
+            {
+                d(*it, N, v[root], v);
+                leave += ((*s)[*it] + 1);
+            }
+        }
+        (*s)[root] = leave;
+    }
+};
+~~~
+
+击败5%

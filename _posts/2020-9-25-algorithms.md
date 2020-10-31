@@ -2,6 +2,8 @@
 
 本文算法用Java实现 持续更新。
 
+linearithmic:NlogN linear:N
+
 ## 并查集 union-find
 多个集合，将两个元素合并到一个集合（union），看两个元素是否在同一集合（find）
 
@@ -194,3 +196,14 @@ subString 40B reuse char[]
 
 tilde 保留系数
 
+## 排序
+
+### 快排
+
+内循环短：优于mergesort   shell sort，它们需要移动元素在内循环
+
+更少的比较
+
+average1.29NlgN
+
+best NlgN
