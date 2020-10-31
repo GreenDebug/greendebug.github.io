@@ -12472,3 +12472,169 @@ public:
 ~~~
 
 击败5%
+
+### Q[124二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)
+
+难度 困难
+
+给定一个**非空**二叉树，返回其最大路径和。
+
+本题中，路径被定义为一条从树中任意节点出发，沿父节点-子节点连接，达到任意节点的序列。该路径**至少包含一个**节点，且不一定经过根节点。
+
+ 
+
+**示例 1：**
+
+```
+输入：[1,2,3]
+
+       1
+      / \
+     2   3
+
+输出：6
+```
+
+**示例 2：**
+
+```
+输入：[-10,9,20,null,null,15,7]
+
+   -10
+   / \
+  9  20
+    /  \
+   15   7
+
+输出：42
+```
+
+这题不难，不需要看题解。只要在每个结点处理就好了。
+
+一方面是求max，一方面是求返回值。max可以计算两路会合。而返回值只计算一路
+
+~~~cpp
+class Solution
+{
+public:
+    int max;
+    int maxPathSum(TreeNode *root)
+    {
+        if (root == NULL)
+            return INT_MIN;
+        max = root->val;
+        dfs(root);
+        return max;
+    }
+    int dfs(TreeNode *root)
+    {
+        if (root == NULL)
+            return INT_MIN;
+        int left = INT_MIN;
+        int right = INT_MIN;
+        int r = root->val;
+        if (root->left != NULL)
+        {
+            left = dfs(root->left);
+            max = left > max ? left : max;
+            max = left+root->val>max?left+root->val:max;
+            r = root->val+left>r?root->val+left:r;
+        }
+        if (root->right != NULL)
+        {
+            right = dfs(root->right);
+            max = right > max ? right : max;
+            max = right + root->val>max?right+root->val:max;
+            r = root->val+right>r?root->val+right:r;
+        }
+        if (root->left != NULL && root->right != NULL)
+            max = left + right + root->val > max ? left + right + root->val : max;
+        return r;
+    }
+};
+~~~
+
+击败97%
+
+### Q[547朋友圈](https://leetcode-cn.com/problems/friend-circles/)
+
+难度 中等
+
+班上有 **N** 名学生。其中有些人是朋友，有些则不是。他们的友谊具有是传递性。如果已知 A 是 B 的朋友，B 是 C 的朋友，那么我们可以认为 A 也是 C 的朋友。所谓的朋友圈，是指所有朋友的集合。
+
+给定一个 **N \* N** 的矩阵 **M**，表示班级中学生之间的朋友关系。如果M[i][j] = 1，表示已知第 i 个和 j 个学生**互为**朋友关系，否则为不知道。你必须输出所有学生中的已知的朋友圈总数。
+
+ 
+
+**示例 1：**
+
+```
+输入：
+[[1,1,0],
+ [1,1,0],
+ [0,0,1]]
+输出：2 
+解释：已知学生 0 和学生 1 互为朋友，他们在一个朋友圈。
+第2个学生自己在一个朋友圈。所以返回 2 。
+```
+
+**示例 2：**
+
+```
+输入：
+[[1,1,0],
+ [1,1,1],
+ [0,1,1]]
+输出：1
+解释：已知学生 0 和学生 1 互为朋友，学生 1 和学生 2 互为朋友，所以学生 0 和学生 2 也是朋友，所以他们三个在一个朋友圈，返回 1 。
+```
+
+ 
+
+**提示：**
+
+- `1 <= N <= 200`
+- `M[i][i] == 1`
+- `M[i][j] == M[j][i]`
+
+并查集
+
+~~~cpp
+class Solution {
+public:
+    int count;
+    int findCircleNum(vector<vector<int>>& M) {
+        count = M.size(); 
+        vector<int> v(M.size());
+        for(int i = 0; i < M.size(); ++i){
+            v[i] = i;
+        }
+        for(int i = 0; i < M.size(); ++i){
+            for(int j = 0; j < M[i].size(); ++j){
+                if(M[i][j] == 1){
+                    un(i,j,v);
+                }
+            }
+        }
+        return count;
+    }
+    void un(int x,int y,vector<int> &v){
+        int x1 = find(x,v);
+        int y1 = find(y,v);
+        if(x1 == y1){
+            return;
+        }
+        v[x1] = v[y1];
+        count--;
+    }
+    int find(int x,vector<int> &v){
+        while(v[x] != x){
+            v[x] = v[v[x]];
+            x = v[x];
+        }
+        return x;
+    }
+};
+~~~
+
+击败73%
