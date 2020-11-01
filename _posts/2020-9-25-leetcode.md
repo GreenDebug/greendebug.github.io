@@ -12638,3 +12638,687 @@ public:
 ~~~
 
 击败73%
+
+### Q[1619删除某些元素后的数组均值](https://leetcode-cn.com/problems/mean-of-array-after-removing-some-elements/)
+
+难度简单3
+
+给你一个整数数组 `arr` ，请你删除最小 `5%` 的数字和最大 `5%` 的数字后，剩余数字的平均值。
+
+与 **标准答案** 误差在 `10-5` 的结果都被视为正确结果。
+
+ 
+
+**示例 1：**
+
+```
+输入：arr = [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3]
+输出：2.00000
+解释：删除数组中最大和最小的元素后，所有元素都等于 2，所以平均值为 2 。
+```
+
+**示例 2：**
+
+```
+输入：arr = [6,2,7,5,1,2,0,3,10,2,5,0,5,5,0,8,7,6,8,0]
+输出：4.00000
+```
+
+**示例 3：**
+
+```
+输入：arr = [6,0,7,0,7,5,7,8,3,4,0,7,8,1,6,8,1,1,2,4,8,1,9,5,4,3,8,5,10,8,6,6,1,0,6,10,8,2,3,4]
+输出：4.77778
+```
+
+**示例 4：**
+
+```
+输入：arr = [9,7,8,7,7,8,4,4,6,8,8,7,6,8,8,9,2,6,0,0,1,10,8,6,3,3,5,1,10,9,0,7,10,0,10,4,1,10,6,9,3,6,0,0,2,7,0,6,7,2,9,7,7,3,0,1,6,1,10,3]
+输出：5.27778
+```
+
+**示例 5：**
+
+```
+输入：arr = [4,8,4,10,0,7,1,3,7,8,8,3,4,1,6,2,1,1,8,0,9,8,0,3,9,10,3,10,1,10,7,3,2,1,4,9,10,7,6,4,0,8,5,1,2,1,6,2,5,0,7,10,9,10,3,7,10,5,8,5,7,6,7,6,10,9,5,10,5,5,7,2,10,7,7,8,2,0,1,1]
+输出：5.29167
+```
+
+ 
+
+**提示：**
+
+- `20 <= arr.length <= 1000`
+- `arr.length` 是 `20` 的 **倍数** 
+- `0 <= arr[i] <= 105`
+
+~~~cpp
+class Solution {
+public:
+    double trimMean(vector<int>& arr) {
+        sort(arr.begin(), arr.end());
+        double sum = 0;
+        double left = arr.size()*0.05,right =arr.size()*0.95;
+        for(int i = left; i < right;++i){
+            sum += arr[i];
+        }
+        return sum/(right-left);
+    }
+};
+~~~
+
+击败63%
+
+### Q[5539按照频率将数组升序排序](https://leetcode-cn.com/problems/sort-array-by-increasing-frequency/)
+
+难度 简单
+
+给你一个整数数组 `nums` ，请你将数组按照每个值的频率 **升序** 排序。如果有多个值的频率相同，请你按照数值本身将它们 **降序** 排序。 
+
+请你返回排序后的数组。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,1,2,2,2,3]
+输出：[3,1,1,2,2,2]
+解释：'3' 频率为 1，'1' 频率为 2，'2' 频率为 3 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [2,3,1,3,2]
+输出：[1,3,3,2,2]
+解释：'2' 和 '3' 频率都为 2 ，所以它们之间按照数值本身降序排序。
+```
+
+**示例 3：**
+
+```
+输入：nums = [-1,1,-6,4,5,-6,1,4,1]
+输出：[5,-1,4,4,-6,-6,1,1,1]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 100`
+- `-100 <= nums[i] <= 100`
+
+此题为第38场双周赛。这个双周赛写了三个/四个。排名430/2004。第一题罚时15min。第四题超时过不了
+
+这题感觉其实挺难的...
+
+先用cpp，没看清题意，还要按大小排序。
+
+然而java我不会map遍历，临时学了一下
+
+先用map记录次数，然后建立一个结构体数组，按照频率、大小排序
+
+~~~java
+class Solution {
+
+    public int[] frequencySort(int[] nums) {
+        HashMap<Integer,Integer> map = new HashMap<>();
+        for(int i:nums)
+            map.put(i,map.getOrDefault(i,0)+1);
+        Iterator<Map.Entry<Integer, Integer>> iterator = map.entrySet().iterator();
+        Stru[] s = new Stru[map.size()];
+        int pos = 0;
+        while(iterator.hasNext()){
+            Map.Entry<Integer, Integer> entry = iterator.next();
+            s[pos] = new Stru();
+            s[pos].x = entry.getKey();
+            s[pos].y = entry.getValue();
+            pos++;
+        }
+        Arrays.sort(s, new Comparator<Stru>() {
+            @Override
+            public int compare(Stru o1, Stru o2) {
+                if(o1.y-o2.y == 0){
+                    return o2.x - o1.x;
+                }
+                return o1.y - o2.y;
+            }
+        });
+        int j = 0;
+        for(int i = 0; i < nums.length; i++){
+            if(s[j].y!=0) {
+                nums[i] = s[j].x;
+                s[j].y--;
+            }
+            if(s[j].y==0)
+                j++;
+        }
+        return nums;
+    }
+}
+class Stru{
+    public int x;
+    public int y;
+}
+~~~
+
+### Q[5540两点之间不包含任何点的最宽垂直面积](https://leetcode-cn.com/problems/widest-vertical-area-between-two-points-containing-no-points/)
+
+难度 中等
+
+给你 `n` 个二维平面上的点 `points` ，其中 `points[i] = [xi, yi]` ，请你返回两点之间内部不包含任何点的 **最宽垂直面积** 的宽度。
+
+**垂直面积** 的定义是固定宽度，而 y 轴上无限延伸的一块区域（也就是高度为无穷大）。 **最宽垂直面积** 为宽度最大的一个垂直面积。
+
+请注意，垂直区域 **边上** 的点 **不在** 区域内。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/10/31/points3.png)
+
+```
+输入：points = [[8,7],[9,9],[7,4],[9,7]]
+输出：1
+解释：红色区域和蓝色区域都是最优区域。
+```
+
+**示例 2：**
+
+```
+输入：points = [[3,1],[9,0],[1,0],[1,4],[5,3],[8,8]]
+输出：3
+```
+
+ 
+
+**提示：**
+
+- `n == points.length`
+- `2 <= n <= 105`
+- `points[i].length == 2`
+- `0 <= xi, yi <= 109`
+
+这题都不想说啥了，这题放第一个还差不多。所谓宽垂直面积，就是宽度
+
+~~~java
+class Solution {
+    public int maxWidthOfVerticalArea(int[][] points) {
+        Arrays.sort(points, new Comparator<int[]>() {
+            @Override
+            public int compare(int[] o1, int[] o2) {
+                return o1[0]-o2[0];
+            }
+        });
+        int max = 0;
+        for(int i = 0; i +1 <points.length; i++){
+            int temp = points[i+1][0] - points[i][0];
+            max = max>temp?max:temp;
+        }
+        return max;
+    }
+}
+~~~
+
+### Q[5541统计只差一个字符的子串数目](https://leetcode-cn.com/problems/count-substrings-that-differ-by-one-character/)
+
+难度 中等
+
+给你两个字符串 `s` 和 `t` ，请你找出 `s` 中的非空子串的数目，这些子串满足替换 **一个不同字符** 以后，是 `t` 串的子串。换言之，请你找到 `s` 和 `t` 串中 **恰好** 只有一个字符不同的子字符串对的数目。
+
+比方说， `"**compute**r"` 和 `"**computa**tion"` 加粗部分只有一个字符不同： `'e'`/`'a'` ，所以这一对子字符串会给答案加 1 。
+
+请你返回满足上述条件的不同子字符串对数目。
+
+一个 **子字符串** 是一个字符串中连续的字符。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "aba", t = "baba"
+输出：6
+解释：以下为只相差 1 个字符的 s 和 t 串的子字符串对：
+("aba", "baba")
+("aba", "baba")
+("aba", "baba")
+("aba", "baba")
+("aba", "baba")
+("aba", "baba")
+加粗部分分别表示 s 和 t 串选出来的子字符串。
+```
+
+**示例 2：**
+
+```
+输入：s = "ab", t = "bb"
+输出：3
+解释：以下为只相差 1 个字符的 s 和 t 串的子字符串对：
+("ab", "bb")
+("ab", "bb")
+("ab", "bb")
+加粗部分分别表示 s 和 t 串选出来的子字符串。
+```
+
+**示例 3：**
+
+```
+输入：s = "a", t = "a"
+输出：0
+```
+
+**示例 4：**
+
+```
+输入：s = "abe", t = "bbc"
+输出：10
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length, t.length <= 100`
+- `s` 和 `t` 都只包含小写英文字母。
+
+这题就穷举，n3竟然过了。感觉中等题就是可以暴力，复杂题一遍需要好思路
+
+~~~java
+class Solution {
+    public int countSubstrings(String s, String t) {
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            for (int j = i; j < s.length(); j++) {
+                String s1 = s.substring(i, j+1);
+                for (int i1 = 0; i1 +s1.length()-1< t.length(); i1++) {
+                    String s2 = t.substring(i1, t.length());
+                    int flag = 0;
+                    for (int i3 = 0; i3 < s1.length(); i3++){
+                        if(s1.charAt(i3)!=s2.charAt(i3)){
+                            flag++;
+                            if(flag>1)
+                                break;
+                        }
+                    }
+                    if(flag == 1)
+                        count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+~~~
+
+### Q[140单词拆分 II](https://leetcode-cn.com/problems/word-break-ii/)
+
+难度 困难
+
+给定一个**非空**字符串 *s* 和一个包含**非空**单词列表的字典 *wordDict*，在字符串中增加空格来构建一个句子，使得句子中所有的单词都在词典中。返回所有这些可能的句子。
+
+**说明：**
+
+- 分隔时可以重复使用字典中的单词。
+- 你可以假设字典中没有重复的单词。
+
+**示例 1：**
+
+```
+输入:
+s = "catsanddog"
+wordDict = ["cat", "cats", "and", "sand", "dog"]
+输出:
+[
+  "cats and dog",
+  "cat sand dog"
+]
+```
+
+**示例 2：**
+
+```
+输入:
+s = "pineapplepenapple"
+wordDict = ["apple", "pen", "applepen", "pine", "pineapple"]
+输出:
+[
+  "pine apple pen apple",
+  "pineapple pen apple",
+  "pine applepen apple"
+]
+解释: 注意你可以重复使用字典中的单词。
+```
+
+**示例 3：**
+
+```
+输入:
+s = "catsandog"
+wordDict = ["cats", "dog", "sand", "and", "cat"]
+输出:
+[]
+```
+
+试了很多方法都没优化到点上
+
+都会挂在这个例子上
+
+~~~
+"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+["a","aa","aaa","aaaa","aaaaa","aaaaaa","aaaaaaa","aaaaaaaa","aaaaaaaaa","aaaaaaaaaa"]
+~~~
+
+**dfs的时候 判断一下，从当前pos能否划分。把这个记录下来。**
+
+~~~cpp
+class Solution
+{
+public:
+    unordered_map<int, unordered_set<string>> m;
+    unordered_set<int> f;//关键在这个记录，记录失败的起始点
+    vector<string> wordBreak(string s, vector<string> &wordDict)
+    {
+
+        for (auto st : wordDict)
+        {
+            for (int i = 0; i <= s.size(); ++i)
+            {
+                int j = 0;
+                while (j < st.size() && s[i + j] == st[j])
+                {
+                    j++;
+                }
+                if (j == st.size())
+                    m[i].insert(st);
+            }
+        }
+        vector<string> ans;
+        dfs(ans, 0, s, "");
+        return ans;
+    }
+    bool dfs(vector<string> &ans, int pos, string s, string temp)
+    {
+        if (f.find(pos)!=f.end()||pos > s.size())
+        {
+            return false;
+        }
+        if (pos == s.size())
+        {
+            ans.push_back(temp);
+            return true;
+        }
+        auto it = m[pos].begin();
+        bool flag = false;
+        while (it != m[pos].end())
+        {
+            if (pos != 0)
+                flag|=dfs(ans, pos + it->size(), s, temp + " " + *it);
+            else
+                flag|=dfs(ans, pos + it->size(), s, temp + *it);
+            ++it;
+        }
+        if(!flag)
+            f.insert(pos);
+        return flag;
+    }
+};
+~~~
+
+击败91%
+
+### Q [5554能否连接形成数组](https://leetcode-cn.com/problems/check-array-formation-through-concatenation/)
+
+难度 简单
+
+给你一个整数数组 `arr` ，数组中的每个整数 **互不相同** 。另有一个由整数数组构成的数组 `pieces`，其中的整数也 **互不相同** 。请你以 **任意顺序** 连接 `pieces` 中的数组以形成 `arr` 。但是，**不允许** 对每个数组 `pieces[i]` 中的整数重新排序。
+
+如果可以连接 `pieces` 中的数组形成 `arr` ，返回 `true` ；否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：arr = [85], pieces = [[85]]
+输出：true
+```
+
+**示例 2：**
+
+```
+输入：arr = [15,88], pieces = [[88],[15]]
+输出：true
+解释：依次连接 [15] 和 [88]
+```
+
+**示例 3：**
+
+```
+输入：arr = [49,18,16], pieces = [[16,18,49]]
+输出：false
+解释：即便数字相符，也不能重新排列 pieces[0]
+```
+
+**示例 4：**
+
+```
+输入：arr = [91,4,64,78], pieces = [[78],[4,64],[91]]
+输出：true
+解释：依次连接 [91]、[4,64] 和 [78]
+```
+
+**示例 5：**
+
+```
+输入：arr = [1,3,5,7], pieces = [[2,4,6,8]]
+输出：false
+```
+
+ 
+
+**提示：**
+
+- `1 <= pieces.length <= arr.length <= 100`
+- `sum(pieces[i].length) == arr.length`
+- `1 <= pieces[i].length <= arr.length`
+- `1 <= arr[i], pieces[i][j] <= 100`
+- `arr` 中的整数 **互不相同**
+- `pieces` 中的整数 **互不相同**（也就是说，如果将 `pieces` 扁平化成一维数组，数组中的所有整数互不相同）
+
+此题为213场周赛。这场还是写了三个题，第四个困难题还是超时。371/3826
+
+第一题不难，降维了。明确说了互相不同。只要找到一个相同，就开始向后遍历
+
+~~~java
+class Solution {
+    public boolean canFormArray(int[] arr, int[][] pieces) {
+        boolean[] b = new boolean[arr.length];
+        for(int[] a:pieces){
+            int i = 0;
+            for(i = 0; i < arr.length; i ++){
+                if(arr[i] == a[0])
+                    break;
+            }
+            int j = 0;
+            while(j<a.length){
+                if(i<arr.length&&a[j] == arr[i])
+                    b[i] = true;
+                else
+                    return false;
+                i++;
+                j++;
+            }
+        }
+        for(boolean r: b) {
+            if (!r)
+                return false;
+        }
+        return true;
+    }
+}
+~~~
+
+### Q[5555统计字典序元音字符串的数目](https://leetcode-cn.com/problems/count-sorted-vowel-strings/)
+
+难度 中等
+
+给你一个整数 `n`，请返回长度为 `n` 、仅由元音 (`a`, `e`, `i`, `o`, `u`) 组成且按 **字典序排列** 的字符串数量。
+
+字符串 `s` 按 **字典序排列** 需要满足：对于所有有效的 `i`，`s[i]` 在字母表中的位置总是与 `s[i+1]` 相同或在 `s[i+1]` 之前。
+
+ 
+
+**示例 1：**
+
+```
+输入：n = 1
+输出：5
+解释：仅由元音组成的 5 个字典序字符串为 ["a","e","i","o","u"]
+```
+
+**示例 2：**
+
+```
+输入：n = 2
+输出：15
+解释：仅由元音组成的 15 个字典序字符串为
+["aa","ae","ai","ao","au","ee","ei","eo","eu","ii","io","iu","oo","ou","uu"]
+注意，"ea" 不是符合题意的字符串，因为 'e' 在字母表中的位置比 'a' 靠后
+```
+
+**示例 3：**
+
+```
+输入：n = 33
+输出：66045
+```
+
+ 
+
+**提示：**
+
+- `1 <= n <= 50` 
+
+a1 e2 i3 o4 u5 
+
+这题组合数学。有点像双周赛最后一题。dfs，记录此时最大的值就是5个数，从当前最大值开始枚举
+
+~~~cpp
+class Solution {
+    int count;
+    public int countVowelStrings(int n) {
+        count = 0;
+        dfs(n,0,1);
+        return count;
+    }
+    public void dfs(int n,int pos,int max){
+        if(pos == n)
+        {
+            count++;
+            return;
+        }
+        for(int i = max; i <= 5; i++){
+            dfs(n,pos+1,i);
+        }
+    }
+}
+~~~
+
+### Q[5556可以到达的最远建筑](https://leetcode-cn.com/problems/furthest-building-you-can-reach/)
+
+难度 中等
+
+给你一个整数数组 `heights` ，表示建筑物的高度。另有一些砖块 `bricks` 和梯子 `ladders` 。
+
+你从建筑物 `0` 开始旅程，不断向后面的建筑物移动，期间可能会用到砖块或梯子。
+
+当从建筑物 `i` 移动到建筑物 `i+1`（下标 **从 0 开始** ）时：
+
+- 如果当前建筑物的高度 **大于或等于** 下一建筑物的高度，则不需要梯子或砖块
+- 如果当前建筑的高度 **小于** 下一个建筑的高度，您可以使用 **一架梯子** 或 **`(h[i+1] - h[i])` 个砖块**
+
+如果以最佳方式使用给定的梯子和砖块，返回你可以到达的最远建筑物的下标（下标 **从 0 开始** ）。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/10/31/q4.gif)
+
+```
+输入：heights = [4,2,7,6,9,14,12], bricks = 5, ladders = 1
+输出：4
+解释：从建筑物 0 出发，你可以按此方案完成旅程：
+- 不使用砖块或梯子到达建筑物 1 ，因为 4 >= 2
+- 使用 5 个砖块到达建筑物 2 。你必须使用砖块或梯子，因为 2 < 7
+- 不使用砖块或梯子到达建筑物 3 ，因为 7 >= 6
+- 使用唯一的梯子到达建筑物 4 。你必须使用砖块或梯子，因为 6 < 9
+无法越过建筑物 4 ，因为没有更多砖块或梯子。
+```
+
+**示例 2：**
+
+```
+输入：heights = [4,12,2,7,3,18,20,3,19], bricks = 10, ladders = 2
+输出：7
+```
+
+**示例 3：**
+
+```
+输入：heights = [14,3,19,3], bricks = 17, ladders = 0
+输出：3
+```
+
+ 
+
+**提示：**
+
+- `1 <= heights.length <= 105`
+- `1 <= heights[i] <= 106`
+- `0 <= bricks <= 109`
+- `0 <= ladders <= heights.length`
+
+这题看着还挺有意思的
+
+刚开始没看到梯子，之间就写了。然后样例1过不了。
+
+然后就懂了，贪心算法嘛。先不管梯子，建立一个数组维护 最耗砖头。
+
+每次砖头不够用，就用一个梯子，砖头加上 最耗砖头的那个
+
+~~~cpp
+class Solution {
+    public int furthestBuilding(int[] heights, int bricks, int ladders) {
+        int i = 0;
+        int[] p = new int[ladders];
+
+        for (i = 1; i < heights.length; i++) {
+            if (heights[i - 1] >= heights[i])
+                continue;
+            if (ladders > 0 && p[ladders - 1] < heights[i] - heights[i - 1]) {
+                for (int t = 1; t < ladders; t++) {
+                    p[t - 1] = p[t];
+                }
+                p[ladders - 1] = heights[i] - heights[i - 1];
+            }
+            
+                bricks -= (heights[i] - heights[i - 1]);
+            if(bricks>=0)
+                continue;
+            else if (ladders > 0) {
+                bricks += p[ladders - 1];
+                ladders--;
+            }
+            if(bricks<0)
+                break;
+        }
+        return i - 1;
+    }
+}
+~~~
+
