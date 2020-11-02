@@ -13322,3 +13322,347 @@ class Solution {
 }
 ~~~
 
+### Q[349两个数组的交集](https://leetcode-cn.com/problems/intersection-of-two-arrays/)
+
+难度 简单
+
+给定两个数组，编写一个函数来计算它们的交集。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums1 = [1,2,2,1], nums2 = [2,2]
+输出：[2]
+```
+
+**示例 2：**
+
+```
+输入：nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+输出：[9,4]
+```
+
+ 
+
+**说明：**
+
+- 输出结果中的每个元素一定是唯一的。
+- 我们可以不考虑输出结果的顺序。
+
+两个set求交集
+
+~~~cpp
+class Solution {
+public:
+    unordered_set<int> s1;
+    unordered_set<int> s2;
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        for(int i:nums1)
+            s1.insert(i);
+        
+        for(int i:nums2){
+            s2.insert(i);
+        }
+        vector<int> ans;
+        for(int i: s1){
+            if(s2.find(i)!=s2.end()){
+                ans.push_back(i);
+            }
+        }
+        return ans;
+    }
+};
+~~~
+
+击败96%
+
+### Q[207课程表](https://leetcode-cn.com/problems/course-schedule/)
+
+难度 中等
+
+你这个学期必须选修 `numCourse` 门课程，记为 `0` 到 `numCourse-1` 。
+
+在选修某些课程之前需要一些先修课程。 例如，想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他们：`[0,1]`
+
+给定课程总量以及它们的先决条件，请你判断是否可能完成所有课程的学习？
+
+ 
+
+**示例 1:**
+
+```
+输入: 2, [[1,0]] 
+输出: true
+解释: 总共有 2 门课程。学习课程 1 之前，你需要完成课程 0。所以这是可能的。
+```
+
+**示例 2:**
+
+```
+输入: 2, [[1,0],[0,1]]
+输出: false
+解释: 总共有 2 门课程。学习课程 1 之前，你需要先完成课程 0；并且学习课程 0 之前，你还应先完成课程 1。这是不可能的。
+```
+
+ 
+
+**提示：**
+
+1. 输入的先决条件是由 **边缘列表** 表示的图形，而不是 邻接矩阵 。详情请参见[图的表示法](http://blog.csdn.net/woaidapaopao/article/details/51732947)。
+2. 你可以假定输入的先决条件中没有重复的边。
+3. `1 <= numCourses <= 10^5`
+
+dfs，剪一剪枝，记忆化搜索
+
+~~~cpp
+class Solution
+{
+public:
+    unordered_map<int, unordered_set<int>> m;
+    bool canFinish(int numCourses, vector<vector<int>> &prerequisites)
+    {
+        vector<bool> find(numCourses);
+        vector<bool> save(numCourses);
+        for (auto v : prerequisites)
+        {
+            m[v[0]].insert(v[1]);
+        }
+        for (int i = 0; i < numCourses; ++i)
+        {
+            if (m[i].size() == 0)
+                save[i] = true;
+            else if (!dfs(numCourses, prerequisites, save, i, find))
+                return false;
+        }
+        return true;
+    }
+    bool dfs(int numCourses, vector<vector<int>> &prerequisites, vector<bool> &save, int i, vector<bool> &find)
+    {
+        if (save[i] == true)
+            return true;
+        bool flag = true;
+        if (find[i] == true)
+            return false;
+        find[i] = true;
+        for (auto v : m[i])
+        {
+            if (find[v] == true)
+            {
+                if (save[v] == false)
+                {
+                    flag = false;
+                    break;
+                }
+                else
+                    flag = true;
+            }
+            flag &= dfs(numCourses, prerequisites, save, v, find);
+            if(flag == false)
+                break;
+        }
+        save[i] = flag;
+        return flag;
+    }
+};
+~~~
+
+击败18%
+
+### Q[210课程表 II](https://leetcode-cn.com/problems/course-schedule-ii/)
+
+难度中等294
+
+现在你总共有 *n* 门课需要选，记为 `0` 到 `n-1`。
+
+在选修某些课程之前需要一些先修课程。 例如，想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他们: `[0,1]`
+
+给定课程总量以及它们的先决条件，返回你为了学完所有课程所安排的学习顺序。
+
+可能会有多个正确的顺序，你只要返回一种就可以了。如果不可能完成所有课程，返回一个空数组。
+
+**示例 1:**
+
+```
+输入: 2, [[1,0]] 
+输出: [0,1]
+解释: 总共有 2 门课程。要学习课程 1，你需要先完成课程 0。因此，正确的课程顺序为 [0,1] 。
+```
+
+**示例 2:**
+
+```
+输入: 4, [[1,0],[2,0],[3,1],[3,2]]
+输出: [0,1,2,3] or [0,2,1,3]
+解释: 总共有 4 门课程。要学习课程 3，你应该先完成课程 1 和课程 2。并且课程 1 和课程 2 都应该排在课程 0 之后。
+     因此，一个正确的课程顺序是 [0,1,2,3] 。另一个正确的排序是 [0,2,1,3] 。
+```
+
+**说明:**
+
+1. 输入的先决条件是由**边缘列表**表示的图形，而不是邻接矩阵。详情请参见[图的表示法](http://blog.csdn.net/woaidapaopao/article/details/51732947)。
+2. 你可以假定输入的先决条件中没有重复的边。
+
+**提示:**
+
+1. 这个问题相当于查找一个循环是否存在于有向图中。如果存在循环，则不存在拓扑排序，因此不可能选取所有课程进行学习。
+2. [通过 DFS 进行拓扑排序](https://www.coursera.org/specializations/algorithms) - 一个关于Coursera的精彩视频教程（21分钟），介绍拓扑排序的基本概念。
+3. 拓扑排序也可以通过 [BFS](https://baike.baidu.com/item/宽度优先搜索/5224802?fr=aladdin&fromid=2148012&fromtitle=广度优先搜索) 完成。
+
+上一题稍作修改。save数组还可以记录是否存入vector
+
+~~~cpp
+class Solution
+{
+public:
+    unordered_map<int, unordered_set<int>> m;
+    vector<int> classes;
+    vector<int> findOrder(int numCourses, vector<vector<int>> &prerequisites)
+    {
+        vector<bool> find(numCourses);
+        vector<bool> save(numCourses);
+        for (auto v : prerequisites)
+        {
+            m[v[0]].insert(v[1]);
+        }
+        for (int i = 0; i < numCourses; ++i)
+        {
+            if (m[i].size() == 0)
+            {
+                if (save[i] == false)
+                    classes.push_back(i);
+                save[i] = true;
+            }
+            else if (!dfs(numCourses, prerequisites, save, i, find))
+                return {};
+        }
+        return classes;
+    }
+    bool dfs(int numCourses, vector<vector<int>> &prerequisites, vector<bool> &save, int i, vector<bool> &find)
+    {
+        if (save[i] == true)
+            return true;
+        bool flag = true;
+        if (find[i] == true)
+            return false;
+        find[i] = true;
+        for (auto v : m[i])
+        {
+            if (find[v] == true)
+            {
+                if (save[v] == false)
+                {
+                    flag = false;
+                    break;
+                }
+                else
+                    flag = true;
+            }
+            flag &= dfs(numCourses, prerequisites, save, v, find);
+            if (flag == false)
+                break;
+        }
+        save[i] = flag;
+        if (flag == true)
+            classes.push_back(i);
+        return flag;
+    }
+};
+~~~
+
+击败13%
+
+### Q[329矩阵中的最长递增路径](https://leetcode-cn.com/problems/longest-increasing-path-in-a-matrix/)
+
+难度 困难
+
+给定一个整数矩阵，找出最长递增路径的长度。
+
+对于每个单元格，你可以往上，下，左，右四个方向移动。 你不能在对角线方向上移动或移动到边界外（即不允许环绕）。
+
+**示例 1:**
+
+```
+输入: nums = 
+[
+  [9,9,4],
+  [6,6,8],
+  [2,1,1]
+] 
+输出: 4 
+解释: 最长递增路径为 [1, 2, 6, 9]。
+```
+
+**示例 2:**
+
+```
+输入: nums = 
+[
+  [3,4,5],
+  [3,2,6],
+  [2,2,1]
+] 
+输出: 4 
+解释: 最长递增路径是 [3, 4, 5, 6]。注意不允许在对角线方向上移动。
+```
+
+dfs，一下子就想到要把每个点最长路记录下来。但不知道为啥又觉得，这样子不对。想不出方法证明、也想不出方法驳倒
+
+这个最长递增路径，一定是单向的。大概因为这样所以可以这样做
+
+~~~cpp
+class Solution
+{
+public:
+    int longestIncreasingPath(vector<vector<int>> &matrix)
+    {
+        if (matrix.size() == 0)
+            return 0;
+        vector<vector<int>> v(matrix.size(), vector<int>(matrix[0].size()));
+        vector<vector<bool>> path(matrix.size(), vector<bool>(matrix[0].size()));
+        int max = 0;
+        for (int i = 0; i < matrix.size(); i++)
+        {
+            for (int j = 0; j < matrix[i].size(); j++)
+            {
+                int t = dfs(matrix, path, i, j, v);
+                max = max < t ? t : max;
+            }
+        }
+        return max;
+    }
+    int dfs(vector<vector<int>> &matrix, vector<vector<bool>> &path, int x, int y, vector<vector<int>> &v)
+    {
+        int d[4] = {0};
+        if (v[x][y] != 0)
+            return v[x][y];
+        path[x][y] = true;
+
+        if (x - 1 >= 0 && !path[x - 1][y] && matrix[x - 1][y] < matrix[x][y])
+        {
+            d[0] = dfs(matrix, path, x - 1, y, v);
+        }
+        if (y - 1 >= 0 && !path[x][y - 1] && matrix[x][y - 1] < matrix[x][y])
+        {
+
+            d[1] = dfs(matrix, path, x, y - 1, v);
+        }
+        if (x + 1 < matrix.size() && !path[x + 1][y] && matrix[x + 1][y] < matrix[x][y])
+        {
+
+            d[2] = dfs(matrix, path, x + 1, y, v);
+        }
+        if (y + 1 < matrix[0].size() && !path[x][y + 1] && matrix[x][y + 1] < matrix[x][y])
+        {
+            d[3] = dfs(matrix, path, x, y + 1, v);
+        }
+        sort(begin(d), end(d));
+        path[x][y] = false;
+        v[x][y] = d[3] + 1;
+        return d[3] + 1;
+    }
+};
+~~~
+
+击败13%
