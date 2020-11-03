@@ -13666,3 +13666,288 @@ public:
 ~~~
 
 击败13%
+
+### Q[941有效的山脉数组](https://leetcode-cn.com/problems/valid-mountain-array/)
+
+难度 简单
+
+给定一个整数数组 `A`，如果它是有效的山脉数组就返回 `true`，否则返回 `false`。
+
+让我们回顾一下，如果 A 满足下述条件，那么它是一个山脉数组：
+
+- `A.length >= 3`
+
+- 在 
+
+  ```
+  0 < i < A.length - 1
+  ```
+
+   条件下，存在 
+
+  ```
+  i
+  ```
+
+   使得：
+
+  - `A[0] < A[1] < ... A[i-1] < A[i]`
+  - `A[i] > A[i+1] > ... > A[A.length - 1]`
+
+ 
+
+![img](https://assets.leetcode.com/uploads/2019/10/20/hint_valid_mountain_array.png)
+
+ 
+
+**示例 1：**
+
+```
+输入：[2,1]
+输出：false
+```
+
+**示例 2：**
+
+```
+输入：[3,5,5]
+输出：false
+```
+
+**示例 3：**
+
+```
+输入：[0,3,2,1]
+输出：true
+```
+
+ 
+
+**提示：**
+
+1. `0 <= A.length <= 10000`
+2. `0 <= A[i] <= 10000 `
+
+~~~cpp
+class Solution {
+public:
+    bool validMountainArray(vector<int>& A) {
+        if(A.size()<3) 
+            return false;
+        if(A[0]>=A[1])
+            return false;
+        int i = 0;
+        bool flag = false;
+        while (i+1<A.size()&&A[i]<A[i+1]) {
+            i++;
+        }
+        while (i+1<A.size()&&A[i]>A[i+1]) {
+            i++;
+            flag = true;
+        }
+        if (flag&&i==A.size()-1)
+            return true;
+        return false;
+    }
+};
+~~~
+
+击败18%
+
+### Q[剑指Offer 51. 数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
+
+难度 困难
+
+在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。
+
+ 
+
+**示例 1:**
+
+```
+输入: [7,5,6,4]
+输出: 5
+```
+
+ 
+
+**限制：**
+
+```
+0 <= 数组长度 <= 50000
+```
+
+题目越短，事情就越不简单
+
+用merge sort
+
+后移一位。
+
+L = [8, 12, 16, 22, 100]   R = [9, 26, 55, 64, 91]  M = [8]
+        |                       |
+      lPtr                     rPtr
+观察就可以知道，当左边大于右边，即可构成逆序对
+
+count += (mid - i + 1);
+
+被merge sort 卡了好几次。第一次是merge没写对 范围从0 开始。第二次是sort用的数组应该重复利用，而不是每次重新开辟
+
+~~~cpp
+class Solution
+{
+public:
+    int count;
+    int reversePairs(vector<int> &nums)
+    {
+        count = 0;
+        vector<int> aux(nums.size());
+        sor(nums, 0, nums.size() - 1,aux);
+        return count;
+    }
+    void sor(vector<int> &nums, int start, int end,vector<int> &aux)
+    {
+        if (start >= end)
+            return;
+
+        int mid = start + (end - start) / 2;
+        sor(nums, start, mid,aux);
+        sor(nums, mid + 1, end,aux);
+        merge(nums, start, mid, end,aux);
+    }
+    void merge(vector<int> &nums, int start, int mid, int end,vector<int> &aux)
+    {
+
+        for (int i = start; i <= end; i++)
+        {
+            aux[i] = nums[i];
+        }
+        int i = start;
+        int j = mid + 1;
+        int pos = start;
+        int prej = j;
+        while (pos <= end)
+        {
+            if (i > mid)
+            {
+                nums[pos++] = aux[j++];
+            }
+            else if (j > end)
+            {
+                nums[pos++] = aux[i++];
+            }
+            else if (aux[i] > aux[j])
+            {
+                nums[pos++] = aux[j++];
+                count += (mid - i + 1);
+            }
+            else
+            {
+                nums[pos++] = aux[i++];
+            }
+        }
+    }
+};
+~~~
+
+击败41%
+
+### Q[315计算右侧小于当前元素的个数](https://leetcode-cn.com/problems/count-of-smaller-numbers-after-self/)
+
+难度困难
+
+给定一个整数数组 *nums*，按要求返回一个新数组 *counts*。数组 *counts* 有该性质： `counts[i]` 的值是 `nums[i]` 右侧小于 `nums[i]` 的元素的数量。
+
+ 
+
+**示例：**
+
+```
+输入：nums = [5,2,6,1]
+输出：[2,1,1,0] 
+解释：
+5 的右侧有 2 个更小的元素 (2 和 1)
+2 的右侧仅有 1 个更小的元素 (1)
+6 的右侧有 1 个更小的元素 (1)
+1 的右侧有 0 个更小的元素
+```
+
+ 
+
+**提示：**
+
+- `0 <= nums.length <= 10^5`
+- `-10^4 <= nums[i] <= 10^4`
+
+上一题代码魔改，建立一个index数组，存原来的位置。
+
+用一个ans数组存结果。把上题的count稍作修改
+
+（魔改得乱七八糟
+
+~~~cpp
+class Solution {
+public:
+    vector<int> countSmaller(vector<int>& nums) {
+        vector<int> aux(nums.size());
+        vector<int> index(nums.size());
+        vector<int> tempindex(nums.size());
+        vector<int> ans(nums.size());
+        for(int i = 0; i < nums.size(); i++) {
+            index[i] = i;
+        }
+        sor(nums, 0, nums.size() - 1,aux,index,tempindex,ans);
+        return ans;
+    }
+    void sor(vector<int> &nums, int start, int end,vector<int> &aux,vector<int> &index,vector<int> &tempindex,vector<int> &ans) 
+    {
+        if (start >= end)
+            return;
+
+        int mid = start + (end - start) / 2;
+        sor(nums, start, mid,aux,index,tempindex,ans);
+        sor(nums, mid + 1, end,aux,index,tempindex,ans);
+        merge(nums, start, mid, end,aux,index,tempindex,ans);
+    }
+    void merge(vector<int> &nums, int start, int mid, int end,vector<int> &aux,vector<int> &index,vector<int> &tempindex,vector<int> &ans)
+    {
+
+        for (int i = start; i <= end; i++)
+        {
+            aux[i] = nums[i];
+            tempindex[i] = index[i];
+        }
+        int i = start;
+        int j = mid + 1;
+        int pos = start;
+        int prej = j;
+        while (pos <= end)
+        {
+            if (i > mid)
+            {
+                index[pos] = tempindex[j];
+                nums[pos++] = aux[j++];
+            
+            }
+            else if (j > end)
+            {
+                ans[tempindex[i]] += (j-mid-1);
+                index[pos] = tempindex[i];
+                nums[pos++] = aux[i++];
+            }
+            else if (aux[i] > aux[j])
+            {
+                index[pos] = tempindex[j];
+                nums[pos++] = aux[j++];
+            }
+            else
+            {
+                ans[tempindex[i]] += (j-mid-1);
+                index[pos] = tempindex[i];
+                nums[pos++] = aux[i++];
+            }
+        }
+    }
+};
+~~~
+
+击败72%
