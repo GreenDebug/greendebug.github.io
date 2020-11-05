@@ -13754,7 +13754,7 @@ public:
 
 击败18%
 
-### Q[剑指Offer 51. 数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
+### Q[剑指Offer51数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
 
 难度 困难
 
@@ -13951,3 +13951,265 @@ public:
 ~~~
 
 击败72%
+
+### Q[57插入区间](https://leetcode-cn.com/problems/insert-interval/)
+
+难度困难226
+
+给出一个*无重叠的 ，*按照区间起始端点排序的区间列表。
+
+在列表中插入一个新的区间，你需要确保列表中的区间仍然有序且不重叠（如果有必要的话，可以合并区间）。
+
+ 
+
+**示例 1：**
+
+```
+输入：intervals = [[1,3],[6,9]], newInterval = [2,5]
+输出：[[1,5],[6,9]]
+```
+
+**示例 2：**
+
+```
+输入：intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+输出：[[1,2],[3,10],[12,16]]
+解释：这是因为新的区间 [4,8] 与 [3,5],[6,7],[8,10] 重叠。
+```
+
+ 
+
+**注意：**输入类型已在 2019 年 4 月 15 日更改。请重置为默认代码定义以获取新的方法签名。
+
+我想得太复杂了。
+
+其实只有三种情况，第一种，铁定在区间左边。第二种，铁定在区间右边。第三种，在之间（只需要放缩left与max
+
+~~~cpp
+class Solution
+{
+public:
+    vector<vector<int>> insert(vector<vector<int>> &intervals, vector<int> &newInterval)
+    {
+        int left = newInterval[0];
+        int right = newInterval[1];
+        vector<vector<int>> v;
+        bool placed = true;
+        for (int i = 0; i < intervals.size(); ++i)
+        {
+            if (intervals[i][1] < left)
+            {
+                v.push_back(intervals[i]);
+            }
+            else if (intervals[i][0] > right)
+            {
+                if (placed)
+                {
+                    v.push_back({left, right});
+                    placed = false;
+                }
+                v.push_back(intervals[i]);
+            }
+            else
+            {
+                left = min(left, intervals[i][0]);
+                right = max(right, intervals[i][1]);
+            }
+        }
+        if (placed)
+        {
+            v.push_back({left, right});
+            placed = false;
+        }
+        return v;
+    }
+};
+~~~
+
+击败50%
+
+### Q[131分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)
+
+难度中等413
+
+给定一个字符串 *s*，将 *s* 分割成一些子串，使每个子串都是回文串。
+
+返回 *s* 所有可能的分割方案。
+
+**示例:**
+
+```
+输入: "aab"
+输出:
+[
+  ["aa","b"],
+  ["a","a","b"]
+]
+```
+
+回溯法，在每个点有两种choice，分割开，不分割
+
+~~~cpp
+class Solution
+{
+public:
+    vector<vector<string>> ans;
+    vector<vector<string>> partition(string s)
+    {
+        vector<string> v;
+        backward(v,s,0);
+        return ans;
+    }
+    void backward(vector<string> &v, string s, int pos)
+    {
+        if(pos >= s.size())
+            return;
+        int i = 0;
+        int j = pos;
+        bool flag = true;
+        while (i <= j)
+        {
+            if (s[i] != s[j])
+            {
+                flag = false;
+                break;
+            }
+            i++;
+            j--;
+        }
+        if (flag)
+        {
+            if (pos + 1 == s.size())
+            {
+                v.push_back(s);
+                ans.push_back(vector<string>(v));
+                v.pop_back();
+                return;
+            }
+            //cout<<s.substr(0,pos+1)<<" ";
+            v.push_back(s.substr(0, pos + 1));
+            //cout<<s.substr(pos+1)<<" ";
+            backward(v, s.substr(pos+1), 0);
+            v.pop_back();
+        }
+        backward(v, s, pos + 1);
+    }
+};
+~~~
+
+击败30%
+
+### Q[212单词搜索 II](https://leetcode-cn.com/problems/word-search-ii/)
+
+难度困难275
+
+给定一个二维网格 **board** 和一个字典中的单词列表 **words**，找出所有同时在二维网格和字典中出现的单词。
+
+单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母在一个单词中不允许被重复使用。
+
+**示例:**
+
+```
+输入: 
+words = ["oath","pea","eat","rain"] and board =
+[
+  ['o','a','a','n'],
+  ['e','t','a','e'],
+  ['i','h','k','r'],
+  ['i','f','l','v']
+]
+
+输出: ["eat","oath"]
+```
+
+**说明:**
+你可以假设所有输入都由小写字母 `a-z` 组成。
+
+**提示:**
+
+- 你需要优化回溯算法以通过更大数据量的测试。你能否早点停止回溯？
+- 如果当前单词不存在于所有单词的前缀中，则可以立即停止回溯。什么样的数据结构可以有效地执行这样的操作？散列表是否可行？为什么？ 前缀树如何？如果你想学习如何实现一个基本的前缀树，请先查看这个问题： [实现Trie（前缀树）](https://leetcode-cn.com/problems/implement-trie-prefix-tree/description/)。
+
+这题根据之前写的前缀树来完成。Q208
+
+前缀树 里面有一个大小26 前缀树数组，若下一个为b，则把下一个结点存在数组1号位
+
+先建树，然后搜索
+
+~~~java
+class Solution {
+    public List<String> findWords(char[][] board, String[] words) {
+        Trie tree = new Trie();
+        for (String s : words) {
+            tree.insert(s);
+        }
+        List<String> ans = new ArrayList<>();
+        boolean[][] path = new boolean[board.length][board[0].length];
+        for(int i = 0; i < board.length; i++){
+            for(int j = 0; j <  board[0].length; j++){
+               if( tree.next[board[i][j] - 'a']!=null){
+                   path[i][j] = true;
+                   tree.next[board[i][j] - 'a'].startsWith(board,path,i,j,""+(char)(board[i][j]),ans);
+                   path[i][j] = false;
+               }
+            }
+        }
+        return ans;
+    }
+
+
+
+}
+
+class Trie {
+    public Trie[] next;
+    boolean isEnd;
+
+    public Trie() {
+        next = new Trie[26];
+    }
+
+    public void insert(String word) {
+        Trie temp = this;
+        for (int i = 0; i < word.length(); i++) {
+            if (temp.next[word.charAt(i) - 'a'] == null) {
+                temp.next[word.charAt(i) - 'a'] = new Trie();
+            }
+            temp = temp.next[word.charAt(i) - 'a'];
+        }
+        temp.isEnd = true;
+    }
+
+
+    public boolean startsWith(char[][] boards, boolean[][] path, int x, int y,String s,List<String> ans) {
+        Trie temp = this;
+        if (isEnd) {
+            ans.add(s);
+            isEnd = false;
+        }
+        if (x - 1 >= 0 && !path[x - 1][y] && temp.next[boards[x - 1][y]-'a'] != null) {
+            path[x - 1][y] = true;
+            temp.next[boards[x - 1][y]-'a'].startsWith(boards, path, x - 1, y,s+(char)(boards[x - 1][y]),ans);
+            path[x - 1][y] = false;
+        }
+        if (y - 1 >= 0 && !path[x][y - 1] && temp.next[boards[x][y - 1]-'a'] != null) {
+            path[x][y - 1] = true;
+            temp.next[boards[x][y - 1]-'a'].startsWith(boards, path, x, y - 1,s+(char)(boards[x ][y-1]),ans);
+            path[x][y - 1] = false;
+        }
+        if (x + 1 < boards.length && !path[x + 1][y] && temp.next[boards[x + 1][y]-'a'] != null) {
+            path[x + 1][y] = true;
+            temp.next[boards[x + 1][y]-'a'].startsWith(boards, path, x + 1, y,s+(char)(boards[x+1][y]),ans);
+            path[x + 1][y] = false;
+        }
+        if (y + 1 < boards[0].length && !path[x][y + 1] && temp.next[boards[x][y + 1]-'a'] != null) {
+            path[x][y + 1] = true;
+            temp.next[boards[x][y + 1]-'a'].startsWith(boards, path, x, y + 1,s+(char)(boards[x][y+1]),ans);
+            path[x][y + 1] = false;
+        }
+        return false;
+    }
+}
+~~~
+
+击败44%
