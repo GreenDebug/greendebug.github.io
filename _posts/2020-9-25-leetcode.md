@@ -14213,3 +14213,290 @@ class Trie {
 ~~~
 
 击败44%
+
+### Q[1356根据数字二进制下 1 的数目排序](https://leetcode-cn.com/problems/sort-integers-by-the-number-of-1-bits/)
+
+难度 简单
+
+给你一个整数数组 `arr` 。请你将数组中的元素按照其二进制表示中数字 **1** 的数目升序排序。
+
+如果存在多个数字二进制中 **1** 的数目相同，则必须将它们按照数值大小升序排列。
+
+请你返回排序后的数组。
+
+ 
+
+**示例 1：**
+
+```
+输入：arr = [0,1,2,3,4,5,6,7,8]
+输出：[0,1,2,4,8,3,5,6,7]
+解释：[0] 是唯一一个有 0 个 1 的数。
+[1,2,4,8] 都有 1 个 1 。
+[3,5,6] 有 2 个 1 。
+[7] 有 3 个 1 。
+按照 1 的个数排序得到的结果数组为 [0,1,2,4,8,3,5,6,7]
+```
+
+**示例 2：**
+
+```
+输入：arr = [1024,512,256,128,64,32,16,8,4,2,1]
+输出：[1,2,4,8,16,32,64,128,256,512,1024]
+解释：数组中所有整数二进制下都只有 1 个 1 ，所以你需要按照数值大小将它们排序。
+```
+
+**示例 3：**
+
+```
+输入：arr = [10000,10000]
+输出：[10000,10000]
+```
+
+**示例 4：**
+
+```
+输入：arr = [2,3,5,7,11,13,17,19]
+输出：[2,3,5,17,7,11,13,19]
+```
+
+**示例 5：**
+
+```
+输入：arr = [10,100,1000,10000]
+输出：[10,100,10000,1000]
+```
+
+ 
+
+**提示：**
+
+- `1 <= arr.length <= 500`
+- `0 <= arr[i] <= 10^4`
+
+*b**i**t*[*i*]=*b**i**t*[*i*>>1]+(*i*&1) 用这个建表
+
+cpp的sort第三个参数好像与java略不同，java返回int，这个应该返回bool
+
+~~~cpp
+class Solution {
+public:
+    vector<int> sortByBits(vector<int>& arr) {
+        int bit[10001];
+        for(int i =1;i<=10000;i++){
+            bit[i] = bit[i>>1] +(i&1);
+        }
+        sort(arr.begin(),arr.end(),[&](const int&a,const int&b){
+            if(bit[a]<bit[b])
+                return true;
+            if(bit[a]>bit[b])
+                return false;
+            if(a<b)
+                return true;
+            return false;
+        });
+        return arr;
+    }
+};
+~~~
+
+击败90%
+
+### Q[301删除无效的括号](https://leetcode-cn.com/problems/remove-invalid-parentheses/)
+
+难度 困难
+
+删除最小数量的无效括号，使得输入的字符串有效，返回所有可能的结果。
+
+**说明:** 输入可能包含了除 `(` 和 `)` 以外的字符。
+
+**示例 1:**
+
+```
+输入: "()())()"
+输出: ["()()()", "(())()"]
+```
+
+**示例 2:**
+
+```
+输入: "(a)())()"
+输出: ["(a)()()", "(a())()"]
+```
+
+**示例 3:**
+
+```
+输入: ")("
+输出: [""]
+```
+
+bfs，每次删掉一个。刚开始用的是queue，发现会重复，改用set
+
+~~~cpp
+class Solution
+{
+public:
+    vector<string> removeInvalidParentheses(string s)
+    {
+        set<string> q1;
+        set<string> q2;
+        q1.insert(s);
+        vector<string> ans;
+        bool flag = false;
+        while (true)
+        {
+            if (flag)
+                return ans;
+            auto it = q1.begin();
+            while (it!=q1.end())
+            {
+                string s1 = *it;
+                if (isRight(s1))
+                {
+                    flag = true;
+                    ans.push_back(s1);
+                }
+                else
+                {
+                    for (int i = 0; i < s1.size(); i++)
+                    {
+                        //cout<<s1.substr(0,i)+s1.substr(i+1);
+                        q2.insert(s1.substr(0, i) + s1.substr(i + 1));
+                    }
+                }
+                it = q1.erase(it);
+            }
+            if (flag)
+                return ans;
+            it = q2.begin();
+            while (it!=q2.end())
+            {
+                string s1 = *it;
+                if (isRight(s1))
+                {
+                    flag = true;
+                    ans.push_back(s1);
+                }
+                else
+                {
+                    for (int i = 0; i < s1.size(); i++)
+                    {
+                        q1.insert(s1.substr(0, i + 1) + s1.substr(i + 1));
+                    }
+                }
+                it = q2.erase(it);
+            }
+        }
+    }
+    bool isRight(string s)
+    {
+        int i = 0;
+        stack<int> s1;
+        while (i < s.size())
+        {
+            if (s[i] == '(')
+                s1.push(1);
+            else if (s[i] == ')')
+            {
+                if (s1.size() > 0)
+                    s1.pop();
+                else
+                {
+                    return false;
+                }
+            }
+            i++;
+        }
+        if (s1.size() != 0)
+            return false;
+        return true;
+    }
+};
+~~~
+
+击败5%
+
+### Q[327区间和的个数](https://leetcode-cn.com/problems/count-of-range-sum/)
+
+难度困难194
+
+给定一个整数数组 `nums`，返回区间和在 `[lower, upper]` 之间的个数，包含 `lower` 和 `upper`。
+区间和 `S(i, j)` 表示在 `nums` 中，位置从 `i` 到 `j` 的元素之和，包含 `i` 和 `j` (`i` ≤ `j`)。
+
+**说明:**
+最直观的算法复杂度是 *O*(*n*2) ，请在此基础上优化你的算法。
+
+**示例:**
+
+```
+输入: nums = [-2,5,-1], lower = -2, upper = 2,
+输出: 3 
+解释: 3个区间分别是: [0,0], [2,2], [0,2]，它们表示的和分别为: -2, -1, 2。
+```
+
+利用mergesort，有点像之前那个查找逆序对
+
+求出前缀和。mergesort 合并前先看对
+
+~~~cpp
+class Solution
+{
+public:
+    int countRangeSum(vector<int> &nums, int lower, int upper)
+    {
+        if(nums.size() == 0)
+            return 0;
+        vector<long> presum(nums.size()+1);
+        vector<long> aux(nums.size()+1);
+        presum[0] = 0;
+        for(int i = 1; i<presum.size();i++){
+            presum[i] = presum[i-1]+nums[i-1];
+        }
+        return merges(presum,0,presum.size()-1,lower,upper,aux);
+    }
+    int merges(vector<long> &presum,int left,int right,int lower,int upper,vector<long>& aux){
+        if(left>=right)
+            return 0;
+        int mid = (left+right)/2;
+        int count = merges(presum,left,mid,lower,upper,aux);
+        count +=merges(presum,mid+1,right,lower,upper,aux);
+        int i = left;
+        int l = mid+1;
+        int r = mid+1;
+        while(i<=mid){
+            while(l<=right && presum[l] - presum[i]<lower){
+                l++;
+            }
+            while(r<=right && presum[r] - presum[i]<=upper){
+                r++;
+            }
+            count += (r-l);
+            i++;
+        }
+        for(int i = left;i <= right;i++){
+            aux[i] = presum[i];
+        } 
+        i = left;
+        int j = mid+1;
+        int pos = left;
+        while(i<=mid||j<=right){
+            if(i>mid){
+                presum[pos++] = aux[j++];
+            }
+            else if(j>right){
+                presum[pos++] = aux[i++];
+            }
+            else if(aux[i]<aux[j])
+                presum[pos++] = aux[i++];
+            else
+                presum[pos++] = aux[j++];
+        }
+        return count;
+    }
+};
+~~~
+
+
+
+击败96%
