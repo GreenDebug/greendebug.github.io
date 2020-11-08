@@ -14500,3 +14500,164 @@ public:
 
 
 击败96%
+
+### Q[5561获取生成数组中的最大值](https://leetcode-cn.com/problems/get-maximum-in-generated-array/)
+
+难度简单1
+
+给你一个整数 `n` 。按下述规则生成一个长度为 `n + 1` 的数组 `nums` ：
+
+- `nums[0] = 0`
+- `nums[1] = 1`
+- 当 `2 <= 2 * i <= n` 时，`nums[2 * i] = nums[i]`
+- 当 `2 <= 2 * i + 1 <= n` 时，`nums[2 * i + 1] = nums[i] + nums[i + 1]`
+
+返回生成数组 `nums` 中的 **最大** 值。
+
+ 
+
+**示例 1：**
+
+```
+输入：n = 7
+输出：3
+解释：根据规则：
+  nums[0] = 0
+  nums[1] = 1
+  nums[(1 * 2) = 2] = nums[1] = 1
+  nums[(1 * 2) + 1 = 3] = nums[1] + nums[2] = 1 + 1 = 2
+  nums[(2 * 2) = 4] = nums[2] = 1
+  nums[(2 * 2) + 1 = 5] = nums[2] + nums[3] = 1 + 2 = 3
+  nums[(3 * 2) = 6] = nums[3] = 2
+  nums[(3 * 2) + 1 = 7] = nums[3] + nums[4] = 2 + 1 = 3
+因此，nums = [0,1,1,2,1,3,2,3]，最大值 3
+```
+
+**示例 2：**
+
+```
+输入：n = 2
+输出：1
+解释：根据规则，nums[0]、nums[1] 和 nums[2] 之中的最大值是 1
+```
+
+**示例 3：**
+
+```
+输入：n = 3
+输出：2
+解释：根据规则，nums[0]、nums[1]、nums[2] 和 nums[3] 之中的最大值是 2
+```
+
+ 
+
+**提示：**
+
+- `0 <= n <= 100`
+
+第214场周赛，写了两，607 / 3597
+
+依照规则建表
+
+~~~java
+class Solution {
+    public int getMaximumGenerated(int n) {
+        if(n == 1) return 1;
+        if(n == 0) return 0;
+        int[] x= new int[n+1];
+        x[0] = 0;
+        x[1]=1;
+        int max = 1;
+        for(int i = 2; i <= n; i++){
+            if(i%2==0)
+                x[i] = x[i/2];
+            else
+                x[i] = x[i/2]+x[i/2+1];
+            max = Math.max(x[i],max);
+        }
+        return max;
+    }
+}
+~~~
+
+### Q[5562字符频次唯一的最小删除次数](https://leetcode-cn.com/problems/minimum-deletions-to-make-character-frequencies-unique/)
+
+难度中等1
+
+如果字符串 `s` 中 **不存在** 两个不同字符 **频次** 相同的情况，就称 `s` 是 **优质字符串** 。
+
+给你一个字符串 `s`，返回使 `s` 成为 **优质字符串** 需要删除的 **最小** 字符数。
+
+字符串中字符的 **频次** 是该字符在字符串中的出现次数。例如，在字符串 `"aab"` 中，`'a'` 的频次是 `2`，而 `'b'` 的频次是 `1` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "aab"
+输出：0
+解释：s 已经是优质字符串。
+```
+
+**示例 2：**
+
+```
+输入：s = "aaabbbcc"
+输出：2
+解释：可以删除两个 'b' , 得到优质字符串 "aaabcc" 。
+另一种方式是删除一个 'b' 和一个 'c' ，得到优质字符串 "aaabbc" 。
+```
+
+**示例 3：**
+
+```
+输入：s = "ceabaacb"
+输出：2
+解释：可以删除两个 'c' 得到优质字符串 "eabaab" 。
+注意，只需要关注结果字符串中仍然存在的字符。（即，频次为 0 的字符会忽略不计。）
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length <= 105`
+- `s` 仅含小写英文字母
+
+这题难度也不大。先统计次数，然后把次数塞进set里，只要出现过就，减少一次再检测
+
+~~~cpp
+class Solution {
+public:
+    int minDeletions(string s) {
+        if(s.size() == 0)
+            return 0;
+        int m[26] = {0};
+        for(auto c:s){
+            m[c-'a']++;
+        }
+        int min = INT_MIN;
+        int count = 0;
+        unordered_set<int> s1;
+        for(int i = 0; i<26;i++){
+            if(m[i]==0)
+                continue;
+            if(s1.find(m[i])!=s1.end()){
+                m[i]--;
+                count++;
+                while(m[i]!=0&&s1.find(m[i])!=s1.end()){
+                    m[i]--;
+                    count++;
+                }
+                s1.insert(m[i]);
+            }
+            else{
+                s1.insert(m[i]);
+            }
+        }
+        return count;
+    }
+};
+~~~
+
