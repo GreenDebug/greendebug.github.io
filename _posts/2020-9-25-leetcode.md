@@ -14661,3 +14661,163 @@ public:
 };
 ~~~
 
+### Q[973最接近原点的 K 个点](https://leetcode-cn.com/problems/k-closest-points-to-origin/)
+
+难度 中等
+
+我们有一个由平面上的点组成的列表 `points`。需要从中找出 `K` 个距离原点 `(0, 0)` 最近的点。
+
+（这里，平面上两点之间的距离是欧几里德距离。）
+
+你可以按任何顺序返回答案。除了点坐标的顺序之外，答案确保是唯一的。
+
+ 
+
+**示例 1：**
+
+```
+输入：points = [[1,3],[-2,2]], K = 1
+输出：[[-2,2]]
+解释： 
+(1, 3) 和原点之间的距离为 sqrt(10)，
+(-2, 2) 和原点之间的距离为 sqrt(8)，
+由于 sqrt(8) < sqrt(10)，(-2, 2) 离原点更近。
+我们只需要距离原点最近的 K = 1 个点，所以答案就是 [[-2,2]]。
+```
+
+**示例 2：**
+
+```
+输入：points = [[3,3],[5,-1],[-2,4]], K = 2
+输出：[[3,3],[-2,4]]
+（答案 [[-2,4],[3,3]] 也会被接受。）
+```
+
+ 
+
+**提示：**
+
+1. `1 <= K <= points.length <= 10000`
+2. `-10000 < points[i][0] < 10000`
+3. `-10000 < points[i][1] < 10000`
+
+排序就好了。cpp的排序 函数应该写成返回bool，而java只要返回相减值就好了
+
+~~~cpp
+class Solution {
+public:
+    vector<vector<int>> kClosest(vector<vector<int>>& points, int K) {
+        sort(points.begin(),points.end(),[](vector<int> &a,vector<int> &b){
+            int x = a[0]*a[0]+a[1]*a[1];
+            int  y = b[0]*b[0]+b[1]*b[1];
+            if(x>y) return false;
+            return true;
+        });
+        int i = 0;
+        vector<vector<int>> ans;
+        while(i<K){
+            ans.push_back({points[i][0],points[i][1]});
+            i++;
+        }
+        return ans;
+    }
+};
+~~~
+
+击败65%
+
+### Q[557反转字符串中的单词 III](https://leetcode-cn.com/problems/reverse-words-in-a-string-iii/)
+
+难度 简单
+
+给定一个字符串，你需要反转字符串中每个单词的字符顺序，同时仍保留空格和单词的初始顺序。
+
+ 
+
+**示例：**
+
+```
+输入："Let's take LeetCode contest"
+输出："s'teL ekat edoCteeL tsetnoc"
+```
+
+ 
+
+***\**\*\*\*提示：\*\*\*\*\****
+
+- 在字符串中，每个单词由单个空格分隔，并且字符串中不会有任何额外的空格。
+
+用reverse
+
+~~~cpp
+class Solution {
+public:
+    string reverseWords(string s) {
+        int pre = 0;
+        int i = 0 ;
+        for(i = 0; i < s.size(); ++i){
+            if(s[i]!=' '){
+                
+            }
+            if(s[i]== ' '){
+                reverse(s.begin()+pre,s.begin()+i);
+                pre = i+1;
+            }
+        }
+        reverse(s.begin()+pre,s.begin()+i);
+        return s;
+    }
+};
+~~~
+
+击败40%
+
+### Q[231 2的幂](https://leetcode-cn.com/problems/power-of-two/)
+
+难度 简单
+
+给定一个整数，编写一个函数来判断它是否是 2 的幂次方。
+
+**示例 1:**
+
+```
+输入: 1
+输出: true
+解释: 20 = 1
+```
+
+**示例 2:**
+
+```
+输入: 16
+输出: true
+解释: 24 = 16
+```
+
+**示例 3:**
+
+```
+输入: 218
+输出: false
+```
+
+移位操作
+
+~~~cpp
+class Solution {
+public:
+    bool isPowerOfTwo(int n) {
+        if(n == 0) return false;
+        while(n!=0){
+            if(n&1 == 1)
+                break;
+            n>>=1;
+        }
+        n>>=1;
+        if(n == 0)  return true;
+        return false;
+    }
+};
+~~~
+
+击败42%
