@@ -14821,3 +14821,231 @@ public:
 ~~~
 
 击败42%
+
+### Q[59螺旋矩阵 II](https://leetcode-cn.com/problems/spiral-matrix-ii/)
+
+难度 中等
+
+给定一个正整数 *n*，生成一个包含 1 到 *n*2 所有元素，且元素按顺时针顺序螺旋排列的正方形矩阵。
+
+**示例:**
+
+```
+输入: 3
+输出:
+[
+ [ 1, 2, 3 ],
+ [ 8, 9, 4 ],
+ [ 7, 6, 5 ]
+]
+```
+
+四个方向转转，大一就会写，这次还调试了一会
+
+~~~cpp
+class Solution
+{
+public:
+    vector<vector<int>> generateMatrix(int n)
+    {
+        vector<vector<int>> ans(n, vector<int>(n));
+        int dir = 0;
+        int x = 0, y = 0;
+        int count = 1;
+        vector<vector<bool>> flag(n, vector<bool>(n));
+        while (count<=n*n)
+        {
+            if (dir == 0)
+            {
+                if (x >= 0 && y >= 0 && x < n && y < n && !flag[x][y])
+                {
+                    flag[x][y] = true;
+                    ans[x][y] = count++;
+                    ++y;
+                }
+                else
+                {
+                    --y;
+                    ++x;
+                    dir = 1;
+                }
+            }
+            else if (dir == 1)
+            {
+                if (x >= 0 && y >= 0 && x < n && y < n && !flag[x][y])
+                {
+                    flag[x][y] = true;
+                    ans[x][y] = count++;
+                    ++x;
+                }
+                else
+                {
+                    --x;
+                    --y;
+                    dir = 2;
+                }
+            }
+            else if (dir == 2)
+            {
+                if (x >= 0 && y >= 0 && x < n && y < n && !flag[x][y])
+                {
+                    flag[x][y] = true;
+                    ans[x][y] = count++;
+                    --y;
+                }
+                else
+                {
+                    ++y;
+                    --x;
+                    dir = 3;
+                }
+            }
+            else if (dir == 3)
+            {
+                if (x >= 0 && y >= 0 && x < n && y < n && !flag[x][y])
+                {
+                    flag[x][y] = true;
+                    ans[x][y] = count++;
+                    --x;
+                }
+                else
+                {
+                    ++x;
+                    ++y;
+                    dir = 0;
+                }
+            }
+        }
+        return ans;
+    }
+};
+~~~
+
+击败38%
+
+### Q[235二叉搜索树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+
+难度 简单
+
+给定一个二叉搜索树, 找到该树中两个指定节点的最近公共祖先。
+
+[百度百科](https://baike.baidu.com/item/最近公共祖先/8918834?fr=aladdin)中最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（**一个节点也可以是它自己的祖先**）。”
+
+例如，给定如下二叉搜索树: root = [6,2,8,0,4,7,9,null,null,3,5]
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/binarysearchtree_improved.png)
+
+ 
+
+**示例 1:**
+
+```
+输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+输出: 6 
+解释: 节点 2 和节点 8 的最近公共祖先是 6。
+```
+
+**示例 2:**
+
+```
+输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+输出: 2
+解释: 节点 2 和节点 4 的最近公共祖先是 2, 因为根据定义最近公共祖先节点可以为节点本身。
+```
+
+ 
+
+**说明:**
+
+- 所有节点的值都是唯一的。
+- p、q 为不同节点且均存在于给定的二叉搜索树中。
+
+刚开始没看到是二叉搜索树
+
+（自认为写的有点巧妙
+
+如果分叉两边返回值都为真，说明现在是答案
+
+一边为真，接着返回
+
+~~~cpp
+class Solution
+{
+public:
+    TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q)
+    {
+        if (root->val == p->val || root->val == q->val)
+        {
+            return root;
+        }
+        TreeNode *t1 = nullptr, *t2 = nullptr;
+        if (root->left != nullptr)
+            t1 = lowestCommonAncestor(root->left, p, q);
+        if (root->right != nullptr)
+            t2 = lowestCommonAncestor(root->right, p, q);
+        if (t1 != nullptr && t2 != nullptr)
+            return root;
+        if (t1 != nullptr)
+            return t1;
+        return t2;
+    }
+};
+~~~
+
+击败96%
+
+### Q[292. Nim 游戏](https://leetcode-cn.com/problems/nim-game/)
+
+难度简单390
+
+你和你的朋友，两个人一起玩 [Nim 游戏](https://baike.baidu.com/item/Nim游戏/6737105)：
+
+- 桌子上有一堆石头。
+- 你们轮流进行自己的回合，你作为先手。
+- 每一回合，轮到的人拿掉 1 - 3 块石头。
+- 拿掉最后一块石头的人就是获胜者。
+
+假设你们每一步都是最优解。请编写一个函数，来判断你是否可以在给定石头数量为 `n` 的情况下赢得游戏。如果可以赢，返回 `true`；否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：n = 4
+输出：false 
+解释：如果堆中有 4 块石头，那么你永远不会赢得比赛；
+     因为无论你拿走 1 块、2 块 还是 3 块石头，最后一块石头总是会被你的朋友拿走。
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：true
+```
+
+**示例 3：**
+
+```
+输入：n = 2
+输出：true
+```
+
+ 
+
+**提示：**
+
+- `1 <= n <= 231 - 1`
+
+~~~cpp
+class Solution {
+public:
+    bool canWinNim(int n) {
+        if(n%4 == 0)
+            return false;
+        return true;
+    }
+};
+~~~
+
