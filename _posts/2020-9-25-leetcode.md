@@ -15133,3 +15133,742 @@ public:
 ~~~
 
 击败9%
+
+### Q[922按奇偶排序数组 II](https://leetcode-cn.com/problems/sort-array-by-parity-ii/)
+
+难度简单157
+
+给定一个非负整数数组 `A`， A 中一半整数是奇数，一半整数是偶数。
+
+对数组进行排序，以便当 `A[i]` 为奇数时，`i` 也是奇数；当 `A[i]` 为偶数时， `i` 也是偶数。
+
+你可以返回任何满足上述条件的数组作为答案。
+
+ 
+
+**示例：**
+
+```
+输入：[4,2,5,7]
+输出：[4,5,2,7]
+解释：[4,7,2,5]，[2,5,4,7]，[2,7,4,5] 也会被接受。
+```
+
+ 
+
+**提示：**
+
+1. `2 <= A.length <= 20000`
+2. `A.length % 2 == 0`
+3. `0 <= A[i] <= 1000`
+
+ 
+
+~~~cpp
+class Solution
+{
+public:
+    vector<int> sortArrayByParityII(vector<int> &A)
+    {
+        if (A.size() == 1)
+            return {A[0]};
+        if (A.size() == 0)
+            return {};
+        int i = 0, j = 1;
+        while (i < A.size() && j < A.size())
+        {
+            while (i < A.size() && A[i] % 2 == 0)
+                i += 2;
+            while (j < A.size() && A[j] % 2 != 0)
+                j += 2;
+            if (i < A.size() && j < A.size())
+            {
+                int temp = A[i];
+                A[i] = A[j];
+                A[j] = temp;
+            }
+        }
+        return A;
+    }
+};
+~~~
+
+击败78%
+
+### Q[89格雷编码](https://leetcode-cn.com/problems/gray-code/)
+
+难度中等241
+
+格雷编码是一个二进制数字系统，在该系统中，两个连续的数值仅有一个位数的差异。
+
+给定一个代表编码总位数的非负整数 *n*，打印其格雷编码序列。即使有多个不同答案，你也只需要返回其中一种。
+
+格雷编码序列必须以 0 开头。
+
+ 
+
+**示例 1:**
+
+```
+输入: 2
+输出: [0,1,3,2]
+解释:
+00 - 0
+01 - 1
+11 - 3
+10 - 2
+
+对于给定的 n，其格雷编码序列并不唯一。
+例如，[0,2,3,1] 也是一个有效的格雷编码序列。
+
+00 - 0
+10 - 2
+11 - 3
+01 - 1
+```
+
+**示例 2:**
+
+```
+输入: 0
+输出: [0]
+解释: 我们定义格雷编码序列必须以 0 开头。
+     给定编码总位数为 n 的格雷编码序列，其长度为 2n。当 n = 0 时，长度为 20 = 1。
+     因此，当 n = 0 时，其格雷编码序列为 [0]。
+```
+
+根据格雷码定义出发。先是按照前一个编码，从右往左开始，一个个试，看集合中有没有这个元素。
+
+~~~cpp
+class Solution {
+public:
+    vector<int> grayCode(int n) {
+        if(n==0) return {0};
+        unordered_set<int> s1;
+        vector<int> v;
+        v.push_back(0);
+        s1.insert(0);
+        int i = 1;
+        int l = 1<<n;
+        while(i<l){
+            int x = v[v.size()-1];
+            int t = 1; 
+            while(s1.find(x^t)!=s1.end()){
+                t<<=1;
+            }
+            v.push_back(x^t);
+            s1.insert(x^t);
+            i++;
+        }
+        return v;
+    }
+};
+~~~
+
+击败43%
+
+### Q[1122数组的相对排序](https://leetcode-cn.com/problems/relative-sort-array/)
+
+难度 简单
+
+给你两个数组，`arr1` 和 `arr2`，
+
+- `arr2` 中的元素各不相同
+- `arr2` 中的每个元素都出现在 `arr1` 中
+
+对 `arr1` 中的元素进行排序，使 `arr1` 中项的相对顺序和 `arr2` 中的相对顺序相同。未在 `arr2` 中出现过的元素需要按照升序放在 `arr1` 的末尾。
+
+ 
+
+**示例：**
+
+```
+输入：arr1 = [2,3,1,3,2,4,6,7,9,2,19], arr2 = [2,1,4,3,9,6]
+输出：[2,2,2,1,4,3,3,9,6,7,19]
+```
+
+ 
+
+**提示：**
+
+- `arr1.length, arr2.length <= 1000`
+- `0 <= arr1[i], arr2[i] <= 1000`
+- `arr2` 中的元素 `arr2[i]` 各不相同
+- `arr2` 中的每个元素 `arr2[i]` 都出现在 `arr1` 中
+
+一开始我以为有序图是按照插入顺序。其实是按照key的大小
+
+~~~cpp
+class Solution
+{
+public:
+    vector<int> relativeSortArray(vector<int> &arr1, vector<int> &arr2)
+    {
+        vector<int> sq;
+        unordered_map<int, int> m;
+        vector<int> v;
+        for (int i : arr2)
+        {
+            m[i] = 1;
+            sq.push_back(i);
+        }
+        for (int i : arr1)
+        {
+            if (m[i] >= 1)
+            {
+                m[i]++;
+            }
+            else
+            {
+                v.push_back(i);
+            }
+        }
+        vector<int> ans;
+        for(int i = 0; i <sq.size();++i){
+            for(int j = m[sq[i]]; j>1; --j){
+                ans.push_back(sq[i]);
+            }
+        }
+        sort(v.begin(),v.end());
+        for(int i:v){
+            ans.push_back(i);
+        }
+        return ans;
+    }
+};
+~~~
+
+击败88%
+
+### Q[341扁平化嵌套列表迭代器](https://leetcode-cn.com/problems/flatten-nested-list-iterator/)
+
+难度中等161
+
+给你一个嵌套的整型列表。请你设计一个迭代器，使其能够遍历这个整型列表中的所有整数。
+
+列表中的每一项或者为一个整数，或者是另一个列表。其中列表的元素也可能是整数或是其他列表。
+
+ 
+
+**示例 1:**
+
+```
+输入: [[1,1],2,[1,1]]
+输出: [1,1,2,1,1]
+解释: 通过重复调用 next 直到 hasNext 返回 false，next 返回的元素的顺序应该是: [1,1,2,1,1]。
+```
+
+**示例 2:**
+
+```
+输入: [1,[4,[6]]]
+输出: [1,4,6]
+解释: 通过重复调用 next 直到 hasNext 返回 false，next 返回的元素的顺序应该是: [1,4,6]。
+```
+
+dfs搞定
+
+~~~cpp
+class NestedIterator {
+public:
+    vector<int> n;
+    int i;
+    NestedIterator(vector<NestedInteger> &nestedList):i(0) {
+        dfs(nestedList);
+    }
+
+    void dfs(vector<NestedInteger> &nestedList){
+        for(NestedInteger e:nestedList){
+            if(e.isInteger()==true){
+                n.push_back(e.getInteger());
+            }
+            else{
+                dfs(e.getList());
+            }
+        }
+    }
+    
+    int next() {
+        return n[i++];
+    }
+    
+    bool hasNext() {
+        if(i<n.size())
+            return true;
+        return false;
+    }
+};
+~~~
+
+击败72%
+
+### Q[402移掉K位数字](https://leetcode-cn.com/problems/remove-k-digits/)
+
+难度 中等
+
+给定一个以字符串表示的非负整数 *num*，移除这个数中的 *k* 位数字，使得剩下的数字最小。
+
+**注意:**
+
+- *num* 的长度小于 10002 且 ≥ *k。*
+- *num* 不会包含任何前导零。
+
+**示例 1 :**
+
+```
+输入: num = "1432219", k = 3
+输出: "1219"
+解释: 移除掉三个数字 4, 3, 和 2 形成一个新的最小的数字 1219。
+```
+
+**示例 2 :**
+
+```
+输入: num = "10200", k = 1
+输出: "200"
+解释: 移掉首位的 1 剩下的数字为 200. 注意输出不能有任何前导零。
+```
+
+示例 **3 :**
+
+```
+输入: num = "10", k = 2
+输出: "0"
+解释: 从原数字移除所有的数字，剩余为空就是0。
+```
+
+原本使用回溯法，但是因为数字连longlong都存不下。看到这题数字全用string存就应该感觉到不对劲
+
+建立一个单调队列。中间因为 k没用完，不应返回“” ，以为可以跳过后面的字符 没有判断完整个字符串 种种原因
+
+33个样例，交了7发
+
+~~~cpp
+class Solution
+{
+public:
+    string removeKdigits(string num, int k)
+    {
+        if(k == num.size())
+            return "0";
+        vector<char> v;
+        int pos = 0;
+        v.push_back(num[0]);
+        for (int i = 1; i < num.size(); ++i)
+        {
+            if (k == 0)
+            {
+                v.push_back(num[i]);
+                pos++;
+            }
+            else
+            {
+                
+                if (num[i] > v[pos])
+                {
+                    v.push_back(num[i]);
+                    pos++;
+                }
+                else
+                {
+                    while (pos>=0&&num[i] < v[pos] && k > 0)
+                    {
+                        v.pop_back();
+                        pos--;
+                        k--;
+                    }
+                    v.push_back(num[i]);
+                    pos++;
+                }
+            }
+        }
+        string ans;
+        int flag = 0;
+        for (int i = 0; i < v.size()-k; ++i)
+        {
+            char ch = v[i];
+
+            if (ch != '0')
+                flag = 1;
+            else if (flag == 0)
+                continue;
+            ans += ch;
+        }
+        return ans==""?"0":ans;
+    }
+};
+~~~
+
+击败94%
+
+### Q[5550拆炸弹](https://leetcode-cn.com/problems/defuse-the-bomb/)
+
+难度 简单
+
+你有一个炸弹需要拆除，时间紧迫！你的情报员会给你一个长度为 `n` 的 **循环** 数组 `code` 以及一个密钥 `k` 。
+
+为了获得正确的密码，你需要替换掉每一个数字。所有数字会 **同时** 被替换。
+
+- 如果 `k > 0` ，将第 `i` 个数字用 **接下来** `k` 个数字之和替换。
+- 如果 `k < 0` ，将第 `i` 个数字用 **之前** `k` 个数字之和替换。
+- 如果 `k == 0` ，将第 `i` 个数字用 `0` 替换。
+
+由于 `code` 是循环的， `code[n-1]` 下一个元素是 `code[0]` ，且 `code[0]` 前一个元素是 `code[n-1]` 。
+
+给你 **循环** 数组 `code` 和整数密钥 `k` ，请你返回解密后的结果来拆除炸弹！
+
+ 
+
+**示例 1：**
+
+```
+输入：code = [5,7,1,4], k = 3
+输出：[12,10,16,13]
+解释：每个数字都被接下来 3 个数字之和替换。解密后的密码为 [7+1+4, 1+4+5, 4+5+7, 5+7+1]。注意到数组是循环连接的。
+```
+
+**示例 2：**
+
+```
+输入：code = [1,2,3,4], k = 0
+输出：[0,0,0,0]
+解释：当 k 为 0 时，所有数字都被 0 替换。
+```
+
+**示例 3：**
+
+```
+输入：code = [2,4,9,3], k = -2
+输出：[12,5,6,13]
+解释：解密后的密码为 [3+9, 2+3, 4+2, 9+4] 。注意到数组是循环连接的。如果 k 是负数，那么和为 之前 的数字。
+```
+
+ 
+
+**提示：**
+
+- `n == code.length`
+- `1 <= n <= 100`
+- `1 <= code[i] <= 100`
+- `-(n - 1) <= k <= n - 1`
+
+第39场周赛，写了两题，排名264/2069。这题不难，只要暴力去算后/前几个，注意到了头 变化一下
+
+~~~java
+class Solution {
+    public int[] decrypt(int[] code, int k) {
+        int[] ans = new int[code.length];
+        if(k==0){
+            for(int i = 0; i < code.length; i++)
+                code[i] = 0;
+            return code;
+        }
+        if(k>0){
+            for(int i = 0; i < code.length;i++){
+                int temp = 0;
+                int pi = i;
+                for(int j = 1; j<= k; j++){
+                    if(pi+j == code.length){
+                        pi = -j;
+                    }
+                    temp+=code[pi+j];
+                }
+                ans[i] = temp;
+            }
+        }
+        if(k<0){
+            for(int i = 0; i < code.length;i++){
+                int temp = 0;
+                int pi = i;
+                for(int j = 1; j<= -k; j++){
+                    if(pi-j == -1){
+                        pi = code.length-1+j;
+                    }
+                    temp+=code[pi-j];
+                }
+                ans[i] = temp;
+            }
+        }
+        return ans;
+    }
+}
+~~~
+
+### Q[5551使字符串平衡的最少删除次数](https://leetcode-cn.com/problems/minimum-deletions-to-make-string-balanced/)
+
+难度 中等
+
+给你一个字符串 `s` ，它仅包含字符 `'a'` 和 `'b'` 。
+
+你可以删除 `s` 中任意数目的字符，使得 `s` **平衡** 。我们称 `s` **平衡的** 当不存在下标对 `(i,j)` 满足 `i < j` 且 `s[i] = 'b'` 同时 `s[j]= 'a'` 。
+
+请你返回使 `s` **平衡** 的 **最少** 删除次数。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "aababbab"
+输出：2
+解释：你可以选择以下任意一种方案：
+下标从 0 开始，删除第 2 和第 6 个字符（"aababbab" -> "aaabbb"），
+下标从 0 开始，删除第 3 和第 6 个字符（"aababbab" -> "aabbbb"）。
+```
+
+**示例 2：**
+
+```
+输入：s = "bbaaaaabb"
+输出：2
+解释：唯一的最优解是删除最前面两个字符。
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length <= 105`
+- `s[i]` 要么是 `'a'` 要么是 `'b'` 。
+
+dp问题，只有两种状态，i之前全为a，或者i前一段已经为b，只能从a转移到b
+
+~~~java
+class Solution {
+    public int minimumDeletions(String s) {
+        int[][] dp = new int[s.length()][2];
+        if (s.charAt(0) == 'a') {
+            dp[0][0] = 0;
+            dp[0][1] = 1;
+        } else {
+            dp[0][0] = 1;
+            dp[0][1] = 0;
+        }
+        for (int i = 1; i < s.length(); i++) {
+            if (s.charAt(i) == 'a') {
+                dp[i][0] = dp[i - 1][0];
+                dp[i][1] = dp[i - 1][1] + 1;
+            } else {
+                dp[i][0] = dp[i - 1][0] + 1;
+                dp[i][1] = Math.min(dp[i - 1][1], dp[i - 1][0]);
+            }
+        }
+        return Math.min(dp[s.length() - 1][0], dp[s.length() - 1][1]);
+    }
+}
+~~~
+
+### Q[5601设计有序流](https://leetcode-cn.com/problems/design-an-ordered-stream/)
+
+难度简单1
+
+有 `n` 个 `(id, value)` 对，其中 `id` 是 `1` 到 `n` 之间的一个整数，`value` 是一个字符串。不存在 `id` 相同的两个 `(id, value)` 对。
+
+设计一个流，以 **任意** 顺序获取 `n` 个 `(id, value)` 对，并在多次调用时 **按 `id` 递增的顺序** 返回一些值。
+
+实现 `OrderedStream` 类：
+
+- `OrderedStream(int n)` 构造一个能接收 `n` 个值的流，并将当前指针 `ptr` 设为 `1` 。
+
+- ```
+  String[] insert(int id, String value)
+  ```
+
+   
+
+  向流中存储新的
+
+   
+
+  ```
+  (id, value)
+  ```
+
+   
+
+  对。存储后：
+
+  - 如果流存储有 `id = ptr` 的 `(id, value)` 对，则找出从 `id = ptr` 开始的 **最长 id 连续递增序列** ，并 **按顺序** 返回与这些 id 关联的值的列表。然后，将 `ptr` 更新为最后那个 `id + 1` 。
+  - 否则，返回一个空列表。
+
+ 
+
+**示例：**
+
+**![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/11/15/q1.gif)**
+
+```
+输入
+["OrderedStream", "insert", "insert", "insert", "insert", "insert"]
+[[5], [3, "ccccc"], [1, "aaaaa"], [2, "bbbbb"], [5, "eeeee"], [4, "ddddd"]]
+输出
+[null, [], ["aaaaa"], ["bbbbb", "ccccc"], [], ["ddddd", "eeeee"]]
+
+解释
+OrderedStream os= new OrderedStream(5);
+os.insert(3, "ccccc"); // 插入 (3, "ccccc")，返回 []
+os.insert(1, "aaaaa"); // 插入 (1, "aaaaa")，返回 ["aaaaa"]
+os.insert(2, "bbbbb"); // 插入 (2, "bbbbb")，返回 ["bbbbb", "ccccc"]
+os.insert(5, "eeeee"); // 插入 (5, "eeeee")，返回 []
+os.insert(4, "ddddd"); // 插入 (4, "ddddd")，返回 ["ddddd", "eeeee"]
+```
+
+ 
+
+**提示：**
+
+- `1 <= n <= 1000`
+- `1 <= id <= n`
+- `value.length == 5`
+- `value` 仅由小写字母组成
+- 每次调用 `insert` 都会使用一个唯一的 `id`
+- 恰好调用 `n` 次 `insert`
+
+第215场周赛，1127 / 4428，写了两题。
+
+题目写的很复杂。用一个vector存下来。有个ptr存位置
+
+~~~cpp
+class OrderedStream {
+public:
+    vector<string> v;
+    int ptr;
+    OrderedStream(int n):v(n),ptr(0){
+
+    }
+    
+    vector<string> insert(int id, string value) {
+        v[id-1] = value;
+        vector<string> ans;
+        while(ptr<v.size()&&v[ptr]!=""){
+            ans.push_back(v[ptr]);
+            ptr++;
+        }
+        return ans;
+    }
+};
+~~~
+
+### Q[5603确定两个字符串是否接近](https://leetcode-cn.com/problems/determine-if-two-strings-are-close/)
+
+难度中等3
+
+如果可以使用以下操作从一个字符串得到另一个字符串，则认为两个字符串 **接近** ：
+
+- 操作 1：交换任意两个
+
+   
+
+  现有
+
+   
+
+  字符。
+
+  - 例如，`a**b**cd**e** -> a**e**cd**b**`
+
+- 操作 2：将一个
+
+   
+
+  现有
+
+   
+
+  字符的每次出现转换为另一个
+
+   
+
+  现有
+
+   
+
+  字符，并对另一个字符执行相同的操作。
+
+  - 例如，`**aa**c**abb** -> **bb**c**baa**`（所有 `a` 转化为 `b` ，而所有的 `b` 转换为 `a` ）
+
+你可以根据需要对任意一个字符串多次使用这两种操作。
+
+给你两个字符串，`word1` 和 `word2` 。如果 `word1` 和 `word2` **接近** ，就返回 `true` ；否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：word1 = "abc", word2 = "bca"
+输出：true
+解释：2 次操作从 word1 获得 word2 。
+执行操作 1："abc" -> "acb"
+执行操作 1："acb" -> "bca"
+```
+
+**示例 2：**
+
+```
+输入：word1 = "a", word2 = "aa"
+输出：false
+解释：不管执行多少次操作，都无法从 word1 得到 word2 ，反之亦然。
+```
+
+**示例 3：**
+
+```
+输入：word1 = "cabbba", word2 = "abbccc"
+输出：true
+解释：3 次操作从 word1 获得 word2 。
+执行操作 1："cabbba" -> "caabbb"
+执行操作 2："caabbb" -> "baaccc"
+执行操作 2："baaccc" -> "abbccc"
+```
+
+**示例 4：**
+
+```
+输入：word1 = "cabbba", word2 = "aabbss"
+输出：false
+解释：不管执行多少次操作，都无法从 word1 得到 word2 ，反之亦然。
+```
+
+ 
+
+**提示：**
+
+- `1 <= word1.length, word2.length <= 105`
+- `word1` 和 `word2` 仅包含小写英文字母
+
+这题目也写得很复杂。我一度以为写不出，直接看下一题。下一题更写不出来。
+
+其实只要统计次数就好了。第一个操作决定了，位置压根不重要。第二个操作又告诉你了，只要有相同次数就好了
+
+由于忽略 第二个操作需要 该字母至少有一次。浪费了一发
+
+~~~java
+class Solution {
+    public boolean closeStrings(String word1, String word2) {
+        if(word1.length()!=word2.length())
+            return false;
+        int[][] count =new  int[2][26];
+        for(int i = 0; i < word1.length(); ++i){
+            count[0][word1.charAt(i)-'a']++;
+            count[1][word2.charAt(i)-'a']++;
+        }
+        for(int i = 0; i < 26; i++){
+            if(count[0][i]!=0&&count[1][i]==0)
+                return false;
+            if(count[0][i]==0&&count[1][i]!=0)
+                return false;
+        }
+        Arrays.sort(count[0]);
+        Arrays.sort(count[1]);
+        for(int i = 0; i < 26; i++){
+            if(count[0][i]!=count[1][i])
+                return false;
+        }
+        return true;
+    }
+}
+~~~
+
+
+
