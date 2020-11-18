@@ -15872,3 +15872,241 @@ class Solution {
 
 
 
+### Q[378有序矩阵中第K小的元素](https://leetcode-cn.com/problems/kth-smallest-element-in-a-sorted-matrix/)
+
+难度中等473
+
+给定一个 *`n x n`* 矩阵，其中每行和每列元素均按升序排序，找到矩阵中第 `k` 小的元素。
+请注意，它是排序后的第 `k` 小元素，而不是第 `k` 个不同的元素。
+
+ 
+
+**示例：**
+
+```
+matrix = [
+   [ 1,  5,  9],
+   [10, 11, 13],
+   [12, 13, 15]
+],
+k = 8,
+
+返回 13。
+```
+
+ 
+
+**提示：**
+你可以假设 k 的值永远是有效的，`1 ≤ k ≤ n2 `。
+
+用一个数组存下每行的位置，起始为0
+
+由分析可以知道 每行当前位置都是 可能成为当前最小的
+
+用一个优先队列排序
+
+~~~java
+class Solution {
+    public int kthSmallest(int[][] matrix, int k) {
+        int[] re = new int[matrix.length];
+        PriorityQueue<Integer> p = new PriorityQueue<Integer>((x, y) -> {
+            return matrix[x][re[x]] - matrix[y][re[y]];
+        });
+        for (int i = 0; i < matrix.length; i++)
+            p.add(i);
+        int x = 1;
+        while (x < k) {
+            int y = p.poll();
+            re[y]++;
+            if (re[y] < matrix[y].length)
+                p.add(y);
+            x++;
+        }
+        int t = p.poll();
+        return matrix[t][re[t]];
+    }
+}
+~~~
+
+cpp的lambda没写好，用了java来写
+
+击败25%
+
+### Q[1030距离顺序排列矩阵单元格](https://leetcode-cn.com/problems/matrix-cells-in-distance-order/)
+
+难度 简单
+
+给出 `R` 行 `C` 列的矩阵，其中的单元格的整数坐标为 `(r, c)`，满足 `0 <= r < R` 且 `0 <= c < C`。
+
+另外，我们在该矩阵中给出了一个坐标为 `(r0, c0)` 的单元格。
+
+返回矩阵中的所有单元格的坐标，并按到 `(r0, c0)` 的距离从最小到最大的顺序排，其中，两单元格`(r1, c1)` 和 `(r2, c2)` 之间的距离是曼哈顿距离，`|r1 - r2| + |c1 - c2|`。（你可以按任何满足此条件的顺序返回答案。）
+
+ 
+
+**示例 1：**
+
+```
+输入：R = 1, C = 2, r0 = 0, c0 = 0
+输出：[[0,0],[0,1]]
+解释：从 (r0, c0) 到其他单元格的距离为：[0,1]
+```
+
+**示例 2：**
+
+```
+输入：R = 2, C = 2, r0 = 0, c0 = 1
+输出：[[0,1],[0,0],[1,1],[1,0]]
+解释：从 (r0, c0) 到其他单元格的距离为：[0,1,1,2]
+[[0,1],[1,1],[0,0],[1,0]] 也会被视作正确答案。
+```
+
+**示例 3：**
+
+```
+输入：R = 2, C = 3, r0 = 1, c0 = 2
+输出：[[1,2],[0,2],[1,1],[0,1],[1,0],[0,0]]
+解释：从 (r0, c0) 到其他单元格的距离为：[0,1,1,2,2,3]
+其他满足题目要求的答案也会被视为正确，例如 [[1,2],[1,1],[0,2],[1,0],[0,1],[0,0]]。
+```
+
+ 
+
+**提示：**
+
+1. `1 <= R <= 100`
+2. `1 <= C <= 100`
+3. `0 <= r0 < R`
+4. `0 <= c0 < C`
+
+类似bfs
+
+~~~cpp
+class Solution {
+public:
+    vector<vector<int>> allCellsDistOrder(int R, int C, int r0, int c0) {
+        vector<vector<int>> ans;
+        set<pair<int,int>> s;
+        ans.push_back({r0,c0});
+        s.insert(pair<int,int>(r0,c0));
+        int pos = 0;
+        while(pos<ans.size()){
+            int x = ans[pos][0];
+            int y = ans[pos][1];
+            if(x-1>=0&&s.find(pair<int,int>(x-1,y))==s.end()){
+                ans.push_back({x-1,y});
+                s.insert(pair<int,int>(x-1,y));
+            }
+            if(y-1>=0&&s.find(pair<int,int>(x,y-1))==s.end()){
+                ans.push_back({x,y-1});
+                s.insert(pair<int,int>(x,y-1));
+            }
+            if(x+1<R&&s.find(pair<int,int>(x+1,y))==s.end()){
+                ans.push_back({x+1,y});
+                s.insert(pair<int,int>(x+1,y));
+            }
+            if(y+1<C&&s.find(pair<int,int>(x,y+1))==s.end()){
+                ans.push_back({x,y+1});
+                s.insert(pair<int,int>(x,y+1));
+            }
+            pos++;
+        }
+        return ans;
+    }
+};
+~~~
+
+击败17%
+
+### Q[134. 加油站](https://leetcode-cn.com/problems/gas-station/)
+
+难度中等451
+
+在一条环路上有 *N* 个加油站，其中第 *i* 个加油站有汽油 `gas[i]` 升。
+
+你有一辆油箱容量无限的的汽车，从第 *i* 个加油站开往第 *i+1* 个加油站需要消耗汽油 `cost[i]` 升。你从其中的一个加油站出发，开始时油箱为空。
+
+如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。
+
+**说明:** 
+
+- 如果题目有解，该答案即为唯一答案。
+- 输入数组均为非空数组，且长度相同。
+- 输入数组中的元素均为非负数。
+
+**示例 1:**
+
+```
+输入: 
+gas  = [1,2,3,4,5]
+cost = [3,4,5,1,2]
+
+输出: 3
+
+解释:
+从 3 号加油站(索引为 3 处)出发，可获得 4 升汽油。此时油箱有 = 0 + 4 = 4 升汽油
+开往 4 号加油站，此时油箱有 4 - 1 + 5 = 8 升汽油
+开往 0 号加油站，此时油箱有 8 - 2 + 1 = 7 升汽油
+开往 1 号加油站，此时油箱有 7 - 3 + 2 = 6 升汽油
+开往 2 号加油站，此时油箱有 6 - 4 + 3 = 5 升汽油
+开往 3 号加油站，你需要消耗 5 升汽油，正好足够你返回到 3 号加油站。
+因此，3 可为起始索引。
+```
+
+**示例 2:**
+
+```
+输入: 
+gas  = [2,3,4]
+cost = [3,4,3]
+
+输出: -1
+
+解释:
+你不能从 0 号或 1 号加油站出发，因为没有足够的汽油可以让你行驶到下一个加油站。
+我们从 2 号加油站出发，可以获得 4 升汽油。 此时油箱有 = 0 + 4 = 4 升汽油
+开往 0 号加油站，此时油箱有 4 - 3 + 2 = 3 升汽油
+开往 1 号加油站，此时油箱有 3 - 3 + 3 = 3 升汽油
+你无法返回 2 号加油站，因为返程需要消耗 4 升汽油，但是你的油箱只有 3 升汽油。
+因此，无论怎样，你都不可能绕环路行驶一周。
+```
+
+原本是暴力n2，看了题解说 从x出发到y走不动了。下一次直接从y开始出发。
+
+因为 x 到 （x，y）中任意一点时，车油>0，而你从其中任意一点出发，车油为0。所以可以直接从y出发
+
+~~~cpp
+class Solution
+{
+public:
+    int canCompleteCircuit(vector<int> &gas, vector<int> &cost)
+    {
+        for (int i = 0; i < gas.size(); ++i)
+        {
+            int g = 0;
+            int pi = i;
+            bool flag = true;
+            for (int j = 0; j < gas.size(); ++j)
+            {
+                
+                if (pi + j >= gas.size())
+                    pi = -j;
+                g += gas[pi + j];
+                g -= cost[pi + j];
+                if (g < 0)
+                {
+                    flag = false;
+                    if(pi+j>i)
+                        i = pi+j;
+                    break;
+                }
+            }
+            if(flag)
+                return i;
+        }
+        return -1;
+    }
+};
+~~~
+
+击败62%
