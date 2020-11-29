@@ -16438,3 +16438,644 @@ public:
 ~~~
 
 击败100%，当前提交比较少。
+
+### Q[395至少有K个重复字符的最长子串](https://leetcode-cn.com/problems/longest-substring-with-at-least-k-repeating-characters/)
+
+难度 中等
+
+找到给定字符串（由小写字符组成）中的最长子串 ***T\*** ， 要求 ***T\*** 中的每一字符出现次数都不少于 *k* 。输出 ***T\*** 的长度。
+
+**示例 1:**
+
+```
+输入:
+s = "aaabb", k = 3
+
+输出:
+3
+
+最长子串为 "aaa" ，其中 'a' 重复了 3 次。
+```
+
+**示例 2:**
+
+```
+输入:
+s = "ababbc", k = 2
+
+输出:
+5
+
+最长子串为 "ababb" ，其中 'a' 重复了 2 次， 'b' 重复了 3 次。
+```
+
+先找出不符合字母的位置，然后按他们的位置拆开字符串，递归检查
+
+~~~cpp
+class Solution
+{
+public:
+    int longestSubstring(string s, int k)
+    {
+        if (s.size() == 0)
+            return 0;
+        vector<int> f(26);
+        set<int> e[26];
+        vector<int> point(s.size());
+        for (int i = 0; i < s.size(); ++i)
+        {
+            f[s[i] - 'a']++;
+            e[s[i] - 'a'].insert(i);
+        }
+        bool flag = true;
+        int m = 0;
+        for (int i = 0; i < 26; ++i)
+        {
+            if (f[i] != 0 && f[i] < k)
+            {
+                flag = false;
+                int pre = 0;
+                auto it = e[i].begin();
+                while (it != e[i].end())
+                {
+                    point[*it] = 1;
+                    it++;
+                }
+            }
+        }
+        if (flag)
+            return s.size();
+        int i = 0;
+        while (i < s.size() && point[i] != 0)
+        {
+            i++;
+        }
+        if(i>=s.size())
+            return 0;
+        for (int j = i+1; j < s.size(); ++j)
+        {
+            if (point[j] == 1)
+            {
+                m = max(m, longestSubstring(s.substr(i, j - i), k));
+                i = j;
+            }
+        }
+        if (point[s.size() - 1] != 1)
+            m = max(m, longestSubstring(s.substr(i, s.size() - 1 - i + 1), k));
+        return m;
+    }
+};
+~~~
+
+击败18%
+
+### Q[222完全二叉树的节点个数](https://leetcode-cn.com/problems/count-complete-tree-nodes/)
+
+难度中等301
+
+给出一个**完全二叉树**，求出该树的节点个数。
+
+**说明：**
+
+[完全二叉树](https://baike.baidu.com/item/完全二叉树/7773232?fr=aladdin)的定义如下：在完全二叉树中，除了最底层节点可能没填满外，其余每层节点数都达到最大值，并且最下面一层的节点都集中在该层最左边的若干位置。若最底层为第 h 层，则该层包含 1~ 2h 个节点。
+
+**示例:**
+
+```
+输入: 
+    1
+   / \
+  2   3
+ / \  /
+4  5 6
+
+输出: 6
+```
+
+刚开始不管完全，直接计算
+
+~~~cpp
+class Solution {
+public:
+    int countNodes(TreeNode* root) {
+        if(root == nullptr) return 0;
+        int count = 1;
+        if(root->left != nullptr)
+            count += countNodes(root->left);
+        if(root->right != nullptr)
+            count+=countNodes(root->right);
+        return count;
+    }
+};
+~~~
+
+击败98%
+
+按照官方题解，写二分查找。利用位操作来计算每个叶子的路径
+
+~~~cpp
+class Solution {
+public:
+    int countNodes(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+        if(root->left == nullptr)
+            return 1;
+        int h = 0;
+        TreeNode *t = root;
+        while(t!=nullptr){
+            t = t->left;
+            h++;
+        }
+        int left = 1<<(h-1);
+        int right = 1<<(h);
+        int mid = (left+right)/2;
+        while(left<right){
+            if(exist(root,mid,h)){
+                left = mid+1;
+            }
+            else{
+                right = mid;
+            }
+            mid = (left+right)/2;
+            cout<<left<<" ";
+        }
+        return left-1;
+    }
+    bool exist(TreeNode* root,int n,int h){
+        if(n == 1){
+            if(root!=nullptr){
+                return true;
+            }
+            return false;
+        }
+        if(root == nullptr)
+            return false;
+        int dir = n&(1<<(h-2));
+        n = n|(1<<(h-2));
+        n = n&((1<<(h-1))-1);
+        if(dir == 0){
+            return exist(root->left,n,h-1);
+        }
+        else{
+            return exist(root->right,n,h-1);
+        }
+    }
+};
+~~~
+
+二分真是太难写了。刚开始right写的是 right = 1<<(h) -1;一直通过不了
+
+结果才击败37% ...
+
+### Q[1370上升下降字符串](https://leetcode-cn.com/problems/increasing-decreasing-string/)
+
+难度简单33
+
+给你一个字符串 `s` ，请你根据下面的算法重新构造字符串：
+
+1. 从 `s` 中选出 **最小** 的字符，将它 **接在** 结果字符串的后面。
+2. 从 `s` 剩余字符中选出 **最小** 的字符，且该字符比上一个添加的字符大，将它 **接在** 结果字符串后面。
+3. 重复步骤 2 ，直到你没法从 `s` 中选择字符。
+4. 从 `s` 中选出 **最大** 的字符，将它 **接在** 结果字符串的后面。
+5. 从 `s` 剩余字符中选出 **最大** 的字符，且该字符比上一个添加的字符小，将它 **接在** 结果字符串后面。
+6. 重复步骤 5 ，直到你没法从 `s` 中选择字符。
+7. 重复步骤 1 到 6 ，直到 `s` 中所有字符都已经被选过。
+
+在任何一步中，如果最小或者最大字符不止一个 ，你可以选择其中任意一个，并将其添加到结果字符串。
+
+请你返回将 `s` 中字符重新排序后的 **结果字符串** 。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "aaaabbbbcccc"
+输出："abccbaabccba"
+解释：第一轮的步骤 1，2，3 后，结果字符串为 result = "abc"
+第一轮的步骤 4，5，6 后，结果字符串为 result = "abccba"
+第一轮结束，现在 s = "aabbcc" ，我们再次回到步骤 1
+第二轮的步骤 1，2，3 后，结果字符串为 result = "abccbaabc"
+第二轮的步骤 4，5，6 后，结果字符串为 result = "abccbaabccba"
+```
+
+**示例 2：**
+
+```
+输入：s = "rat"
+输出："art"
+解释：单词 "rat" 在上述算法重排序以后变成 "art"
+```
+
+**示例 3：**
+
+```
+输入：s = "leetcode"
+输出："cdelotee"
+```
+
+**示例 4：**
+
+```
+输入：s = "ggggggg"
+输出："ggggggg"
+```
+
+**示例 5：**
+
+```
+输入：s = "spo"
+输出："ops"
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length <= 500`
+- `s` 只包含小写英文字母。
+
+这题描述有问题。比如说aaabbb。我取出一个a，那么剩余字符是aabbb，此时最小字符应该是a。而按照样例来看应该是b。
+
+按照样例来看这题就很简单了。无非就是字典序升字典序降，字典序升字典序降
+
+~~~cpp
+class Solution
+{
+public:
+    string sortString(string s)
+    {
+        vector<int> c(26);
+        string ans;
+        for (auto ch : s)
+            c[ch - 'a']++;
+        bool flag = true;
+        while (flag)
+        {
+            flag = false;
+            for (int i = 0; i < 26; i++)
+            {
+                if (c[i] > 0)
+                {
+                    ans += (char)('a' + i);
+                    c[i]--;
+                    flag = true;
+                }
+            }
+            for (int i = 25; i >= 0; i--)
+            {
+                if (c[i] > 0)
+                {
+                    ans += (char)('a' + i);
+                    c[i]--;
+                    flag = true;
+                }
+            }
+        }
+        return ans;
+    }
+};
+~~~
+
+击败81%
+
+### Q[164最大间距](https://leetcode-cn.com/problems/maximum-gap/)
+
+难度困难224
+
+给定一个无序的数组，找出数组在排序之后，相邻元素之间最大的差值。
+
+如果数组元素个数小于 2，则返回 0。
+
+**示例 1:**
+
+```
+输入: [3,6,9,1]
+输出: 3
+解释: 排序后的数组是 [1,3,6,9], 其中相邻元素 (3,6) 和 (6,9) 之间都存在最大差值 3。
+```
+
+**示例 2:**
+
+```
+输入: [10]
+输出: 0
+解释: 数组元素个数小于 2，因此返回 0。
+```
+
+**说明:**
+
+- 你可以假设数组中所有元素都是非负整数，且数值在 32 位有符号整数范围内。
+- 请尝试在线性时间复杂度和空间复杂度的条件下解决此问题。
+
+用set，其实不符合题目要求
+
+~~~cpp
+class Solution {
+public:
+    int maximumGap(vector<int>& nums) {
+        set<int> s;
+        for(auto a : nums){
+            s.insert(a);
+        }
+        auto it = s.begin();
+        int pre = *it;
+        int m = 0;
+        while(it!=s.end()){
+            m = max(m,abs(pre-*it));
+            pre = *it;
+            it++;
+        }
+        return m;
+    }
+};
+~~~
+
+击败8% 5%
+
+桶排序
+
+两个数的间距不会比(Max - Min) / (nums.size() - 1)大，建立大小为(Max - Min) / (nums.size() - 1)的桶，每个桶只存最大值和最小值
+
+~~~cpp
+class Solution
+{
+public:
+    int maximumGap(vector<int> &nums)
+    {
+        if(nums.size()==0||nums.size()==1)
+            return 0;
+        int Min = INT_MAX, Max = INT_MIN;
+        for (auto i : nums)
+        {
+            Min = min(i, Min);
+            Max = max(i, Max);
+        }
+        if(Max == Min)
+            return 0;
+        int n = (Max - Min) / (nums.size() - 1);
+        if(n<1)
+            n = 1;
+        int length = (Max - Min) / n + 1;
+        vector<pair<int, int>> b(length, pair<int, int>(INT_MAX, INT_MIN));
+
+        for (auto i : nums)
+        {
+            b[(i - Min) / n].first = min(b[(i - Min) / n].first, i);
+            b[(i - Min) / n].second = max(b[(i - Min) / n].second, i);
+        }
+        int prex = b[0].second;
+        int m = 0;
+        for (int i = 1; i < length; ++i)
+        {
+            if (b[i].first != INT_MAX)
+            {
+                m = max(b[i].first-prex, m);
+            }
+            if (b[i].second != INT_MIN)
+            {
+                prex = b[i].second;
+            }
+        }
+        return m;
+    }
+};
+~~~
+
+击败79% 15%
+
+我用set是24ms，直接排序16ms，桶排12ms
+
+### Q[179最大数](https://leetcode-cn.com/problems/largest-number/)
+
+难度中等430
+
+给定一组非负整数 `nums`，重新排列它们每个数字的顺序（每个数字不可拆分）使之组成一个最大的整数。
+
+**注意：**输出结果可能非常大，所以你需要返回一个字符串而不是整数。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [10,2]
+输出："210"
+```
+
+**示例 2：**
+
+```
+输入：nums = [3,30,34,5,9]
+输出："9534330"
+```
+
+**示例 3：**
+
+```
+输入：nums = [1]
+输出："1"
+```
+
+**示例 4：**
+
+```
+输入：nums = [10]
+输出："10"
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 100`
+- `0 <= nums[i] <= 109`
+
+刚开始以为直接按字典序排序就好了，写的时候就想到了点问题
+
+看题解其实就是按照 两个字符串a+b>b+a这样判断
+
+但是sort函数却一直有问题，查阅了一些资料发现，sort函数要求相等时返回false
+
+~~~cpp
+class Solution
+{
+public:
+    string largestNumber(vector<int> &nums)
+    {
+        vector<string> s1;
+        for (auto i : nums)
+        {
+                s1.push_back(to_string(i));
+        }
+        sort(s1.begin(), s1.end(), [](string a, string b) {
+            if (a + b > b + a)
+                return true;
+            return false;
+        });
+        string ans;
+        for (auto i : s1)
+        {
+            if (ans.size()>0||i != "0")
+                ans += i;
+        }
+        if (ans.size() == 0)
+            ans = "0";
+        return ans;
+    }
+};
+~~~
+
+击败65%
+
+### Q[493翻转对](https://leetcode-cn.com/problems/reverse-pairs/)
+
+难度困难162
+
+给定一个数组 `nums` ，如果 `i < j` 且 `nums[i] > 2*nums[j]` 我们就将 `(i, j)` 称作一个***重要翻转对\***。
+
+你需要返回给定数组中的重要翻转对的数量。
+
+**示例 1:**
+
+```
+输入: [1,3,2,3,1]
+输出: 2
+```
+
+**示例 2:**
+
+```
+输入: [2,4,3,5,1]
+输出: 3
+```
+
+**注意:**
+
+1. 给定数组的长度不会超过`50000`。
+2. 输入数组中的所有数字都在32位整数的表示范围内。
+
+一看到就猜到是分治法。合并数组前统计下次数
+
+~~~cpp
+class Solution {
+public:
+    int count = 0;
+    int reversePairs(vector<int>& nums) {
+        vector<int> aux(nums.size());
+        merge(nums,aux,0,nums.size()-1);
+        for(auto i:nums){
+            cout<<i<<" ";
+        }
+        return count;
+    }
+    void merge(vector<int>& nums,vector<int>& aux,int left,int right) {
+        if(left>=right) 
+            return;
+        int mid = (left+right)/2;
+        merge(nums,aux,left,mid);
+        merge(nums,aux,mid+1,right);
+        for(int i = left; i <= right; ++i){
+            aux[i] = nums[i];
+        }
+        int x1 = left;
+        int x2 = mid+1;
+
+        while(x1<=mid && x2<=right){
+            if(((long)nums[x2]*2)<(long)nums[x1]){
+                count+=(mid-x1+1);
+                x2++;
+            }else{
+                x1++;
+            }
+        }
+        x1 = left;
+        x2 =mid+1;
+
+        for(int i = left; i<=right; ++i){
+            if(x1>mid){
+                nums[i] = aux[x2++];
+            }
+            else if(x2>right){
+                nums[i] = aux[x1++];
+            }
+            else if(aux[x1]>aux[x2]){
+                nums[i] = aux[x2++];
+            }
+            else{
+                nums[i] = aux[x1++];
+            }
+        }
+    }
+};
+~~~
+
+击败53%
+
+### Q[976三角形的最大周长](https://leetcode-cn.com/problems/largest-perimeter-triangle/)
+
+难度简单92
+
+给定由一些正数（代表长度）组成的数组 `A`，返回由其中三个长度组成的、**面积不为零**的三角形的最大周长。
+
+如果不能形成任何面积不为零的三角形，返回 `0`。
+
+ 
+
+
+
+**示例 1：**
+
+```
+输入：[2,1,2]
+输出：5
+```
+
+**示例 2：**
+
+```
+输入：[1,2,1]
+输出：0
+```
+
+**示例 3：**
+
+```
+输入：[3,2,3,4]
+输出：10
+```
+
+**示例 4：**
+
+```
+输入：[3,6,2,3]
+输出：8
+```
+
+ 
+
+**提示：**
+
+1. `3 <= A.length <= 10000`
+2. `1 <= A[i] <= 10^6`
+
+排个序nlogn，从A.size()-1开始遍历O（n），检测i i-1 i-2能否构成三角形（贪心算法）
+
+~~~~cpp
+class Solution {
+public:
+    int largestPerimeter(vector<int>& A) {
+        if(A.size()<3) return 0;
+        sort(A.begin(),A.end());
+        for(int i = A.size()-1; i >= 2; --i){
+            if(A[i-1] + A[i-2] > A[i]){
+                return A[i]+A[i-1] + A[i-2];
+            }
+        }
+        return 0;
+    }
+};
+~~~~
+
+击败73%
