@@ -17079,3 +17079,559 @@ public:
 ~~~~
 
 击败73%
+
+### Q[767重构字符串](https://leetcode-cn.com/problems/reorganize-string/)
+
+难度中等161
+
+给定一个字符串`S`，检查是否能重新排布其中的字母，使得两相邻的字符不同。
+
+若可行，输出任意可行的结果。若不可行，返回空字符串。
+
+**示例 1:**
+
+```
+输入: S = "aab"
+输出: "aba"
+```
+
+**示例 2:**
+
+```
+输入: S = "aaab"
+输出: ""
+```
+
+**注意:**
+
+- `S` 只包含小写字母并且长度在`[1, 500]`区间内。
+
+一开始就想到思路了。先统计次数，然后优先队列，每次取最大的两个。
+
+但是不知道什么时候返回“”
+
+> 当 n 是偶数时，有 n/2n/2 个偶数下标和 n/2n/2 个奇数下标，因此每个字母的出现次数都不能超过 n/2n/2 次，否则出现次数最多的字母一定会出现相邻。
+
+> 当 n是奇数时，由于共有 (n+1)/2(n+1)/2 个偶数下标，因此每个字母的出现次数都不能超过 (n+1)/2(n+1)/2 次，否则出现次数最多的字母一定会出现相邻。
+
+写优先队列遇到了点小问题
+
+~~~cpp
+auto cmp = [](pair<int,char>a,pair<int,char>b)->bool{
+            if(a.first < b.first)
+                return true;
+            return false;
+        };
+priority_queue<pair<int,char>,vector<pair<int,char>>,decltype(cmp)> queue(cmp);
+~~~
+
+~~~cpp
+class Solution {
+public:
+    string reorganizeString(string S) {
+        vector<int> v(26);
+        for(int i = 0; i < S.length(); ++i)
+            v[S[i]-'a']++;
+        if(S.size()%2==0){
+            for(int i = 0; i < 26; ++i){
+                if(v[i]>S.length()/2)
+                    return "";
+            }
+        }
+        if(S.size()%2==1){
+            for(int i = 0; i < 26; ++i){
+                if(v[i]>(S.length()+1)/2)
+                    return "";
+            }
+        }
+        priority_queue<pair<int,char>> queue;
+        for(int i = 0; i < 26;++i){
+            if(v[i]!=0){
+                queue.push(pair<int,char>(v[i],'a' + i));
+            }
+        }
+        string ans;
+        while(queue.size()>1){
+            pair<int,char> a = queue.top();
+            queue.pop();
+            pair<int,char> b = queue.top();
+            queue.pop();
+            ans += a.second;
+            ans+=b.second;
+            a.first--;
+            b.first--;
+            if(a.first>0){
+                queue.push(a);
+            }
+            if(b.first>0){
+                queue.push(b);
+            }
+        }
+        if(queue.size()>0){
+            if(queue.top().first>1)
+                return "";
+            ans += queue.top().second;
+        }
+        return ans;
+    }
+};
+~~~
+
+击败26%
+
+### Q[321拼接最大数](https://leetcode-cn.com/problems/create-maximum-number/)
+
+难度困难187
+
+给定长度分别为 `m` 和 `n` 的两个数组，其元素由 `0-9` 构成，表示两个自然数各位上的数字。现在从这两个数组中选出 `k (k <= m + n)` 个数字拼接成一个新的数，要求从同一个数组中取出的数字保持其在原数组中的相对顺序。
+
+求满足该条件的最大数。结果返回一个表示该最大数的长度为 `k` 的数组。
+
+**说明:** 请尽可能地优化你算法的时间和空间复杂度。
+
+**示例 1:**
+
+```
+输入:
+nums1 = [3, 4, 6, 5]
+nums2 = [9, 1, 2, 5, 8, 3]
+k = 5
+输出:
+[9, 8, 6, 5, 3]
+```
+
+**示例 2:**
+
+```
+输入:
+nums1 = [6, 7]
+nums2 = [6, 0, 4]
+k = 5
+输出:
+[6, 7, 6, 0, 4]
+```
+
+**示例 3:**
+
+```
+输入:
+nums1 = [3, 9]
+nums2 = [8, 9]
+k = 3
+输出:
+[9, 8, 9]
+```
+
+看到这题我就想到了贪心算法，每次都尽量找最大的，尽可能往后压缩
+
+写出来后，就只能过一个样例。
+
+如果nums1 和 nums2 都有相同的最大的时候，这个算法就挂了。不知道应该去选择哪一个。我就想，相等时再写个循环判断下一个。但是这样子还是有问题，如果下个还是相等，而且代码会很冗余。
+
+看到官方题解只有一个单调栈，我觉得贪心击败没戏了。
+
+又按标签找到了一个c++ 贪心。
+
+用一个set存下所有相等的点，每次循环一遍set
+
+~~~cpp
+class Solution
+{
+public:
+    vector<int> maxNumber(vector<int> &nums1, vector<int> &nums2, int k)
+    {
+        vector<int> ans(k);
+        int n1 = nums1.size();
+        int n2 = nums2.size();
+
+        set<pair<int, int>> s;
+        s.insert(pair<int, int>(0, 0));
+        for (int i = 0; i < k; i++)
+        {
+            set<pair<int, int>> temp;
+            for (auto &p : s)
+            {
+                int prem1 = p.first;
+                int prem2 = p.second;
+                int l1 = n1 - prem1;
+                int l2 = n2 - prem2;
+
+                int m1 = prem1;
+                int m2 = prem2;
+
+                for (int j = prem1; m1 < n1 && j < n1 && n1 - j + l2 >= k - i; ++j)
+                {
+                    if (nums1[j] > nums1[m1])
+                        m1 = j;
+                }
+                if (m1 < n1 && nums1[m1] >= ans[i])
+                {
+                    if (nums1[m1] > ans[i])
+                        temp.clear();
+                    ans[i] = nums1[m1];
+                    temp.insert(pair<int, int>(m1+1, prem2));
+                }
+                for (int j = prem2; m2 < n2 && j < n2 && n2 - j + l1 >= k - i; ++j)
+                {
+                    if (nums2[j] > nums2[m2])
+                        m2 = j;
+                }
+                if (m2 < n2 && nums2[m2] >= ans[i])
+                {
+                    if (nums2[m2] > ans[i])
+                        temp.clear();
+                    ans[i] = nums2[m2];
+                    temp.insert(pair<int, int>(prem1, m2+1));
+                }
+            }
+            s.swap(temp);
+        }
+        return ans;
+    }
+};
+~~~
+
+击败99%，感觉是第一次写困难这么爽。找最大值可以用stl的算法。
+
+### Q[659分割数组为连续子序列](https://leetcode-cn.com/problems/split-array-into-consecutive-subsequences/)
+
+难度中等148
+
+给你一个按升序排序的整数数组 `num`（可能包含重复数字），请你将它们分割成一个或多个子序列，其中每个子序列都由连续整数组成且长度至少为 3 。
+
+如果可以完成上述分割，则返回 `true` ；否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入: [1,2,3,3,4,5]
+输出: True
+解释:
+你可以分割出这样两个连续子序列 : 
+1, 2, 3
+3, 4, 5
+```
+
+ 
+
+**示例 2：**
+
+```
+输入: [1,2,3,3,4,4,5,5]
+输出: True
+解释:
+你可以分割出这样两个连续子序列 : 
+1, 2, 3, 4, 5
+3, 4, 5
+```
+
+ 
+
+**示例 3：**
+
+```
+输入: [1,2,3,4,4,5]
+输出: False
+```
+
+ 
+
+**提示：**
+
+1. 输入的数组长度范围为 [1, 10000]
+
+刚开始往dp想了，因为贪心很难搞，当前数到底应该算前面还是算后面
+
+其实我漏了个条件，这题是连续数
+
+看了题解，hashmap + prioityqueue，每个数都尽量往前塞，而且是往前一个的最短序列里塞。
+
+~~~cpp
+class Solution {
+public:
+    bool isPossible(vector<int>& nums) {
+        unordered_map<int,priority_queue<int,vector<int>,greater<int>>> m;
+        for(int i = 0; i < nums.size(); ++i) {
+            if(m[nums[i]-1].size()!=0){
+                int x = m[nums[i]-1].top(); 
+                m[nums[i]-1].pop();
+                m[nums[i]].push(x+1);
+            }
+            else{
+                m[nums[i]].push(1);
+            }
+        }
+        auto it = m.begin();
+        while(it != m.end()){
+            if(it->second.size()>0){
+               if(it->second.top()<3)
+                    return false; 
+            }
+            it++;
+        }
+        return true;
+    }
+};
+~~~
+
+击败5%
+
+### Q[1550存在连续三个奇数的数组](https://leetcode-cn.com/problems/three-consecutive-odds/)
+
+难度简单5
+
+给你一个整数数组 `arr`，请你判断数组中是否存在连续三个元素都是奇数的情况：如果存在，请返回 `true` ；否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：arr = [2,6,4,1]
+输出：false
+解释：不存在连续三个元素都是奇数的情况。
+```
+
+**示例 2：**
+
+```
+输入：arr = [1,2,34,3,4,5,7,23,12]
+输出：true
+解释：存在连续三个元素都是奇数的情况，即 [5,7,23] 。
+```
+
+ 
+
+**提示：**
+
+- `1 <= arr.length <= 1000`
+- `1 <= arr[i] <= 1000`
+
+~~~cpp
+class Solution {
+public:
+    bool threeConsecutiveOdds(vector<int>& arr) {
+        int count = 0;
+        for(int i:arr){
+            if(i%2==0){
+                count = 0;
+            }else{
+                count++;
+                if(count == 3)
+                    return true;
+            }
+        }
+        return false;
+    }
+};
+~~~
+
+击败72%
+
+### Q[1451重新排列句子中的单词](https://leetcode-cn.com/problems/rearrange-words-in-a-sentence/)
+
+难度中等13
+
+「句子」是一个用空格分隔单词的字符串。给你一个满足下述格式的句子 `text` :
+
+- 句子的首字母大写
+- `text` 中的每个单词都用单个空格分隔。
+
+请你重新排列 `text` 中的单词，使所有单词按其长度的升序排列。如果两个单词的长度相同，则保留其在原句子中的相对顺序。
+
+请同样按上述格式返回新的句子。
+
+ 
+
+**示例 1：**
+
+```
+输入：text = "Leetcode is cool"
+输出："Is cool leetcode"
+解释：句子中共有 3 个单词，长度为 8 的 "Leetcode" ，长度为 2 的 "is" 以及长度为 4 的 "cool" 。
+输出需要按单词的长度升序排列，新句子中的第一个单词首字母需要大写。
+```
+
+**示例 2：**
+
+```
+输入：text = "Keep calm and code on"
+输出："On and keep calm code"
+解释：输出的排序情况如下：
+"On" 2 个字母。
+"and" 3 个字母。
+"keep" 4 个字母，因为存在长度相同的其他单词，所以它们之间需要保留在原句子中的相对顺序。
+"calm" 4 个字母。
+"code" 4 个字母。
+```
+
+**示例 3：**
+
+```
+输入：text = "To be or not to be"
+输出："To be or to be not"
+```
+
+ 
+
+**提示：**
+
+- `text` 以大写字母开头，然后包含若干小写字母以及单词间的单个空格。
+- `1 <= text.length <= 10^5`
+
+熟悉stl就可以秒杀
+
+~~~cpp
+class Solution
+{
+public:
+    string arrangeWords(string text)
+    {
+        text[0] = tolower(text[0]);
+        vector<string> array;
+        int prepos = 0;
+        for (int i = 0; i < text.length(); i++)
+        {
+            if (text[i] == ' ')
+            {
+                array.push_back(text.substr(prepos, i - prepos));
+                prepos = i + 1;
+            }
+        }
+        array.push_back(text.substr(prepos));
+        auto fun = [](string s1, string s2) {
+            if (s1.length() < s2.length())
+                return true;
+            return false;
+        };
+        stable_sort(array.begin(), array.end(), fun);
+        string ans;
+        for (int i = 0; i < array.size(); i++)
+        {
+            if (i == 0)
+            {
+                ans = ans + (char)toupper(array[i][0]) + array[i].substr(1);
+            }
+            else
+                ans += array[i];
+            ans += ' ';
+        }
+        return ans.substr(0, ans.length()-1);
+    }
+};
+~~~
+
+击败67%
+
+### Q[735行星碰撞](https://leetcode-cn.com/problems/asteroid-collision/)
+
+难度中等117
+
+给定一个整数数组 `asteroids`，表示在同一行的行星。
+
+对于数组中的每一个元素，其绝对值表示行星的大小，正负表示行星的移动方向（正表示向右移动，负表示向左移动）。每一颗行星以相同的速度移动。
+
+找出碰撞后剩下的所有行星。碰撞规则：两个行星相互碰撞，较小的行星会爆炸。如果两颗行星大小相同，则两颗行星都会爆炸。两颗移动方向相同的行星，永远不会发生碰撞。
+
+**示例 1:**
+
+```
+输入: 
+asteroids = [5, 10, -5]
+输出: [5, 10]
+解释: 
+10 和 -5 碰撞后只剩下 10。 5 和 10 永远不会发生碰撞。
+```
+
+**示例 2:**
+
+```
+输入: 
+asteroids = [8, -8]
+输出: []
+解释: 
+8 和 -8 碰撞后，两者都发生爆炸。
+```
+
+**示例 3:**
+
+```
+输入: 
+asteroids = [10, 2, -5]
+输出: [10]
+解释: 
+2 和 -5 发生碰撞后剩下 -5。10 和 -5 发生碰撞后剩下 10。
+```
+
+**示例 4:**
+
+```
+输入: 
+asteroids = [-2, -1, 1, 2]
+输出: [-2, -1, 1, 2]
+解释: 
+-2 和 -1 向左移动，而 1 和 2 向右移动。
+由于移动方向相同的行星不会发生碰撞，所以最终没有行星发生碰撞。
+```
+
+**说明:**
+
+- 数组 `asteroids` 的长度不超过 `10000`。
+- 每一颗行星的大小都是非零整数，范围是 `[-1000, 1000]` 。
+
+他这个碰撞类似一个栈结构，先进后出。
+
+最后汇总答案时，需要先进先出
+
+所以用deque
+
+~~~cpp
+class Solution
+{
+public:
+    vector<int> asteroidCollision(vector<int> &asteroids)
+    {
+        deque<int> q;
+        vector<int> ans;
+        for (int i : asteroids)
+        {
+            if (i > 0)
+            {
+                q.push_back(i);
+            }
+            else if (i < 0)
+            {
+                bool flag = true;
+                while (q.size() > 0)
+                {
+                    if (abs(i) < abs(q.back()))
+                    {
+                        break;
+                    }
+                    else if (abs(i) == abs(q.back()))
+                    {
+                        q.pop_back();
+                        flag = false;
+                        break;
+                    }
+                    else
+                    {
+                        q.pop_back();
+                    }
+                }
+                if (flag && q.empty())
+                    ans.push_back(i);
+            }
+        }
+        for (auto i : q)
+        {
+            ans.push_back(i);
+        }
+        return ans;
+    }
+};
+~~~
+
+击败8%
