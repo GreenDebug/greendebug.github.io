@@ -17635,3 +17635,199 @@ public:
 ~~~
 
 击败8%
+
+### Q[861翻转矩阵后的得分](https://leetcode-cn.com/problems/score-after-flipping-matrix/)
+
+难度中等94
+
+有一个二维矩阵 `A` 其中每个元素的值为 `0` 或 `1` 。
+
+移动是指选择任一行或列，并转换该行或列中的每一个值：将所有 `0` 都更改为 `1`，将所有 `1` 都更改为 `0`。
+
+在做出任意次数的移动后，将该矩阵的每一行都按照二进制数来解释，矩阵的得分就是这些数字的总和。
+
+返回尽可能高的分数。
+
+ 
+
+
+
+**示例：**
+
+```
+输入：[[0,0,1,1],[1,0,1,0],[1,1,0,0]]
+输出：39
+解释：
+转换为 [[1,1,1,1],[1,0,0,1],[1,1,1,1]]
+0b1111 + 0b1001 + 0b1111 = 15 + 9 + 15 = 39
+```
+
+ 
+
+**提示：**
+
+1. `1 <= A.length <= 20`
+2. `1 <= A[0].length <= 20`
+3. `A[i][j]` 是 `0` 或 `1`
+
+一开始的思路其实很接近了。我没注意到列也可以反转。如果只是行可以反转，那么只要看最高位就好了。而列反转则需看每一列0的个数。
+
+先进行行反转，再进行列反转
+
+~~~cpp
+class Solution {
+public:
+    int matrixScore(vector<vector<int>>& A) {
+        int sum = 0;
+        vector<bool> flag(A.size());
+        for(int i = 0; i < A.size(); i++) {
+            flag[i] = (A[i][0] == 0);
+        }
+        sum += ((A.size())*(1<<(A[0].size()-1)));
+        for(int i = 1; i < A[0].size(); i++) {
+            int count = 0;
+            for(int j = 0; j < A.size(); j++) {
+                if(A[j][i] == 0 && flag[j] == false){
+                    count++;
+                }
+                else if(A[j][i] == 1 && flag[j] == true){
+                    count++;
+                }
+            }
+            if((double)count<(double)(A.size())/2){
+                sum+=((A.size()-count)*(1<<(A[0].size()-i-1)));
+            }
+            else{
+                sum+=((count)*(1<<(A[0].size()-i-1)));
+            }
+        }
+        return sum;
+    }
+};
+~~~
+
+击败83%
+
+### Q[842. 将数组拆分成斐波那契序列](https://leetcode-cn.com/problems/split-array-into-fibonacci-sequence/)
+
+难度中等89
+
+给定一个数字字符串 `S`，比如 `S = "123456579"`，我们可以将它分成斐波那契式的序列 `[123, 456, 579]`。
+
+形式上，斐波那契式序列是一个非负整数列表 `F`，且满足：
+
+- `0 <= F[i] <= 2^31 - 1`，（也就是说，每个整数都符合 32 位有符号整数类型）；
+- `F.length >= 3`；
+- 对于所有的`0 <= i < F.length - 2`，都有 `F[i] + F[i+1] = F[i+2]` 成立。
+
+另外，请注意，将字符串拆分成小块时，每个块的数字一定不要以零开头，除非这个块是数字 0 本身。
+
+返回从 `S` 拆分出来的任意一组斐波那契式的序列块，如果不能拆分则返回 `[]`。
+
+ 
+
+**示例 1：**
+
+```
+输入："123456579"
+输出：[123,456,579]
+```
+
+**示例 2：**
+
+```
+输入: "11235813"
+输出: [1,1,2,3,5,8,13]
+```
+
+**示例 3：**
+
+```
+输入: "112358130"
+输出: []
+解释: 这项任务无法完成。
+```
+
+**示例 4：**
+
+```
+输入："0123"
+输出：[]
+解释：每个块的数字不能以零开头，因此 "01"，"2"，"3" 不是有效答案。
+```
+
+**示例 5：**
+
+```
+输入: "1101111"
+输出: [110, 1, 111]
+解释: 输出 [11,0,11,11] 也同样被接受。
+```
+
+ 
+
+**提示：**
+
+1. `1 <= S.length <= 200`
+2. 字符串 `S` 中只含有数字。
+
+今天这个中等写的特别艰难。暴力回溯法，穷举每个点可不可以。
+
+刚开始函数里最前面的判断没写好，出现了很奇怪的结果，然后一直搞不懂哪里错了。
+
+被int的长度卡了两发。我用istringstream他竟然不会检测int有没有越界
+
+~~~cpp
+class Solution
+{
+public:
+    vector<int> splitIntoFibonacci(string S)
+    {
+        vector<int> result;
+        backward(result, S, 1, 0);
+        if (result.size() < 3)
+            return {};
+        return result;
+    }
+    bool backward(vector<int> &result, string S, int pos, int prepos)
+    {
+        if (pos > S.size())
+            return result.size() >= 3 && prepos == S.size();
+        if (pos - prepos > 1 && S[prepos] == '0')
+            return false;
+        istringstream is(S.substr(prepos, pos - prepos));
+        long y;
+        int x;
+        is >> y;
+        x = (int)y;
+        if(x != y)
+            return false;
+        if (result.size() < 2)
+        {
+            result.push_back(x);
+            if (backward(result, S, pos + 1, pos))
+                return true;
+            result.pop_back();
+        }
+        else
+        {
+            int n = result.size();
+            long comp = (long)x - (long)result[n - 1] - (long)result[n - 2];
+            if (comp == 0)
+            {
+                result.push_back(x);
+                if (backward(result, S, pos + 1, pos))
+                    return true;
+                result.pop_back();
+            }
+            else if (comp > 0)
+            {
+                return false;
+            }
+        }
+        return backward(result, S, pos + 1, prepos);
+    }
+};
+~~~
+
+击败17
