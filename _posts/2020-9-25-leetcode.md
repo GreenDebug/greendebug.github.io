@@ -1,8 +1,4 @@
-csjue的力扣
-
-暂时跳过的题目 q32 q10 q40
-
-这学期开始水水力扣。按照这个[顺序](https://www.zhihu.com/question/280279208/answer/1118675237)刷完了,语言主要是Java。力扣热题100，已刷85/100，剩下的基本是困难。
+完结。以后直接写在力扣的笔记里。
 
 欢迎关注俺的力扣 [csjue](https://leetcode-cn.com/u/csjue/)
 
@@ -18088,3 +18084,462 @@ public:
 ~~~
 
 击败14%
+
+### Q[738单调递增的数字](https://leetcode-cn.com/problems/monotone-increasing-digits/)
+
+难度中等90
+
+给定一个非负整数 `N`，找出小于或等于 `N` 的最大的整数，同时这个整数需要满足其各个位数上的数字是单调递增。
+
+（当且仅当每个相邻位数上的数字 `x` 和 `y` 满足 `x <= y` 时，我们称这个整数是单调递增的。）
+
+**示例 1:**
+
+```
+输入: N = 10
+输出: 9
+```
+
+**示例 2:**
+
+```
+输入: N = 1234
+输出: 1234
+```
+
+**示例 3:**
+
+```
+输入: N = 332
+输出: 299
+```
+
+**说明:** `N` 是在 `[0, 10^9]` 范围内的一个整数。
+
+自己试了半天，写的乱七八糟
+
+抄题：思路：从后往前遍历，如果前面的值大于后面的值就把当前位数减一然后把后面的值变成9，以此类推
+
+~~~cpp
+class Solution
+{
+public:
+    int monotoneIncreasingDigits(int N)
+    {
+        shared_ptr<stack<char>> s1 = make_shared<stack<char>>(stack<char>());
+        string num = to_string(N);
+        int n = num.length();
+        s1->push(num[n-1]);
+        for (int i = n-2; i >= 0; i--) {
+            if(num[i]>s1->top()){
+                int count = s1->size();
+                s1 = make_shared<stack<char>>(stack<char>());
+                while(count>0){
+                    s1->push('9');
+                    count--;
+                }
+                s1->push(num[i]-1);
+            }
+            else{
+                s1->push(num[i]);
+            }
+        }        
+        int ans = 0;
+        while(s1->size()>0){
+            ans = ans*10 + (s1->top()-'0');
+            s1->pop();
+        }
+        return ans;
+    }
+};
+~~~
+
+击败42%
+
+### Q[290单词规律](https://leetcode-cn.com/problems/word-pattern/)
+
+难度简单228
+
+给定一种规律 `pattern` 和一个字符串 `str` ，判断 `str` 是否遵循相同的规律。
+
+这里的 **遵循** 指完全匹配，例如， `pattern` 里的每个字母和字符串 `str` 中的每个非空单词之间存在着双向连接的对应规律。
+
+**示例1:**
+
+```
+输入: pattern = "abba", str = "dog cat cat dog"
+输出: true
+```
+
+**示例 2:**
+
+```
+输入:pattern = "abba", str = "dog cat cat fish"
+输出: false
+```
+
+**示例 3:**
+
+```
+输入: pattern = "aaaa", str = "dog cat cat dog"
+输出: false
+```
+
+**示例 4:**
+
+```
+输入: pattern = "abba", str = "dog dog dog dog"
+输出: false
+```
+
+**说明:**
+你可以假设 `pattern` 只包含小写字母， `str` 包含了由单个空格分隔的小写字母。  
+
+题目有点难看懂。就是pattern里相同字母对应s的单词必须相同。另外不同单词对应s的单词必须不同。搞两个map
+
+~~~cpp
+class Solution
+{
+public:
+    bool wordPattern(string pattern, string s)
+    {
+        vector<string> words;
+        int prepos = 0;
+        for (int i = 0; i < s.length(); ++i)
+        {
+            if (s[i] == ' ')
+            {
+                words.push_back(s.substr(prepos, i - prepos));
+                prepos = i + 1;
+            }
+        }
+        words.push_back(s.substr(prepos, s.length()));
+        if (words.size() != pattern.length())
+        {
+            return false;
+        }
+        unordered_map<char, string> m1;
+        unordered_map<string, char> m2;
+        int j = 0;
+        for (auto i : pattern)
+        {
+            if (m1.find(i) == m1.end())
+            {
+                if (m2.find(words[j]) == m2.end()||m2[words[j]] == i)
+                {
+                    m2[words[j]] = i;
+                    m1[i] = words[j];
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (m1[i] != words[j])
+                {
+                    return false;
+                }
+            }
+            j++;
+        }
+        return true;
+    }
+};
+~~~
+
+击败100%
+
+### Q[714买卖股票的最佳时机含手续费](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
+
+难度中等315
+
+给定一个整数数组 `prices`，其中第 `i` 个元素代表了第 `i` 天的股票价格 ；非负整数 `fee` 代表了交易股票的手续费用。
+
+你可以无限次地完成交易，但是你每笔交易都需要付手续费。如果你已经购买了一个股票，在卖出它之前你就不能再继续购买股票了。
+
+返回获得利润的最大值。
+
+**注意：**这里的一笔交易指买入持有并卖出股票的整个过程，每笔交易你只需要为支付一次手续费。
+
+**示例 1:**
+
+```
+输入: prices = [1, 3, 2, 8, 4, 9], fee = 2
+输出: 8
+解释: 能够达到的最大利润:  
+在此处买入 prices[0] = 1
+在此处卖出 prices[3] = 8
+在此处买入 prices[4] = 4
+在此处卖出 prices[5] = 9
+总利润: ((8 - 1) - 2) + ((9 - 4) - 2) = 8.
+```
+
+**注意:**
+
+- `0 < prices.length <= 50000`.
+- `0 < prices[i] < 50000`.
+- `0 <= fee < 50000`.
+
+我还记得没有手续费的dp怎么写。加上手续费也没啥区别
+
+~~~cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        vector<vector<int>>dp(prices.size(),vector<int>(2));
+        dp[0][0] = 0;
+        dp[0][1] = -prices[0]-fee;
+        for(int i = 1; i < prices.size(); i++) {
+            dp[i][0] = max(dp[i-1][0],dp[i-1][1]+prices[i]);
+            dp[i][1] = max(dp[i-1][1],dp[i-1][0]-prices[i]-fee);
+        }
+        return max(dp[prices.size()-1][0],dp[prices.size()-1][1]);
+    }
+};
+~~~
+
+击败21%
+
+### Q[389找不同](https://leetcode-cn.com/problems/find-the-difference/)
+
+难度简单180
+
+给定两个字符串 ***s*** 和 ***t***，它们只包含小写字母。
+
+字符串 ***t\*** 由字符串 ***s\*** 随机重排，然后在随机位置添加一个字母。
+
+请找出在 ***t*** 中被添加的字母。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "abcd", t = "abcde"
+输出："e"
+解释：'e' 是那个被添加的字母。
+```
+
+**示例 2：**
+
+```
+输入：s = "", t = "y"
+输出："y"
+```
+
+**示例 3：**
+
+```
+输入：s = "a", t = "aa"
+输出："a"
+```
+
+**示例 4：**
+
+```
+输入：s = "ae", t = "aea"
+输出："a"
+```
+
+ 
+
+**提示：**
+
+- `0 <= s.length <= 1000`
+- `t.length == s.length + 1`
+- `s` 和 `t` 只包含小写字母
+
+~~~cpp
+class Solution {
+public:
+    char findTheDifference(string s, string t) {
+        unordered_map<char,int> m;
+        for(auto ch:s){
+            m[ch]++;
+        }
+        for(auto ch:t){
+            if(m[ch]<=0)
+                return ch;
+            m[ch]--;
+        }
+        return -1;
+    }
+};
+~~~
+
+击败35%
+
+### Q[746使用最小花费爬楼梯](https://leetcode-cn.com/problems/min-cost-climbing-stairs/)
+
+难度简单425
+
+数组的每个索引作为一个阶梯，第 `i`个阶梯对应着一个非负数的体力花费值 `cost[i]`(索引从0开始)。
+
+每当你爬上一个阶梯你都要花费对应的体力花费值，然后你可以选择继续爬一个阶梯或者爬两个阶梯。
+
+您需要找到达到楼层顶部的最低花费。在开始时，你可以选择从索引为 0 或 1 的元素作为初始阶梯。
+
+**示例 1:**
+
+```
+输入: cost = [10, 15, 20]
+输出: 15
+解释: 最低花费是从cost[1]开始，然后走两步即可到阶梯顶，一共花费15。
+```
+
+ **示例 2:**
+
+```
+输入: cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
+输出: 6
+解释: 最低花费方式是从cost[0]开始，逐个经过那些1，跳过cost[3]，一共花费6。
+```
+
+**注意：**
+
+1. `cost` 的长度将会在 `[2, 1000]`。
+2. 每一个 `cost[i]` 将会是一个Integer类型，范围为 `[0, 999]`。
+
+~~~cpp
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        if(cost.size()<2)
+            return 0;
+        vector<int>dp(cost.size());
+        int n = cost.size();
+        for(int i = 2; i < n; i++){
+            dp[i] = min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2]);
+        }
+        return min(dp[n-1]+cost[n-1],dp[n-2]+cost[n-2]);
+    }
+};
+~~~
+
+击败62%
+
+### Q[135分发糖果](https://leetcode-cn.com/problems/candy/)
+
+难度困难321
+
+老师想给孩子们分发糖果，有 *N* 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。
+
+你需要按照以下要求，帮助老师给这些孩子分发糖果：
+
+- 每个孩子至少分配到 1 个糖果。
+- 相邻的孩子中，评分高的孩子必须获得更多的糖果。
+
+那么这样下来，老师至少需要准备多少颗糖果呢？
+
+**示例 1:**
+
+```
+输入: [1,0,2]
+输出: 5
+解释: 你可以分别给这三个孩子分发 2、1、2 颗糖果。
+```
+
+**示例 2:**
+
+```
+输入: [1,2,2]
+输出: 4
+解释: 你可以分别给这三个孩子分发 1、2、1 颗糖果。
+     第三个孩子只得到 1 颗糖果，这已满足上述两个条件。
+```
+
+从左到右遍历一遍，再从右向左遍历一遍，取最大值
+
+~~~cpp
+class Solution {
+public:
+    int candy(vector<int>& ratings) {
+        vector<int> c(ratings.size());
+        if(ratings.size()<1)
+            return 0;
+        c[0] = 1;
+        for(int i = 1; i < ratings.size(); ++i) {
+            if(ratings[i]> ratings[i-1])
+                c[i] = c[i-1] + 1;
+            else 
+                c[i] = 1;
+        }
+        for(int i = ratings.size()-2; i>=0 ; --i) {
+            if(ratings[i]> ratings[i+1])
+                c[i] = max(c[i+1] + 1,c[i]);
+        }
+        int amount = 0;
+        for(auto i:c){
+            amount += i;
+        }
+        return amount;
+    }
+};
+~~~
+
+击败82%
+
+### Q[455分发饼干](https://leetcode-cn.com/problems/assign-cookies/)
+
+难度简单235
+
+假设你是一位很棒的家长，想要给你的孩子们一些小饼干。但是，每个孩子最多只能给一块饼干。
+
+对每个孩子 `i`，都有一个胃口值 `g[i]`，这是能让孩子们满足胃口的饼干的最小尺寸；并且每块饼干 `j`，都有一个尺寸 `s[j]` 。如果 `s[j] >= g[i]`，我们可以将这个饼干 `j` 分配给孩子 `i` ，这个孩子会得到满足。你的目标是尽可能满足越多数量的孩子，并输出这个最大数值。
+
+**示例 1:**
+
+```
+输入: g = [1,2,3], s = [1,1]
+输出: 1
+解释: 
+你有三个孩子和两块小饼干，3个孩子的胃口值分别是：1,2,3。
+虽然你有两块小饼干，由于他们的尺寸都是1，你只能让胃口值是1的孩子满足。
+所以你应该输出1。
+```
+
+**示例 2:**
+
+```
+输入: g = [1,2], s = [1,2,3]
+输出: 2
+解释: 
+你有两个孩子和三块小饼干，2个孩子的胃口值分别是1,2。
+你拥有的饼干数量和尺寸都足以让所有孩子满足。
+所以你应该输出2.
+```
+
+ 
+
+**提示：**
+
+- `1 <= g.length <= 3 * 104`
+- `0 <= s.length <= 3 * 104`
+- `1 <= g[i], s[j] <= 231 - 1`
+
+排个序，简单遍历
+
+~~~cpp
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        int i = 0, j = 0;
+        while(i<g.size() && j<s.size()) {
+            if(g[i]<=s[j]) {
+                i++;
+                j++;
+            }
+            else{
+                j++;
+            }
+        }
+        return i;
+    }
+};
+~~~
+
+击败97%
