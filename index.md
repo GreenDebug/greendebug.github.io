@@ -18,6 +18,8 @@
 
 [csapp](_posts/2021-1-9-csapp.md)
 
+[python自动化](_posts/2021-2-22-python.md)
+
 联系方式 csjue_sz@foxmail.com
 
 知乎 GitHub：csjue
