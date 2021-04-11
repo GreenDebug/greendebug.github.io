@@ -21,6 +21,8 @@
 
 
 
-
-
-<script type="text/javascript" src="//rf.revolvermaps.com/0/0/8.js?i=5pl7ioj30nj&amp;m=0&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=33" async="async"></script>
+```
+<script src="https://cdn1.lncld.net/static/js/av-mini-0.6.10.js"></script>
+    <script src="http://jerry-cdn.b0.upaiyun.com/hit-kounter/hit-kounter-lc-0.2.0.js"></script>
+    <span data-hk-page="current"> - </span>
+```
