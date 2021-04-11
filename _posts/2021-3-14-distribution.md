@@ -360,6 +360,8 @@ class MyTask implements Runnable {
 $ mvn clean package
 #在target/classes下运行
 $ java com.xdu.App
+
+mvn exec:java -Dexec.mainClass="dc.sockettest.EchoServer"
 ```
 
 maven报错 不再支持原选项5
@@ -375,4 +377,22 @@ maven报错 不再支持原选项5
 </properties>
 
 ```
+
+
+
+事件驱动技术
+
+事件驱动器（选择器）同时监视多个Channel（Socket）
+
+# RPC
+
+远程过程调用PRC
+
+应用程序可以像调用本地节点上的过程(子程序) 那样去调用一个远程节点上的子程序。
+
+
+
+远程方法调用RMI
+
+![image-20210330210454939](https://gitee.com/csjuesz/image/raw/master/20210330210502.png)
 

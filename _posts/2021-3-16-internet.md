@@ -1,69 +1,514 @@
-# 2
-
-## 网络端点
-
-创建网络端点
+# 头文件大全
 
 ```c
-int sockfd=socket(AF_INET,
-		SOCK_STREAM,
-		0);
-if(sockfd==-1){		
-	printf("can't create socket\n");		
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+```
+
+
+
+```mermaid
+graph LR
+socket --> bind --> listen --> accept --> read --> write --> close
+```
+
+server
+
+```mermaid
+graph LR
+socket --> connet --> write --> read --> close
+```
+
+client
+
+
+
+
+
+# socket
+
+```c
+	//1.创建网络端点
+	sockfd=socket(AF_INET,SOCK_STREAM,0);
+	if(sockfd==-1){
+		printf("can't create socket\n");
+		exit(1);
+	}
+```
+
+int socket(int domain, int type, int protocol);
+
+domain--协议族 AF_UNIX AF_INET AF_ISO
+
+ type--socket类型 SOCK_STREAM SOCK_DGRAM SOCK_RAW
+
+protocol 0默认
+
+
+
+# 地址
+
+通用 socketaddr Linux sockaddr_in
+
+```c
+struct sockaddr_in
+{
+  short int sin_family;  //地址类型：AF_XXX
+  unsigned short int sin_port;
+  struct in_addr sin_addr;
+  unsigned char - - pad[- - SOCKET_SIZE__-sizeof(short int)-
+						sizeof(unsigned short int)-sizeof(struct in_addr)];
+}
+
+struct in_addr
+{
+  _u32 s_addr;		//uint
+}
+
+
+#define PORT 3000
+
+srvaddr.sin_family=AF_INET;
+srvaddr.sin_port=htons(PORT);
+srvaddr.sin_addr.s_addr=htonl(INADDR_ANY);
+
+//INADDR_ANY 接受任何地址 0
+```
+
+htonl host to network long
+
+htons host to network short
+
+ntohs network to host short
+
+char * inet_ntoa(struct in_addr in);网络二进制数字转换为网络地址
+
+int inet_aton(const char * cp, struct in_addr *inp); cp的字符串 网络地址转网络二进制，存在inp
+
+atoi字符串转数字
+
+struct hostent *gethostbyname(const char *hostname); 域名/主机名转ip
+
+bzero置0
+
+
+
+# bind
+
+```c
+//2.绑定服务器地址和端口
+	if(bind(sockfd,(struct sockaddr *)&srvaddr,sizeof(struct sockaddr))==-1){
+		printf("bind error\n");
+		exit(1);
+	}
+```
+
+int bind(int sockfd, sockaddr* myaddr, int addrlen);
+
+
+
+# connect
+
+```c
+	//2.连接服务器
+	if(connect(sockfd,(struct sockaddr *)&srvaddr,sizeof(struct sockaddr))==-1){
+		printf("connect error\n");
+		exit(1);
+	}
+```
+
+int connect(int sockfd, sockaddr* servaddr, int addrlen);
+
+
+
+# listen
+
+```c
+	//3. 监听端口
+	//BACKLOG 请求队列的最大长度
+	if(listen(sockfd,BACKLOG)==-1){
+		printf("listen error\n");
+		exit(1);
+	}
+```
+
+int listen(int sockfd, int backlog);
+
+backlog请求队列的最大长度
+
+
+
+# accept
+
+```c
+		//4.接受客户端连接
+		sin_size=sizeof(struct sockaddr_in);
+		if((new_fd=accept(sockfd,(struct sockaddr *)&clientaddr,&sin_size))==-1){
+			printf("accept error\n");
+			continue;
+		}
+```
+
+int accept(int sockfd, struct sockaddr* addr,int* addrlen); 
+
+addr、addrelen存放结果，addr客户机地址，addrlen客户机地址长度
+
+
+
+# read
+
+```c
+		//5.接收请求
+		getchar();		
+		nbytes=read(new_fd,buf,MAXDATASIZE);
+		buf[nbytes]='\0';
+		printf("client:%s\n",buf);
+```
+
+int read(int fd,char* buf,int len);
+
+
+
+# write
+
+```c
+		//6.回送响应
+		sprintf(buf,"wellcome!");
+		write(new_fd,buf,strlen(buf));
+```
+
+int write(int fd,char* buf,int len);
+
+
+
+# close 
+
+```c
+	close(sockfd);
+```
+
+int close(int sockfd);
+
+
+
+# host ip
+
+struct hostent* gethostbyname(const char *name)
+
+查询域名对应的IP
+
+```
+struct hostent{
+	char	 h_name;	/*主机正式名称*/
+	char	**h_aliases;	/*别名列表，以NULL结束*/
+	int 	h_addrtype;	/*主机地址类型：AF_INET*/
+	int 	h_length;	/*主机地址长度：4字节32位*/
+	char 	**h_addr_list;	/*主机网络地址列表，以NULL结束*/
+}
+#define 	h_addr 	h_addr_list[0]; //主机的第一个网络地址
+
+struct hostent *he;
+he=gethostbyname(argv[1]);
+```
+
+
+
+struct hostent *gethostbyaddr(const char *addr,size_t len,int family); 
+
+查询IP对应的域名
+
+```
+	struct in_addr addr;
+	if(inet_aton(argv[1],&addr) != 0)
+	{
+		he=gethostbyaddr((char *)&addr,4,AF_INET);
+		if(he!=NULL)
+			printf("h_name:%s\n",he->h_name);
+		else
+			printf("gethostbyaddr error:%s\n",hstrerror(h_errno));
+	}
+```
+
+# 多路复用
+
+接受请求
+
+
+
+```
+			fd_set rdset;
+			FD_ZERO(&rdset);
+			if(!fd1_finished)
+				FD_SET(sockfd1,&rdset);
+			if(!fd2_finished)
+				FD_SET(sockfd2,&rdset);
+```
+
+FD_ZERO(fd_set *fdset)－清空描述符集合 
+
+FD_SET(int fd,fd_set *fdset)－将一个描述符添加到描述符集合 
+
+
+
+```
+struct timeval{
+	long tv_sec;//秒
+	long tv_usec;//毫秒
+} 
+
+
+struct timeval tv;
+tv.tv_sec=0;
+tv.tv_usec=100;
+
+int n=select(max(sockfd1,sockfd2)+1,&rdset,NULL,NULL,&tv);
+```
+
+int select(int maxfd,fd_set *rdset,fd_set *wrest,fd_set *exset,struct timeval *timeout);
+
+检查多个文件描述符（socket描述符）是否就绪，当某一个描述符就绪（可读、可写或发生异常）时函数返回。可以实现输入输出多路复用
+
+返回值：有描述符就绪则返回就绪的描述符个数；超时时间内没有描述符就绪返回0；执行失败返回-1。
+
+maxfd－需要测试的描述符的最大值，实际测试的描述符从0－maxfd-1 
+
+rdset－需要测试是否可**读**的描述符集合（包括处于listen状态的socket接收到连接请求） 
+
+pwrset－需要测试是否可**写**的描述符集合（包括以非阻塞方式调用connect是否成功） 
+
+pexset－需要测试是否**异常**的描述符集合（包括接收带外数据的socket有带外数据到达） 
+
+timeout－指定测试超时的时间 
+
+
+
+
+
+```
+if(!fd1_finished && FD_ISSET(sockfd1,&rdset)){
+	if((nbytes=read(sockfd1,buf,MAXDATASIZE))==-1){
+		printf("read error\n");
+		exit(1);
+	}
+	buf[nbytes]='\0';
+	printf("(%ld) server1 respons:%s\n",endtime.tv_sec,buf);
+	fd1_finished=1;
+}
+```
+
+检测是否就绪
+
+FD_ISSET(int fd,fd_set *fdset)－检测一个描述符是否就绪 
+
+# fork
+
+```c
+//typedef int pid_t;
+
+pid_t child_pid=fork();
+
+if(child_pid==0){
+	//子进程
+}
+
+else if(child_pid>0){
+		//父进程程序
+		wait(&child_pid);
+}
+else {
+    //失败
+}
+```
+
+僵尸进程（ zombie ） 
+
+子进程终止时如果父进程存在且未处理SIGCHLD信号则子进程变为僵尸进程
+
+僵尸进程占据系统进程表项
+
+exec
+
+```
+execlp(argv[1],s,NULL);
+```
+
+
+
+清除僵尸进程的方法1
+
+忽略SIGCHLD信号(信号处理函数为SIG_IGN)，系统将清除子进程的进程表项，这种方法依赖于Linux版本的实现
+
+
+
+信号
+
+sigaction
+
+```c
+struct sigaction {                  
+	void (*sa_handler)(int);  			   //函数指针
+	void (*sa_sigaction)(int, siginfo_t *, void *); //函数指针
+	sigset_t sa_mask; 		//屏蔽的信号集
+	int sa_flags;			//标志，SA_SIGINFO
+	void (*sa_restorer)(void); 	//已废弃
+}
+
+
+act.sa_handler=SIG_IGN; //忽略信号时设置为SIG_IGN
+//使用默认动作时设置为SIG_DFL
+act.sa_handler = my_op;
+static void my_op(int signum)
+{
+	printf("receive signal %d \n", signum);
+}
+
+
+sigemptyset(&act.sa_mask);//清空信号集set 
+
+act.sa_flags=0;//?
+//SA_SIGINFO 设此标志后参数才可以传递给信号处理函数
+
+if(sigaction(SIGCHLD,&act,&oldact)<0){
+    //SIGCHLD，被终止进程的PID 
+	printf("sigaction error.");
 	exit(1);
 }
 ```
 
-int socket (int family, int type, int protocol)
-family
+SA_SIGINFO
 
-![image-20210316113230428](https://gitee.com/csjuesz/image/raw/master/20210316113237.png)
 
-type
 
-![image-20210316113315758](https://gitee.com/csjuesz/image/raw/master/20210316113315.png)
+int sigaction(int signum, const struct sigaction *act,struct sigaction *oldact); 
 
-protocl通常是0，表示默认协议
+signum—指定需要捕获的信号,SIGKILL和SIGSTOP不能指定
 
-AF_INET SOCK_STREAM默认TCP
+act—指定新动作
 
-AF_INET SOCK_DGRAM默认UDP
+oldact—存储旧动作
 
-SOCK_STREAM意识不到报文界限，也许不会返回所有字节，需要若干次调用
 
-SOCK_SEQPACKET 与STREAM类似，基于报文
 
-SOCK_RAW直接访问网络层
+unsigned int alarm(unsigned int seconds);
 
-![image-20210316113859016](https://gitee.com/csjuesz/image/raw/master/20210316113859.png)
+在指定的时间(seconds秒)后，将向进程自身发送SIGALRM信号 
 
-可以采用shutdown来禁止套接字上的输入/输出
+# 信号
 
-int shutdown(int sockfd, int how);
+每个信号有 阻塞block 未决pending 函数指针handler
 
-how SHUT_RD关闭读，SHUT_WR关闭写，SHUT_RDWR同时关闭
+|         | block | pending | handler |
+| ------- | ----- | ------- | ------- |
+| SIGUP   | 0     | 0       | SIG DFL |
+| SIGINT  | 1     | 1       | SIG IGN |
+| SIGQUIT | 1     | 0       |         |
 
-shutdown允许套接字处于不活跃状态，close只有最后一个活动引用关闭才释放
 
-TCP/IP采用大端字节序，Linux小端字节序
 
-```c
-uint32_t htonl(uint32_t hostint32);//网络字节序 32位整数
-uint16_t htons(uint16_t hostint16);//网络字节序 16位整数
-uint32_t ntohl(uint32_t netint32); //主机字节序 32位整数
-uint16_t ntohs(uint16_t netint16);
+sigget_t信号集 1-32号信号
+
+int sigemptyset(sigset_t *set); 清零
+
+int sigfillset(sigset_t *set); 置为1
+
+int sigaddset(sigset_t *set,int signum); 添加
+
+sigdelset(sigset_t *set,int signum); 删除
+
+int sigismember(const sigset_t *set,int signum); 是否含有
+
+
+
+屏蔽
+
+int sigprocmask( int how, sigset_t *set, sigset_t *oldset);
+
+how：
+
+1. SIG_BLOCK set希望添加的信号
+2. SIG_UNBLOCK 希望解除
+3. SIG_SETMASK 屏蔽字为set指向
+
+set位非空，按照how更改**当前进程**
+
+oldset非空，当前进程写入oldset
+
+
+
+int sigpending(sigset_t *set)
+
+读当前进程未决信号集，通过set传出
+
+
+
+
+
+捕捉
+
+
+
+sighandler_t signal(int signum,sighandler_t handler); 
+
+signum捕捉信号序号
+
+
+
+int sigaction(int signum, const struct sigaction *act,struct sigaction *oldact); 
+
+读取和修改与指定信号相关联的处理动作。
+
+```
+struct sigaction {
+               void     (*sa_handler)(int);//信号的处理动作
+               void     (*sa_sigaction)(int, siginfo_t *, void *);
+               sigset_t   sa_mask;//当正在执行信号处理动作时，希望屏蔽的信号。当处理结束后，自动解除屏蔽
+               int        sa_flags;//一般为0
+               void     (*sa_restorer)(void);
+           };
 ```
 
-h表示host n表示network l表示long s表示short
 
-地址格式
 
-地址强制转换为sockaddr表示
+int pause(void);
+
+进程挂起等到有信号
+
+
+
+sigaction
+
+接受
 
 ```c
-struct sockaddr {
-    sa_family_t sa_family;
-    char sa_data[];
-}
+    struct sigaction act,oldact;
+    //初始化
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = SA_SIGINFO;
+    act.sa_handler = new_op;
+
+	int sig;
+	//捕捉
+    if (sigaction(sig, &act, &oldact) < 0)
+    {
+        printf("install sigal error\n");
+    }
+```
+
+发送
+
+```c
+    union sigval mysigval;
+
+	mysigval.sival_int = 8; //不代表具体含义，只用于说明问题
+
+    if (sigqueue(pid, signum, mysigval) == -1)
+        printf("send error\n");
 ```
 
