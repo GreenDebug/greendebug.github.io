@@ -1,4 +1,4 @@
-# 头文件大全
+# SA_SIGINFO头文件大全
 
 ```c
 #include <stdio.h>
@@ -386,6 +386,8 @@ SA_SIGINFO
 
 
 
+处理信号
+
 int sigaction(int signum, const struct sigaction *act,struct sigaction *oldact); 
 
 signum—指定需要捕获的信号,SIGKILL和SIGSTOP不能指定
@@ -511,4 +513,82 @@ sigaction
     if (sigqueue(pid, signum, mysigval) == -1)
         printf("send error\n");
 ```
+
+
+
+# 并发服务器
+
+清除僵尸
+
+```
+	if(strcmp(argv[2],"-c")==0)
+	{
+		cout<<"clear zombie"<<endl;
+		struct sigaction act,oldact;
+	
+		act.sa_handler=SIG_IGN;
+		sigemptyset(&act.sa_mask);
+		act.sa_flags=0;
+		if(sigaction(SIGCHLD,&act,&oldact)<0)
+		{
+			cout<<"sigaction error.";
+			exit(1);
+		}
+	}
+```
+
+复用
+
+```
+
+	if(strcmp(argv[3],"-r")==0)
+	{
+		int on=1;
+		setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on));
+		cout<<"reuse addr"<<endl;
+	}
+```
+
+int setsockopt( int socket, int level, int option_name,const void *option_value, size_t option_len);  
+
+第二个参数level是被设置的选项的级别，套接字级别：SOL_SOCKET。
+
+第三个参数设置选项
+
+accpet
+
+```
+	for(;;){
+		//4.接受客户端连接
+		sin_size=sizeof(struct sockaddr_in);
+		if((new_fd=accept(sockfd,(struct sockaddr *)&clientaddr,&sin_size))==-1){
+			cout<<"accept error"<<endl;
+			continue;
+		}
+		
+		pid_t pid=fork();
+		
+		if(pid==0){
+			//子进程完成客户端处理
+			cout<<"client addr:"<<inet_ntoa(clientaddr.sin_addr)
+				<<", "<<ntohs(clientaddr.sin_port)<<endl;
+			//5.接收请求
+			nbytes=read(new_fd,buf,RECVSIZE);
+			
+			write(new_fd,(char*)&m,sizeof(int));
+			
+			sleep(60)
+			exit(0);
+		}
+		else if(pid>0){
+			//父进程继续接受其他客户端连接
+			close(new_fd);
+		}
+		else{
+			cout<<"create child process error."<<endl;		
+		}
+	}
+```
+
+# 守护
 
