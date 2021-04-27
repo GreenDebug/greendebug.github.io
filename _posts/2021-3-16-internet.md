@@ -592,3 +592,82 @@ accpet
 
 # 守护
 
+
+
+# 管道
+
+单向、父子、只读/写
+
+```
+	int pipe1[2],pipe2[2]; //[0]读 [1]写
+	char pstr[]="parent data";
+	char cstr[]="child data";
+	char buf[100];
+	
+	if(pipe(pipe1)<0||pipe(pipe2)<0)
+		cout<<"pipe error"<<endl;
+	pid_t pid=fork();
+	if(pid>0)
+	{
+		//子进程,用管道1写数据,管道2读数据
+		close(pipe1[0]);//关闭pipe1读端口
+		close(pipe2[1]);//关闭pipe2写端口
+		write(pipe1[1],pstr,sizeof(pstr));
+		if(read(pipe2[0],buf,100)>0)
+			cout<<"parent received:"<<buf<<endl;
+	}	
+	else if(pid==0)
+	{
+		//父进程,用管道1读数据,管道2写数据
+		close(pipe1[1]);//关闭pipe1写端口
+		close(pipe2[0]);//关闭pipe2读端口
+		if(read(pipe1[0],buf,100)>0)
+			cout<<"child received:"<<buf<<endl;
+		write(pipe2[1],cstr,sizeof(cstr));
+		exit(0);
+	}
+	else
+		cout<<"fork error"<<endl;
+	return 0;
+```
+
+
+
+# 命名管道
+
+以文件存在
+
+可以无父子关系
+
+阻塞模式
+
+int mkfifo ( char *pathname, mode_t mode );
+
+```c
+写进程 mkfifo open写堵塞 write
+读进程 open读堵塞  read
+```
+
+# Unix socket
+
+双向通信，同一台机器，不是真正网络协议
+
+地址
+
+```c
+struct socketaddr_un{
+	short int sun_family;	//AF_UNIX
+	char sun_path[104];	//文件名的绝对路径
+}； 
+```
+
+命名unix socket类似socket
+
+非命unix socket：socketpair 父子进程
+
+# 信号灯
+
+内核信号灯
+
+POSXI 无名信号灯
+
