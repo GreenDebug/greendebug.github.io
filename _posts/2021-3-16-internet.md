@@ -671,3 +671,70 @@ struct socketaddr_un{
 
 POSXI 无名信号灯
 
+
+
+# 共享内存
+
+ftok根据文件名建立ipc通信
+
+shmget创建
+
+shmat启动
+
+shmdt分离，当前进程不使用
+
+# IO模型
+
+堵塞式IO
+
+超时控制
+
+1. 调用alarm
+
+2. 设置socket选项
+
+​	设置SO_RCVTIMEO和SO_SNDTIMEO选项
+
+​	设置了这两个选项之后，所有的读写操作可以保证在超时范围内返回
+
+​	只需设置一次选项，对以后的读写操作均有效
+
+​	不适用于accept和connect
+
+
+
+非堵塞IO:长时间占用CPU
+
+函数fcntl
+
+int flags;
+
+flag=fcntl(sockfd,F_GETFL,0);
+
+fcntl(sockfd,F_SETFL,flag|O_NONBLOCK);
+
+函数ioctl
+
+int on=1;
+
+ioctl(sockfd,FIONBIO,&on);
+
+
+
+多路复用
+
+接受
+
+默认接收下限为1（TCP为1字节，UDP为1个数据报），可以用SO_RCVLOWAT修改默认值
+
+发送
+
+TCP默认下限为2048字节，可以用SO_SNDLOWAT修改默认值
+
+UDP协议没有实际的发送缓冲区，其发送缓冲区空间总是大于发送下限，所以UDP socket总是写就绪
+
+
+
+信号驱动通信
+
+更适用于UDP协议
