@@ -14,6 +14,9 @@
 10. [分布式](_posts/2021-3-14-distribution.md)
 11. [internet](_posts/2021-3-16-internet.md)
 12. [sicp](_posts/2021-4-15-sicp.md)
+13. [hdfs](_posts\2021-5-25-hdfs.md)
+14. [go](_posts\2021-9-21-go.md)
+15. [k8s](_posts\2021-11-1-k8s.md)
 
 联系方式 csjue_sz@foxmail.com
 

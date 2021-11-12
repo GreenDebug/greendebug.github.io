@@ -1,6 +1,4 @@
-# 概述
-
-## 分布式系统定义
+# 分布式系统定义
 
 由多个通过**网络互联**的独立自治的**计算节点**组成。这些计算节点基于**消息传递机制**进行**互相协作**，已完成共同的目标
 
@@ -14,30 +12,30 @@
 
 ![image-20210314160223797](https://gitee.com/csjuesz/image/raw/master/20210314160230.png)
 
-节点没有公共状态、必须通过消息写作。通信复杂度是影响效率重要因素。设计时必须应对局部失效、消息延迟/丢失错误
+节点没有公共状态、必须通过消息协作。通信复杂度是影响效率重要因素。设计时必须应对局部失效、消息延迟/丢失错误
 
 ![image-20210314160405706](https://gitee.com/csjuesz/image/raw/master/20210314160405.png)
 
 不同层次的并行运算
 
-指令集并行、CPU多核并行、多CPU并行（一致性/非一致性）、GPU并行、多机并行（消息传递）
+指令集并行、CPU多核并行、多CPU并行（一致性/非一致性内存访问）、GPU并行、多机并行（消息传递）
 
-## 目的
+# 目的
 
 1. 提高计算能力
 2. 提高存储能力
 3. 提高网络吞吐能力
 4. 提高可靠性
 5. 提高安全性
-6. 提高可靠性
+6. 提高可用性
 7. 实现资源共享
 8. 实现跨越时空的协同服务
 
 可扩展性（垂直、水平）
 
-容错性
+容错性：可用性、可恢复性
 
-透明性
+透明性：访问、节点、迁移、复制、并发、伸缩、错误、性能、移动
 
 开发性
 
@@ -45,11 +43,11 @@
 
 可维护性
 
-## 挑战
+# 挑战
 
 异构性：软硬件差异
 
-自治
+自治：独立时指、内部
 
 局部视图
 
@@ -65,7 +63,7 @@
 
 服务质量保证
 
-### 节点染色
+# 节点染色
 
 ```mermaid
 graph LR;
@@ -84,311 +82,25 @@ Repeat forever：
 
   $Let\ c \leftarrow min(\{1,2,3\}-M)$     
 
-### 数据库备份
+# 数据库备份
 
 分布式一致性：Paxos协议、Raft协议
 
-
-
-# Java  Socket
-
-## 线程
-
-线程：有独立上下文，独立CPU寄存器，共享地址，主函数结束生命结束
-
-Java线程 Thread类重载run函数
-
-```java
-class MyThread extends Thread{
-    //输出1-ticket
-    private int ticket;
-
-    MyThread(int t){
-        ticket = t;
-    }
-
-    public void run(){
-        for(int i=0; i < ticket; i++){
-            System.out.println(this.getName()+" sold ticket"+ i);
-        }
-    }
-}
-```
-
-```java
-public class ThreadTest{
-    //主函数
-    public static void main(String[] args){
-        MyThread t1 = new MyThread(10);
-        MyThread t2 = new MyThread(15);
-        MyThread t3 = new MyThread(30);
-        t1.start();
-        t2.start();
-        t3.start();
-    }
-}
-```
-
-## Socket服务器
-
-Java输入输出流
-
-stream字节、reader/writer字符、buffer缓冲
-
-![image-20210314213050690](https://gitee.com/csjuesz/image/raw/master/20210314213050.png)
-
-```java
-import java.io.*;
-import java.net.*;
-
-public class ServerThread extends Thread {
-    Socket socket = null;
-
-    public ServerThread(Socket socket) {
-        this.socket = socket;
-    }
-	//读信息，打印到命令行，将信息发回去
-    public void run() {
-        InputStream is = null;
-        InputStreamReader isr = null;
-        BufferedReader br = null;
-        OutputStream os = null;
-        PrintWriter pw = null;
-        try {
-            is = socket.getInputStream();
-            isr = new InputStreamReader(is);
-            br = new BufferedReader(isr);
-            os = socket.getOutputStream();
-            pw = new PrintWriter(os);
-            String info = null;
-            while ((info = br.readLine()) != null) {
-                System.out.println("Message from client:" + info);
-                System.out.println(info);
-                pw.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (pw != null)
-                    pw.close();
-                if (os != null)
-                    os.close();
-                if (br != null)
-                    br.close();
-                if (isr != null)
-                    isr.close();
-                if (is != null)
-                    is.close();
-                if (socket != null)
-                    socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-}
-
-```
-
-主函数
-
-```java
-import java.io.*;
-import java.net.*;
-
-public class MultiThreadEchoServer {
-    public static void main(String[] args) throws Exception{
-        //开始监听
-        ServerSocket listenSocket = new ServerSocket(8189);
-        Socket socket = null;
-        int count = 0;
-        System.out.println("Server listening at 8189");
-
-        while(true){
-            //取出一个连接记录
-            socket = listenSocket.accept();
-            count++;
-            System.out.println("The total number of clients is "+count+".");
-            ServerThread serverThread = new ServerThread(socket);
-            serverThread.start();
-        }
-    }
-}
-```
-
-## Socket 客户端
-
-由于老师给的实例没有发送，没法测试服务器是否正常工作，写了一个很简单的客户端
-
-```java
-import java.io.*;
-import java.net.*;
-
-public class SendThread extends Thread {
-    Socket socket = null;
-
-    public SendThread(Socket socket) {
-        this.socket = socket;
-    }
-
-    public void run() {
-        OutputStream os = null;
-        PrintWriter pw = null;
-        try {
-            os = socket.getOutputStream();
-            pw = new PrintWriter(os);
-            pw.println("hello");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (pw != null)
-                    pw.close();
-                if (os != null)
-                    os.close();
-                if (socket != null)
-                    socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        int threadnum = 10;
-        for (int i = 0; i < threadnum; ++i) {
-            Socket socket = new Socket("localhost", 8190);
-            System.out.println("Server send to 8190");
-            SendThread serverThread = new SendThread(socket);
-            serverThread.start();
-        }
-    }
-}
-```
-
-## 线程池
-
-ThreadPoolExecutor 线程池
-
- public ThreadPoolExecutor(int corePoolSize, 
-
-​            int maximumPoolSize,
-
-​            long keepAliveTime,
-
-​            TimeUnit unit,
-
-​            BlockingQueue<Runnable> workQueue,
-
-​            ThreadFactory threadFactory,
-
-​            RejectedExecutionHandler handler)
-
-参数说明
-
-（1）corePoolSize 核心线程数量
-
-即使没有任务执行，核心线程也会一直存活
-
-线程数小于核心线程时，即使有空闲线程，线程池也会创建新线程执行任务
-
-设置allowCoreThreadTimeout=true时，核心线程会超时关闭
-
-（2）maximumPoolSize 最大线程数
-
-当所有核心线程都在执行任务，且任务队列已满时，线程池会创建新线程执行任务。
-
-当线程数=maxPoolSize,且任务队列已满，此时添加任务时会触发RejectedExecutionHandler进行处理。
-
-（3）keepAliveTime TimeUnit 线程空闲时间
-
-如果线程数>corePoolSize，且有线程空闲时间达到keepAliveTime时，线程会销毁，直到线程数量=corePoolSize
-
-如果设置allowCoreThreadTimeout=true时，核心线程执行完任务也会销毁直到数量=0
-
-```java
-import java.util.concurrent.*;
-
-public class ThreadPoolTest {
-    //5个核心线程，10最大线程
-    public static void main(String[] args){
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(5));
-        //TimeUnit.MILLISECONDES颗粒度
-        for(int i = 0; i < 15; i++){
-            MyTask myTask = new MyTask(i);
-            executor.execute(myTask);
-            System.out.println("The number of threads in the ThreadPool:"+executor.getPoolSize());
-            System.out.println("The number of tasks in the Queue:"+executor.getQueue().size());
-            System.out.println("The number of tasks completed:"+executor.getCompletedTaskCount());
-        }
-        executor.shutdown();
-        
-    }
-}
-
-class MyTask implements Runnable {
-    private int taskNum;
-    public MyTask(int num){
-        this.taskNum = num;
-    }
-	// 简单的求和
-    @Override
-    public void run(){
-        int sum = 0;
-
-        System.out.println("Task" +taskNum+"is running!");
-        
-        try {
-            for(int i = 0; i < 15; i++)
-                sum += i;
-            Thread.currentThread().sleep(4000);
-        } catch(InterruptedException e){
-            e.printStackTrace();
-        }
-        System.out.println("Task "+taskNum+" has been done!");
-    }
-}
-```
+一致性：严格一致性、强一致性（顺序一致性、线性一致性）、弱一致性、最终一致性
 
 
 
-# maven
-
-```mvn
-#在目录下构建项目
-$ mvn clean package
-#在target/classes下运行
-$ java com.xdu.App
-
-mvn exec:java -Dexec.mainClass="dc.sockettest.EchoServer"
-```
-
-maven报错 不再支持原选项5
-
-```
-在prom中添加
-<properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-        <java.version>11</java.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-</properties>
-
-```
-
-
-
-事件驱动技术
+# 事件驱动技术
 
 事件驱动器（选择器）同时监视多个Channel（Socket）
 
 适合处理大量短事务
 
+![image-20210627223825237](https://gitee.com/csjuesz/image/raw/master/20210627223832.png)
+
 # RPC
 
-远程过程调用PRC
+远程过程调用
 
 应用程序可以像调用本地节点上的过程(子程序) 那样去调用一个远程节点上的子程序。
 
@@ -401,6 +113,8 @@ maven报错 不再支持原选项5
 面向对象，调用对象方法。方法的参数可能是远程。不严格区分RMI，RPC
 
 
+
+RPC/RMI中间件
 
 stub桩代码/proxy代理：调用者
 
@@ -442,7 +156,7 @@ gRPC
 
 
 
-web service
+# web service
 
 1. HTTP传输层协议
 2. 将多个第三方服务集成
@@ -466,13 +180,13 @@ web service
 
 
 
-中间件
+# 中间件
 
 1. 降低耦合度
 2. 提高容错
 3. 提高拓展性
 
-消息中间件
+# 消息中间件
 
 异步通信：发送发任意时刻发送，不必接收方上线。接收方不必阻塞方式等待
 
@@ -502,7 +216,7 @@ ActiveMQ
 
 提高存储量、吞吐量（水平可拓展）
 
-提高可靠（用）性 （容错性）
+提高可靠/用性 （容错性）
 
 降低访问延时（CDN）
 
@@ -560,7 +274,7 @@ ActiveMQ
 
 ![image-20210514223240672](https://gitee.com/csjuesz/image/raw/master/20210514223247.png)
 
-CAP定理
+# CAP定理
 
 ![image-20210519144622425](https://gitee.com/csjuesz/image/raw/master/20210519144629.png)
 
@@ -574,7 +288,9 @@ CAP定理
 
 
 
-BASE理论：对CAP一致性 可用性权衡的结果
+# BASE理论
+
+对CAP一致性 可用性权衡的结果
 
 基本可用（Basically Available）：在出现故障的时候，允许损失部分可用性，保证核心可用。
 
@@ -584,7 +300,7 @@ BASE理论：对CAP一致性 可用性权衡的结果
 
 
 
-数据分区
+# 数据分区
 
 避免出现偏斜(skew)和热点(hot spot)问题。
 
@@ -602,3 +318,156 @@ BASE理论：对CAP一致性 可用性权衡的结果
 
 ③无碰撞性
 
+
+
+根据主键的哈希值分区
+
+将哈希空间均匀分成k个桶
+
+计算哈希，哈希落入哪个桶
+
+增加/删除时会大量移动
+
+
+
+一致哈希
+
+桶数量的改变平均只需对K/n个关键字重新映射
+
+均衡
+
+单调：旧桶不会互相转移
+
+1. 理想哈希
+
+2. 首尾练成环
+
+3. 每个桶有唯一id
+
+4. 每个点的标识作为hash输出，将其映射到环，产生n个点
+
+5. 桶ID i就是hash（ID i）到下一点之间
+
+![image-20210627230247559](https://gitee.com/csjuesz/image/raw/master/20210627230247.png)
+
+![image-20210627230329942](https://gitee.com/csjuesz/image/raw/master/20210627230330.png)
+
+分布式文件系统：多个节点整合在一起，用户无需关注数据在哪个节点
+
+
+
+# HDFS 
+
+开源分布式文件系统
+
+主从架构 单个NameNode NN 和 多个DataNode DN 组成
+
+高容错，高吞吐量，大文件支持（大小应为GB-TB），简单一致性模型（一次写多次读，支持内容追加，不能任意增加）
+
+数据块有全局唯一编号
+
+![image-20210525142440776](https://gitee.com/csjuesz/image/raw/master/20210525142447.png)
+
+读数据：
+
+1. 客户端发请求给NN，包含文件名、偏移量、长度
+2. NN根据文件名、偏移量查找 文件名-数据块表、数据块-物理节点表，将节点IP发给客户端
+3. 从客户端从IP选择最近的节点
+
+写数据：
+
+1. 客户端发请求给NN，NN根据负载均衡选3个点，将IP返回客户端
+2. 客户端将3个点构成流水线，将第一个数据库数据流写入流水线
+3. 第一个数据块写入成功后 客户端再想NN获取下三个节点
+
+
+
+# NoSQL
+
+非关系模型：Key-Value，列存储（Hbase）、文档模型、图模型、对象模型
+
+牺牲一致性，放弃复杂查询，增加数据冗余，放弃复杂事务支持
+
+可拓展 高可用性 高性能
+
+
+
+# Hbase 
+
+构建在HDFS上面向列的分布式数据库
+
+稀疏表，支持随机读写，HBase管理多张分布存储多个节点的大表
+
+每行都有Row Key 每个表的RowKey列建立分布式索引，根据RowKey快速访问行，支持指定RowKey取值范围查询
+
+HBase大表按RowKey连续取值范围分为多个子表，由不同服务器
+
+支持横向拓展，同一个列族的字段聚合存储在相同文件，查询同一列族速度很快
+
+只支持行级事务，单行读写原子，不支持RowKey以为建立索引，不支持多表查询
+
+# MapReduce
+
+将计算任务划分多个子任务，输入文件划分数量相等的分片。一个子任务处理一个分片。最后合并
+
+Map阶段，聚集混洗阶段，Reduce阶段
+
+![image-20210627230711983](https://gitee.com/csjuesz/image/raw/master/20210627230712.png)
+
+Map：输入划分多个分区，每个分区交给一个子任务。输出<key,value>
+
+聚集混洗：不同Map输出的<key,value>,聚集成 <k1,[v1,v2..]>,<k2,[v3,v4,…]>
+
+Reduce：将聚集数组划分，根据输入生成<key,value>
+
+可以新一轮
+
+
+
+单词统计
+
+![image-20210627231303590](https://gitee.com/csjuesz/image/raw/master/20210627231303.png)
+
+
+
+Hadoop MapReduce Job
+
+输入文件分片
+
+针对每个分片建立Map Task
+
+二次分片，将Task产生<key,value>二次分片
+
+排序
+
+局部聚合
+
+暂存hdfs
+
+创建n个Reduce Task
+
+Reduce
+
+
+
+# Spark
+
+DAG有向无环图 RDD与其他RDD关系，计算任务可表示为DAG
+
+RDD只读的数据集合，可由外部数据，也可由其他RDD
+
+
+
+Transformation算子
+
+RDD转换新RDD
+
+惰性执行
+
+
+
+Action算子
+
+RDD结果返回本地或hdfs
+
+立即执行
