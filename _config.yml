@@ -12,5 +12,5 @@ include:
   - CONTRIBUTING.md
   - ISSUE_TEMPLATE.md
   - PULL_REQUEST_TEMPLATE.md
-title: csjue's notebook
+title: easybot文档
 theme: jekyll-theme-cayman
