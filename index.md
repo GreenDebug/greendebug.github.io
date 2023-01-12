@@ -12,15 +12,15 @@
 
 ## 一、目录说明
 
--  **"Commands"  目录为命令目录，你可以将js脚本放在里面**
--  **"Config" 目录为配置目录**
--  **"baseCommand" 基本脚本目录**
--  **"baseCommand/OnLoad" 机器人初始化完毕会执行目录里面的js脚本**
--  **"baseCommand/UserAddFunc"   用户进入事件，当有用户进来的时候会执行里面的js文件**
--  **baseCommand/UserLeftFunc"   用户离开事件，当有用户离开的时候会执行里面的js文件**
--  **"baseCommand/MessageFunc"  用户发送事件，当有用户发送的时候会执行里面的js文件(对象为json)**
--  **"baseCommand/ChatFunc"     用户发送事件，和上面那个一样(对象为data_chat)**
--  **"baseCommand/WarnFunc"   异常事件，异常会执行里面的js文件。**
+-  **Commands  目录为命令目录，你可以将js脚本放在里面**
+-  **Config 目录为配置目录**
+-  **baseCommand 基本脚本目录**
+-  **baseCommand/OnLoad 机器人初始化完毕会执行目录里面的js脚本**
+-  **baseCommand/UserAddFunc   用户进入事件，当有用户进来的时候会执行里面的js文件**
+-  **baseCommand/UserLeftFunc  用户离开事件，当有用户离开的时候会执行里面的js文件**
+-  **baseCommand/MessageFunc  用户发送事件，当有用户发送的时候会执行里面的js文件(对象为json)**
+-  **baseCommand/ChatFunc     用户发送事件，和上面那个一样(对象为data_chat)**
+-  **baseCommand/WarnFunc   异常事件，异常会执行里面的js文件。**
 
 ## 注意:
 
