@@ -2,73 +2,35 @@
 
 # **easybot**文档
 
-## [框架下载链接](https://1145.s3.ladydaily.com/easybot/easybot_relese_pre8.7z)
+## [框架下载链接](https://1145.s3.ladydaily.com/easybot/easybot_relese-pre9.7z)
 
 
 
-本项目是一个机器人框架，旨在帮助那些无法使用官方py库的开发者开发机器人。
+**本项目是一个机器人框架，旨在帮助那些无法使用官方py库的开发者开发机器人。**
 
-运行本框架需要Windows 8 或更高版本，Windows 7需要安装.net core 3.1运行时，若单文件无法运行请去下面的链接下载并安装运行时。
 
-[下载 .NET Core 3.1 (Linux、macOS 和 Windows) (microsoft.com)](https://dotnet.microsoft.com/zh-cn/download/dotnet/3.1)
 
 ## 一、目录说明
 
--  "Commands"  目录为命令目录，你可以将js脚本放在里面
+-  **"Commands"  目录为命令目录，你可以将js脚本放在里面**
+-  **"Config" 目录为配置目录**
+-  **"baseCommand" 基本脚本目录**
+-  **"baseCommand/OnLoad" 机器人初始化完毕会执行目录里面的js脚本**
+-  **"baseCommand/UserAddFunc"   用户进入事件，当有用户进来的时候会执行里面的js文件**
+-  **baseCommand/UserLeftFunc"   用户离开事件，当有用户离开的时候会执行里面的js文件**
+-  **"baseCommand/MessageFunc"  用户发送事件，当有用户发送的时候会执行里面的js文件(对象为json)**
+-  **"baseCommand/ChatFunc"     用户发送事件，和上面那个一样(对象为data_chat)**
+-  **"baseCommand/WarnFunc"   异常事件，异常会执行里面的js文件。**
 
--  "Config" 目录为配置目录
+## 注意:
 
--  "baseCommand" 基本脚本目录
-
--  "baseCommand/OnLoad" 机器人初始化完毕会执行目录里面的js脚本
-
--  "baseCommand/UserAddFunc"   用户进入事件，当有用户进来的时候会执行里面的js文件
-
--   baseCommand/UserLeftFunc"   用户离开事件，当有用户离开的时候会执行里面的js文件
-
-- "baseCommand/MessageFunc"  用户发送事件，当有用户发送的时候会执行里面的js文件(对象为json)
-
-- "baseCommand/WarnFunc"   异常事件，异常会执行里面的js文件。
-
-- "baseCommand/hook" 该目录用于重写:OnMessage,OnOpen,OnError,OnClose事件
-
-- "baseCommand/ChatFunc"     用户发送事件，当有用户发送的时候会执行里面的js文件(对象为data_chat)
-
-UserAddFunc例子:
-
-```js
-//UserAddFunc/UserLeftFunc目录下面的只需申明Exports和Exports.run就可以
-function RUN(x){
-xc.SendMsg(`欢迎${x.nick} 进入聊天室。`);
-}
-Exports={
-run:RUN
-};
-```
-UserLeftFunc例子:
-```js
-//UserAddFunc/UserLeftFunc目录下面的只需申明Exports和Exports.run就可以
-function RUN(x){
-xc.SendMsg(`${x.nick} 离开了聊天室。`);
-}
-Exports={
-run:RUN
-};
-```
-
-
-
-#### 注意:
-
-如果在**hook**目录下面**创建js**请重写：**OnMessage,OnOpen,OnError,OnClose事件**，否则将**导致机器人异常**！
+**如果只编写命令的ChatFunc和MessageFunc文件夹请勿创建js文件，否则将导致机器人刷屏！**
 
 
 
 
 
 ## 二、内置对象和函数
-
-**本框架内置Chrome V8 JavaScript 引擎。**
 
 ### 内置函数:
 
@@ -94,6 +56,8 @@ run:RUN
     xc.RemoveOP(string trip)//移除op
     xc.IsinOPList(string trip)//检测是否在oplist里面
     xc.GetUserInfo(string uname)//通过用户名获取用户信息
+    net.Get(string url)//get 操作
+    net.Post(string url,object obj)//post 操作
     
         
 	
@@ -103,9 +67,31 @@ run:RUN
 ### 跨文件读取全局变量:
 
 ```js
+//demo.js
+function Run(x){
+     bot.AddObject("homo","1919810");//注意：这里的第一个参数是名字，下面读取的时候名字要一样否则读取失败。
+    xc.SendMsg("变量写入成功。");
+}
+Exports={
+    run:Run,
+    name:"write",
+    help:"示例脚本"
+    
+};
 ```
 
-
+```js
+//demo2.js
+function Run(x){
+    xc.SendMsg(xc.GetObject("homo"));
+}
+Exports={
+    run:Run,
+    name:"read",
+    help:"示例脚本"
+    
+};
+```
 
 ## 覆盖框架help:
 
@@ -161,7 +147,29 @@ Exports={
 
 
 
+## 写入txt/读取txt/文件示例:
 
+```js
+//writedemo.js
+//注意：下面的写入/读取的路径都在/config/文件夹的里面
+function Run(x){
+    file.WaiteText("demo.txt","你好");
+    if(file.Exist("demo.txt")==true){
+    xc.SendMsg("写入成功。");
+    }
+    
+     xc.SendMsg("尝试读取文件");
+    if(file.Exist("demo.txt")==true){
+		xc.SendMsg(`读取的结果为:${bot.ReadFile("demo.txt")}`);
+}
+}
+Exports={
+    run:Run,
+    name:"read",
+    help:"示例脚本"
+    
+};
+```
 
 ### 如果要操作系统文件请使用:sysfile
 
@@ -172,11 +180,39 @@ sysfile.WriteAllText()//写入文件
 sysfile.Exist()//检测文件    
 ```
 
-### 更多的函数请使用搜索引擎搜索:c# File常用函数
+### 更多的函数请使用搜索引擎搜索:C# File常用函数
+
+### 下面是一些例子:
+
+#### **UserAddFunc**例子
+
+**(UserAddFunc文件夹创建js文件):**
+
+```js
+//UserAddFunc/UserLeftFunc目录下面的只需申明Exports和Exports.run就可以
+function RUN(x){
+xc.SendMsg(`欢迎${x.nick} 进入聊天室。`);
+}
+Exports={
+run:RUN
+};
+```
+
+#### **UserLeftFunc**例子:
+
+**(UserLeftFunc文件夹创建js文件):**
+
+```js
+//UserAddFunc/UserLeftFunc目录下面的只需申明Exports和Exports.run就可以
+function RUN(x){
+xc.SendMsg(`${x.nick} 离开了聊天室。`);
+}
+Exports={
+run:RUN
+};
+```
 
 
-
-上面的代码都可以在js脚本调用。
 
 ### 内置变量:
 
@@ -276,9 +312,47 @@ sysfile.Exist()//检测文件
   
   ```
   
+  ## 三、网络操作
+  
+  ### 基本get/post方法
+  
+  ```js
+  //get.js
+  function Run(x){
+      var arg=x.text.split(' ');
+      if(arg.length>=2){
+         xc.SendMsg(net.Get(arg[1]));//get 需要一个参数 url
+      }
+  }
+  Exports={
+      run:Run,
+      name:"get",
+      help:"示例脚本"
+      
+  };
+  ```
+  
+  ```js
+  function Run(x){
+      var arg=x.text.split(' ');
+      if(arg.length>=2){
+         xc.SendMsg(net.Post(arg[1],{"a":"b"}));//post需要两个参数 url data
+      }
+  }
+  Exports={
+      run:Run,
+      name:"post",
+      help:"示例脚本"
+      
+  };
+  ```
   
   
-  ## 三、编写命令
+  
+  
+  
+  ## 四、编写命令
+  
   
   下面是一个最简单的例子:
   
@@ -297,11 +371,13 @@ sysfile.Exist()//检测文件
   
   #### 注意:
   
-  1.Commands脚本必须包含**Exports**变量、**Exports**变量必须包含：
+  Commands脚本必须包含**Exports**变量、**Exports**变量必须包含：
   
   **run**(主函数)、**name**(命令的名字)、**help**(命令帮助)
   
-  2.本框架调用主函数时会传入一个**data_chat**对象，如果想获取**用户的信息**可看上面的说明。
+  
+  
+  
   
   
 
