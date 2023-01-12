@@ -2,7 +2,7 @@
 
 # **easybot**文档
 
-## [框架下载链接](https://1145.s3.ladydaily.com/easybot/easybot_relese-pre9.7z)
+## [框架下载链接](https://1145.s3.ladydaily.com/easybot/easybot_relese-pre10.7z)
 
 
 
